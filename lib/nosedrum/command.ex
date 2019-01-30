@@ -64,17 +64,37 @@ defmodule Nosedrum.Command do
   Return a list of predicates that must pass before this command is invoked.
   This is expected to be invoked by the command processor. Predicates retrieve
   the message which should be checked for allowance to invoke the command.
+
+  ## Return value
+
+  If the predicate allows the invoking user to issue the command, it should return
+  `:passthrough`. If the user has no permission to execute the command, a pair in
+  the form `{:noperm, reason}` should be returned, where `reason` is a concise
+  description of why the user is not allowed to execute the command.
+  `{:error, reason}` should be returned when the predicate was not able to
+  determine allowance of the invoking user.
+
+  ## Example
+
+      def is_bot(message) do
+        if message.author.bot do
+          :passthrough
+        else
+          {:noperm, "sorry, only bots allowed"}
+        end
+      end
+
+      @impl true
+      def predicates, do: [&is_bot/2]
   """
-  # TODO: Define predicate behaviour.
-  # TODO: Change {:ok, Message.t()} to :passthrough
-  @callback predicates() :: [(Message.t() -> {:ok, Message.t()} | {:error, String.t()})]
+  @callback predicates() :: [(Message.t() -> :passthrough | {:noperm, String.t()} | {:error, String.t()})]
 
   @doc """
   An optional callback that can be used to parse the arguments into something
   more usable. For example, one might want to use `OptionParser` along with the
   arguments to create a more customized command.
-  This command receives the command arguments with the prefix, command, and
-  (if applicable) subcommand name removed, and should return whatever the
+  This command receives the command arguments (without any prefix, command,
+  or if applicable, subcommand), and should return whatever the
   `c:command/2` function should be passed as the `args` argument.
   """
   @callback parse_args(args :: [String.t()]) :: any()
