@@ -33,6 +33,13 @@ defmodule Nosedrum.Storage do
   @type command_path :: {String.t()} | {String.t(), String.t() | :default}
 
   @doc """
+  Look up a command group under the specified `name`.
+
+  If the command was not found, `nil` should be returned.
+  """
+  @callback lookup_command(name :: String.t()) :: command_group | nil
+
+  @doc """
   Add a new command under the given `path`.
   If the command already exists, no error should be returned.
   """
