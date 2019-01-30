@@ -1,6 +1,7 @@
 defmodule Nosedrum.Command do
   @moduledoc """
   The command behaviour specifies the interface that a command module should implement.
+
   Command modules are stateless by themselves, if you want to capture state, drop it in
   a different delegated module.
 
@@ -34,6 +35,7 @@ defmodule Nosedrum.Command do
 
   @doc """
   Return a list of possible ways to use the command (or its subcommands).
+
   This is separate from the `c:description/0` callback since the command
   processor is expected to prepend usage strings with its configured prefix.
 
@@ -62,6 +64,7 @@ defmodule Nosedrum.Command do
 
   @doc """
   Return a list of predicates that must pass before this command is invoked.
+
   This is expected to be invoked by the command processor. Predicates retrieve
   the message which should be checked for allowance to invoke the command.
 
@@ -90,8 +93,9 @@ defmodule Nosedrum.Command do
   @callback predicates() :: [(Message.t() -> :passthrough | {:noperm, String.t()} | {:error, String.t()})]
 
   @doc """
-  An optional callback that can be used to parse the arguments into something
-  more usable. For example, one might want to use `OptionParser` along with the
+  An optional callback that can be used to parse the arguments into something more usable.
+
+  For example, one might want to use `OptionParser` along with the
   arguments to create a more customized command.
   This command receives the command arguments (without any prefix, command,
   or if applicable, subcommand), and should return whatever the
@@ -100,10 +104,11 @@ defmodule Nosedrum.Command do
   @callback parse_args(args :: [String.t()]) :: any()
 
   @doc """
-  Execute the command invoked by the given `Message.t()`.
+  Execute the command invoked by the given `t:Nostrum.Struct.Message.t/0`.
+
   The second parameter is a list of arguments with the command
   (or subcommand) along with the bot prefix removed.
-  If the command defines `parse_args/1`, the returned value of
+  If the command defines `c:parse_args/1`, the returned value of
   that function will be passed instead (marked as `any()` here).
   The return value of this function is unused.
   """
