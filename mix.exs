@@ -7,7 +7,17 @@ defmodule Nosedrum.MixProject do
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs()
+    ]
+  end
+
+  defp docs do
+    [
+      groups_for_modules: [
+        Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.Storage],
+        Implementations: [Nosedrum.Storage.ETS]
+      ]
     ]
   end
 
