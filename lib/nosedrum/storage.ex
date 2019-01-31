@@ -14,7 +14,8 @@ defmodule Nosedrum.Storage do
   the module. `:default` is invoked when none of the subcommands in the
   map match.
   """
-  @type command_group :: Module.t() | %{optional(:default) => Module.t(), required(String.t()) => Module.t()}
+  @type command_group ::
+          Module.t() | %{optional(:default) => Module.t(), required(String.t()) => Module.t()}
 
   # TODO: aliases
 
@@ -45,7 +46,8 @@ defmodule Nosedrum.Storage do
 
   If the command already exists, no error should be returned.
   """
-  @callback add_command(path :: command_group, command :: Module.t()) :: :ok | {:error, String.t()}
+  @callback add_command(path :: command_group, command :: Module.t()) ::
+              :ok | {:error, String.t()}
 
   @doc """
   Remove the command under the given `path`.

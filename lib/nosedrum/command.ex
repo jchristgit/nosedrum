@@ -90,7 +90,9 @@ defmodule Nosedrum.Command do
       @impl true
       def predicates, do: [&is_bot/2]
   """
-  @callback predicates() :: [(Message.t() -> :passthrough | {:noperm, String.t()} | {:error, String.t()})]
+  @callback predicates() :: [
+              (Message.t() -> :passthrough | {:noperm, String.t()} | {:error, String.t()})
+            ]
 
   @doc """
   An optional callback that can be used to parse the arguments into something more usable.
