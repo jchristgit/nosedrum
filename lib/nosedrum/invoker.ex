@@ -17,6 +17,10 @@ defmodule Nosedrum.Invoker do
   whether a command exists. If it exists, they proceed to invoke it
   using only the arguments to the message, with bot prefix and command
   invocation removed from the message.
+
+  The second argument, `storage`, determines which storage implementation the
+  command invoker should use. A command invoker implementation can supply
+  this argument by default if applicable.
   """
-  @callback handle_message(message :: Nostrum.Struct.Message.t()) :: any()
+  @callback handle_message(message :: Nostrum.Struct.Message.t(), storage :: Nostrum.Storage) :: any()
 end
