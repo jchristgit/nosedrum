@@ -16,7 +16,7 @@ defmodule Nosedrum.MixProject do
     [
       groups_for_modules: [
         Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.Storage],
-        Implementations: [Nosedrum.Storage.ETS]
+        Implementations: [Nosedrum.Invoker.Split, Nosedrum.Storage.ETS]
       ]
     ]
   end
@@ -25,7 +25,7 @@ defmodule Nosedrum.MixProject do
   def application do
     [
       applications: [],
-      extra_applications: [:logger]
+      extra_applications: []
     ]
   end
 
