@@ -45,11 +45,15 @@ defmodule Nosedrum.Storage.ETSTest do
       assert Storage.ETS.all_commands() == %{command_name => Command}
     end
 
-    test "add_command/2 returns error when trying to add subcommand", %{command_name: command_name} do
+    test "add_command/2 returns error when trying to add subcommand", %{
+      command_name: command_name
+    } do
       assert {:error, _reason} = Storage.ETS.add_command({command_name, "test"}, Command)
     end
 
-    test "remove_command/2 returns error when trying to remove subcommand", %{command_name: command_name} do
+    test "remove_command/2 returns error when trying to remove subcommand", %{
+      command_name: command_name
+    } do
       assert {:error, _reason} = Storage.ETS.remove_command({command_name, "stuff"})
     end
   end

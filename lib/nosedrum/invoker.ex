@@ -22,5 +22,6 @@ defmodule Nosedrum.Invoker do
   command invoker should use. A command invoker implementation can supply
   this argument by default if applicable.
   """
-  @callback handle_message(message :: Nostrum.Struct.Message.t(), storage :: Nostrum.Storage) :: any()
+  @callback handle_message(message :: Nostrum.Struct.Message.t(), storage :: Nostrum.Storage) ::
+              any()
 end
