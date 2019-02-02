@@ -9,7 +9,7 @@ defmodule Nosedrum.Converters do
   fetch the relevant data from the API.
   """
 
-  alias Nostrum.Struct.{Guild, Channel}
+  alias Nostrum.Struct.{Channel, Guild}
   alias Nostrum.Struct.Guild.{Member, Role}
 
   # TODO: add support for choosing only specific channel types, because
@@ -42,6 +42,7 @@ defmodule Nosedrum.Converters do
   """
   @spec to_member(String.t(), Guild.id()) :: {:ok, Member.t()} | {:error, String.t()}
   def to_member(text, guild_id) do
+    __MODULE__.Member.into(text, guild_id)
   end
 
   @doc """
