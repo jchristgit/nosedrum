@@ -10,7 +10,7 @@ defmodule Nosedrum.Helpers do
       iex> Nosedrum.Helpers.escape_server_mentions("hello world")
       "hello world"
       iex> Nosedrum.Helpers.escape_server_mentions("hello @everyone @here")
-      "hello @\u200Beveryone @\u200Bhere"
+      "hello @\u200Beveryone @\u200Bhere"  # No space to be seen, but no mention either!
   """
   @spec escape_server_mentions(String.t()) :: String.t()
   def escape_server_mentions(content) do
