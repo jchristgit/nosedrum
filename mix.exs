@@ -15,6 +15,7 @@ defmodule Nosedrum.MixProject do
   defp docs do
     [
       groups_for_modules: [
+        Functionality: [Nosedrum.Converters],
         Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.Storage],
         Implementations: [Nosedrum.Invoker.Split, Nosedrum.Storage.ETS]
       ]
