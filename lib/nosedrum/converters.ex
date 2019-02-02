@@ -50,7 +50,7 @@ defmodule Nosedrum.Converters do
 
   Lookup is attempted in the following order:
   - by direct ID, such as `5555`
-  - by mention, such as `<&5555>`
+  - by mention, such as `<@&5555>`
   - by name, such as `Bots`
 
   The optional `ilike` argument determines whether the role name
@@ -60,5 +60,6 @@ defmodule Nosedrum.Converters do
   """
   @spec to_role(String.t(), Guild.id(), boolean()) :: {:ok, Role.t()} | {:error, String.t()}
   def to_role(text, guild_id, ilike \\ false) do
+    __MODULE__.Role.into(text, guild_id, ilike)
   end
 end
