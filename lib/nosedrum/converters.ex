@@ -24,6 +24,7 @@ defmodule Nosedrum.Converters do
   """
   @spec to_channel(String.t(), Guild.id()) :: {:ok, Channel.t()} | {:error, String.t()}
   def to_channel(text, guild_id) do
+    __MODULE__.Channel.into(text, guild_id)
   end
 
   @doc """
