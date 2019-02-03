@@ -10,8 +10,9 @@ defmodule Nosedrum.Converters.RoleTest do
 
   setup_all do
     start_supervised!(CacheSupervisor)
+
     role = %Role{
-      id: 129031231,
+      id: 129_031_231,
       name: "Test Role"
     }
 
@@ -28,7 +29,8 @@ defmodule Nosedrum.Converters.RoleTest do
   end
 
   describe "into/2" do
-    test "returns `{:error, reason}` for uncached guilds"  # does API call
+    # does API call
+    test "returns `{:error, reason}` for uncached guilds"
 
     test "returns `{:ok, role}` for by-id lookup", %{guild: guild, role: role} do
       assert {:ok, ^role} = RoleConverter.into("#{role.id}", guild.id, false)
@@ -50,7 +52,10 @@ defmodule Nosedrum.Converters.RoleTest do
       assert {:ok, ^role} = RoleConverter.into(String.upcase(role.name), guild.id, true)
     end
 
-    test "returns `{:error, reason}` for non-matching case-insensitive by-name lookup", %{guild: guild, role: role} do
+    test "returns `{:error, reason}` for non-matching case-insensitive by-name lookup", %{
+      guild: guild,
+      role: role
+    } do
       assert {:error, _reason} = RoleConverter.into(String.upcase(role.name), guild.id, false)
     end
   end

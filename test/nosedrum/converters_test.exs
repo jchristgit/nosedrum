@@ -9,8 +9,9 @@ defmodule Nosedrum.ConvertersTest do
 
   setup_all do
     start_supervised!(CacheSupervisor)
+
     guild = %Guild{
-      id: 940124,
+      id: 940_124,
       channels: %{},
       roles: %{},
       members: %{}

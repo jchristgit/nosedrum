@@ -61,7 +61,7 @@ defmodule Nosedrum.PredicatesTest do
 
   describe "guild_only/1" do
     test "returns `:passthrough` if message was sent on guild" do
-      msg = %Message{guild_id: 1239018}
+      msg = %Message{guild_id: 1_239_018}
       assert :passthrough = Predicates.guild_only(msg)
     end
 

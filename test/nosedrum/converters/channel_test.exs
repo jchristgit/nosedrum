@@ -10,12 +10,14 @@ defmodule Nosedrum.Converters.ChannelTest do
 
   setup_all do
     start_supervised!(CacheSupervisor)
+
     channel = %Channel{
-      id: 1203913,
+      id: 1_203_913,
       name: "bot-tests"
     }
+
     guild = %Guild{
-      id: 940124,
+      id: 940_124,
       channels: %{
         channel.id => channel
       }
@@ -26,7 +28,8 @@ defmodule Nosedrum.Converters.ChannelTest do
   end
 
   describe "into/2" do
-    test "returns `{:error, reason}` for uncached guild"  # makes API call
+    # makes API call
+    test "returns `{:error, reason}` for uncached guild"
 
     test "returns `{:error, reason}` for unsuccessful by-id lookup", %{guild: guild} do
       assert {:error, _reason} = ChannelConverter.into("123908102931", guild.id)
