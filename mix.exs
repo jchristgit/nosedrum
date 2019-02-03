@@ -8,14 +8,27 @@ defmodule Nosedrum.MixProject do
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      package: package()
+    ]
+  end
+
+  def package do
+    [
+      description: "A command framework for nostrum",
+      licenses: ["ISC"],
+      links: %{
+        "Documentation" => "https://hexdocs.pm/nosedrum",
+        "GitHub" => "https://github.com/jchristgit/nosedrum"
+      },
+      maintainers: ["Johannes Christ"]
     ]
   end
 
   defp docs do
     [
       groups_for_modules: [
-        Functionality: [Nosedrum.Converters],
+        Functionality: [Nosedrum.Converters, Nosedrum.Helpers],
         Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.Storage],
         Implementations: [Nosedrum.Invoker.Split, Nosedrum.Storage.ETS]
       ]
@@ -33,7 +46,7 @@ defmodule Nosedrum.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, ">= 0.2.0"},
+      {:nostrum, "~> 0.2"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]

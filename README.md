@@ -1,21 +1,34 @@
-# Nosedrum
+# nosedrum
 
-**TODO: Add description**
+`nosedrum` is a command framework for use with the excellent
+[`nostrum`](https://github.com/Kraigie/nostrum) library.
+
+It contains behaviour specifications for easily implementing command handling in
+your bot along with other conveniences to ease creating an interactive bot.
+
+`nosedrum`s provided implementations are largely based off what was originally
+written for [bolt](https://github.com/jchristgit/bolt). bolt also contains
+around [57
+commands](https://github.com/jchristgit/bolt/tree/master/lib/bolt/cogs) based
+off the `Nosedrum.Command` behaviour that you can explore if you're looking for
+inspiration.
+
+The documentation can be found at https://hexdocs.pm/nosedrum.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `nosedrum` to your list of dependencies in `mix.exs`:
+Since `nostrum`s hex release is out of date and we can only depend on packages
+from hex when publishing to hex, you need to specify `override: true` when using
+the GitHub version of nostrum:
 
 ```elixir
 def deps do
   [
-    {:nosedrum, "~> 0.1.0"}
+    {:nostrum, github: "Kraigie/nostrum", override: true},
+    {:nosedrum, "~> 0.1"},
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/nosedrum](https://hexdocs.pm/nosedrum).
 
+<!-- vim: set textwidth=80 sw=2 ts=2: -->
