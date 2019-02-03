@@ -47,15 +47,15 @@ defmodule Nosedrum.Converters.Member do
   ## Examples
 
     iex> Nosedrum.Converters.Member.text_to_name_and_discrim("hello#0312")
-    {"hello", "0312"}
+    {"hello", 0312}
     iex> Nosedrum.Converters.Member.text_to_name_and_discrim("marc#4215")
-    {"marc", "4215"}
+    {"marc", 4215}
     iex> Nosedrum.Converters.Member.text_to_name_and_discrim("name")
     :error
     iex> Nosedrum.Converters.Member.text_to_name_and_discrim("joe#109231")
     :error
   """
-  @spec text_to_name_and_discrim(String.t()) :: {String.t(), String.t()} | :error
+  @spec text_to_name_and_discrim(String.t()) :: {String.t(), 0001..9999} | :error
   def text_to_name_and_discrim(text) do
     match_result = :binary.match(String.reverse(text), "#")
 
@@ -66,7 +66,7 @@ defmodule Nosedrum.Converters.Member do
       discrim = String.trim_leading(discrim, "#")
 
       with {value, _remainder} when value in 0001..9999 <- Integer.parse(discrim) do
-        {name, discrim}
+        {name, value}
       else
         _err -> :error
       end
