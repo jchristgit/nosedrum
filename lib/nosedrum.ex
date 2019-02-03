@@ -1,5 +1,5 @@
 defmodule Nosedrum do
-  @short_version String.replace_trailing(Mix.Project.config[:version], ".0", "")
+  @short_version String.replace_trailing(Mix.Project.config()[:version], ".0", "")
   @moduledoc """
   `nosedrum` is a command framework for use with the excellent
   [`nostrum`](https://github.com/Kraigie/nostrum) library.
