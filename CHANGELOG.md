@@ -9,6 +9,7 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - The `Nosedrum.Predicates` module, which includes the `has_permission/1`
   predicate and performs predicate evaluation in command invokers.
+- `Nosedrum.Helpers.quoted_split/1`.
 
 ### Changed
 - Command predicates are now evaluated lazily. This means that you can create
