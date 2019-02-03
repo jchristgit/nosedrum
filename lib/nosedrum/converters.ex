@@ -23,9 +23,7 @@ defmodule Nosedrum.Converters do
   - by name, such as `mod-log`
   """
   @spec to_channel(String.t(), Guild.id()) :: {:ok, Channel.t()} | {:error, String.t()}
-  def to_channel(text, guild_id) do
-    __MODULE__.Channel.into(text, guild_id)
-  end
+  defdelegate to_channel(text, guild_id), to: __MODULE__.Channel, as: :into
 
   @doc """
   Convert the given `text` to a `t:Nostrum.Struct.Guild.Member.t/0`.
@@ -42,9 +40,7 @@ defmodule Nosedrum.Converters do
   used.
   """
   @spec to_member(String.t(), Guild.id()) :: {:ok, Member.t()} | {:error, String.t()}
-  def to_member(text, guild_id) do
-    __MODULE__.Member.into(text, guild_id)
-  end
+  defdelegate to_member(text, guild_id), to: __MODULE__.Member, as: :into
 
   @doc """
   Convert the given `text` to a `t:Nostrum.Struct.Guild.Role.t/0`.
@@ -60,7 +56,5 @@ defmodule Nosedrum.Converters do
   button on their keyboard.
   """
   @spec to_role(String.t(), Guild.id(), boolean()) :: {:ok, Role.t()} | {:error, String.t()}
-  def to_role(text, guild_id, ilike \\ false) do
-    __MODULE__.Role.into(text, guild_id, ilike)
-  end
+  defdelegate to_role(text, guild_id, ilike \\ false), to: __MODULE__.Role, as: :into
 end
