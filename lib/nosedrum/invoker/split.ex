@@ -38,7 +38,7 @@ defmodule Nosedrum.Invoker.Split do
         ) :: nil | {:error, Embed.t()}
   defp find_failing_predicate(msg, predicates) do
     predicates
-    |> Enum.map(& &1.(msg))
+    |> Stream.map(& &1.(msg))
     |> Enum.find(&match?({:error, _embed}, &1))
   end
 

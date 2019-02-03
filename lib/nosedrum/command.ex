@@ -76,12 +76,17 @@ defmodule Nosedrum.Command do
   This is expected to be invoked by the command processor. Predicates retrieve
   the message which should be checked for allowance to invoke the command.
 
+  Predicates are evaluated lazily: For instance, you can have a command which
+  uses a predicate ensuring the command can only be invoked on guilds (for
+  example, by checking whether `msg.guild_id == nil`), and predicates
+  afterwards do not need to check whether the command was invoked on a guild.
+
   ## Return value
 
-  If the predicate allows the invoking user to issue the command, it should return
-  `:passthrough`. If the user has no permission to execute the command, a pair in
-  the form `{:noperm, reason}` should be returned, where `reason` is a concise
-  description of why the user is not allowed to execute the command.
+  If the predicate allows the invoking user to issue the command, it should
+  return `:passthrough`. If the user has no permission to execute the command,
+  a pair in the form `{:noperm, reason}` should be returned, where `reason` is
+  a concise description of why the user is not allowed to execute the command.
   `{:error, reason}` should be returned when the predicate was not able to
   determine allowance of the invoking user.
 
