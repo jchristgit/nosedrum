@@ -59,11 +59,29 @@ defmodule Nosedrum.PredicatesTest do
     end
   end
 
+  describe "guild_only/1" do
+    test "returns `:passthrough` if message was sent on guild" do
+      msg = %Message{guild_id: 1239018}
+      assert :passthrough = Predicates.guild_only(msg)
+    end
+
+    test "returns `{:error, reason}` if message was not sent on guild" do
+      msg = %Message{guild_id: nil}
+      assert {:error, _reason} = Predicates.guild_only(msg)
+    end
+  end
+
   describe "has_permission/1" do
     test "raises `FunctionClauseError` for non-permissions" do
       assert_raise FunctionClauseError, fn ->
         Predicates.has_permission(:ok)
       end
+    end
+
+    test "returns `{:error, _reason}` when guild is nil" do
+      predicate = Predicates.has_permission(:ban_members)
+      message = %Message{guild_id: nil}
+      assert {:error, _reason} = predicate.(message)
     end
 
     test "returns `{:error, _reason}` when guild is uncached" do

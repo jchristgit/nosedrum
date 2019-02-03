@@ -101,6 +101,17 @@ defmodule Nosedrum.Predicates do
   end
 
   @doc """
+  Check whether the command was invoked on a guild.
+
+  Note that `has_permission/1` already checks whether a command was invoked
+  on a guild and this predicate does not need to be stack with it.
+  """
+  @doc section: :predicates
+  @doc since: "0.2.0"
+  def guild_only(%Message{guild_id: nil}), do: {:error, "this command can only be used on guilds"}
+  def guild_only(_), do: :passthrough
+
+  @doc """
   Check whether the message author has the given `permission`.
 
   This does not directly return an `t:evaluation_result/0`: it returns a

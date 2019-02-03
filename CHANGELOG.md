@@ -8,7 +8,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ## Unreleased
 ### Added
 - The `Nosedrum.Predicates` module, which includes the `has_permission/1`
-  predicate and performs predicate evaluation in command invokers.
+  and `guild_only/1` predicates and performs predicate evaluation in command
+  invokers.
 - `Nosedrum.Helpers.quoted_split/1`.
 
 ### Changed
