@@ -4,7 +4,7 @@ defmodule Nosedrum.MixProject do
   def project do
     [
       app: :nosedrum,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/jchristgit/nosedrum",
@@ -29,8 +29,12 @@ defmodule Nosedrum.MixProject do
 
   defp docs do
     [
+      groups_for_functions: [
+        Evaluation: &(&1[:section] == :evaluation),
+        Predicates: &(&1[:section] == :predicates)
+      ],
       groups_for_modules: [
-        Functionality: [Nosedrum.Converters, Nosedrum.Helpers],
+        Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.Predicates],
         Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.Storage],
         Implementations: [Nosedrum.Invoker.Split, Nosedrum.Storage.ETS]
       ]

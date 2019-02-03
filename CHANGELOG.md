@@ -6,6 +6,10 @@ and this project adheres to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- The `Nosedrum.Predicates` module, which includes the `has_permission/1`
+  predicate and performs predicate evaluation in command invokers.
+
 ### Changed
 - Command predicates are now evaluated lazily. This means that you can create
   predicates which depend on previous predicates to evaluate as `:passthrough`,

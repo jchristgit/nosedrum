@@ -18,6 +18,7 @@ defmodule Nosedrum.Invoker.Split do
   @behaviour Nosedrum.Invoker
   @prefix Application.get_env(:nosedrum, :prefix, ".")
 
+  alias Nosedrum.Predicates
   alias Nostrum.Api
   alias Nostrum.Struct.Message
 
@@ -31,17 +32,6 @@ defmodule Nosedrum.Invoker.Split do
     end
   end
 
-  @spec find_failing_predicate(
-          Message.t(),
-          (Message.t() ->
-             {:ok, Message.t()} | {:error, Embed.t()})
-        ) :: nil | {:error, Embed.t()}
-  defp find_failing_predicate(msg, predicates) do
-    predicates
-    |> Stream.map(& &1.(msg))
-    |> Enum.find(&match?({:error, _embed}, &1))
-  end
-
   @spec parse_args(Module.t(), [String.t()]) :: [String.t()] | any()
   defp parse_args(command_module, args) do
     if function_exported?(command_module, :parse_args, 1) do
@@ -53,8 +43,8 @@ defmodule Nosedrum.Invoker.Split do
 
   @spec invoke(Module.t(), Message.t(), [String.t()]) :: any()
   defp invoke(command_module, msg, args) do
-    case find_failing_predicate(msg, command_module.predicates()) do
-      nil ->
+    case Predicates.evaluate(msg, command_module.predicates()) do
+      :passthrough ->
         command_module.command(msg, parse_args(command_module, args))
 
       {:error, reason} ->
