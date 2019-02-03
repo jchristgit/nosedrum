@@ -6,7 +6,7 @@ defmodule Nosedrum.PredicatesTest do
   alias Nostrum.Struct.Guild.{Member, Role}
   alias Nostrum.Struct.Message
   alias Nostrum.Struct.User
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   setup_all do
     start_supervised!(CacheSupervisor)
