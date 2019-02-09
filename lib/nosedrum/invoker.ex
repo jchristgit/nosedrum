@@ -21,7 +21,14 @@ defmodule Nosedrum.Invoker do
   The second argument, `storage`, determines which storage implementation the
   command invoker should use. A command invoker implementation can supply
   this argument by default if applicable.
+
+  `storage_process` is passed along to the given `storage` and determines
+  which storage process, ETS table, or similar is used.
   """
-  @callback handle_message(message :: Nostrum.Struct.Message.t(), storage :: Nostrum.Storage) ::
+  @callback handle_message(
+              message :: Nostrum.Struct.Message.t(),
+              storage :: Nostrum.Storage,
+              storage_process :: reference()
+            ) ::
               any()
 end

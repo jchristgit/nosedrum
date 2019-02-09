@@ -22,6 +22,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 - `Nosedrum.Storage` was updated to allow implementations to take a `reference`
   that identifies which storage you want to access. In the case of
   `Nosedrum.Storage.ETS`, you can use this to pass the ETS table reference.
+- `Nosedrum.Invoker` now supports passing the storage process reference (or ETS
+  table name in case of `Nosedrum.Storage.ETS` for `handle_message`.
 
 ## 0.1.0 - 03.02.2019
 Initial release.
