@@ -144,13 +144,14 @@ defmodule Nosedrum.Predicates do
            {:ok, guild} <- GuildCache.get(msg.guild_id),
            {:member, member} when member != nil <-
              {:member, Map.get(guild.members, msg.author.id)},
-           true <- permission in Member.guild_permissions(member, guild) do
+           {:has_permission, true} <-
+             {:has_permission, permission in Member.guild_permissions(member, guild)} do
         :passthrough
       else
         {:error, _reason} ->
           {:error, "❌ this guild is not in the cache, can't check perms"}
 
-        false ->
+        {:has_permission, false} ->
           permission_string =
             permission
             |> Atom.to_string()
