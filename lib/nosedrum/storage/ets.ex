@@ -3,7 +3,8 @@ defmodule Nosedrum.Storage.ETS do
   An implementation of the `Nosedrum.Storage` behaviour based on ETS tables.
 
   This module needs to be configured as part of your supervision tree as it
-  spins up a `GenServer` which owns the command table.
+  spins up a `GenServer` which owns the command table. If you want to obtain
+  the table ID of the internal ETS table, send a call with the message `:tid`.
   """
   @behaviour Nosedrum.Storage
   @default_table :nosedrum_commands
@@ -100,5 +101,10 @@ defmodule Nosedrum.Storage.ETS do
     tid = :ets.new(table_name, table_options)
 
     {:ok, tid}
+  end
+
+  @impl true
+  def handle_call(:tid, _, tid) do
+    {:reply, tid, tid}
   end
 end

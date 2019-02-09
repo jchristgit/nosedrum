@@ -13,6 +13,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 - The `Nosedrum.MessageCache` behaviour, along with two implementations,
   `Nosedrum.MessageCache.Agent` and `Nosedrum.MessageCache.ETS`.
 - `Nosedrum.Helpers.quoted_split/1`.
+- `Nosedrum.Storage.ETS` now supports the `:tid` call which returns the internal
+  ETS table identifier.
 
 ### Changed
 - Command predicates are now evaluated lazily. This means that you can create
