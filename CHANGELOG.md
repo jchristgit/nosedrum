@@ -10,7 +10,8 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 - The `Nosedrum.Predicates` module, which includes the `has_permission/1`
   and `guild_only/1` predicates and performs predicate evaluation in command
   invokers.
-- The `Nosedrum.MessageCache` behaviour.
+- The `Nosedrum.MessageCache` behaviour, and a simple `Agent`-based
+  implementation, `Nosedrum.MessageCache.Agent`.
 - `Nosedrum.Helpers.quoted_split/1`.
 
 ### Changed
