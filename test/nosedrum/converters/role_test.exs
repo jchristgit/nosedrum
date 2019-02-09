@@ -30,7 +30,7 @@ defmodule Nosedrum.Converters.RoleTest do
 
   describe "into/2" do
     # does API call
-    test "returns `{:error, reason}` for uncached guilds"
+    # test "returns `{:error, reason}` for uncached guilds"
 
     test "returns `{:ok, role}` for by-id lookup", %{guild: guild, role: role} do
       assert {:ok, ^role} = RoleConverter.into("#{role.id}", guild.id, false)

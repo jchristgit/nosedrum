@@ -39,11 +39,11 @@ defmodule Nosedrum.Converters.MemberTest do
 
   describe "into/2" do
     # performs API call
-    test "returns `{:ok, member}` for direct ID lookups"
+    # test "returns `{:ok, member}` for direct ID lookups"
     # performs API call
-    test "returns `{:ok, member}` for user mentions"
+    # test "returns `{:ok, member}` for user mentions"
     # performs API call
-    test "returns `{:ok, member}` for nickname mentions"
+    # test "returns `{:ok, member}` for nickname mentions"
 
     test "returns `{:error, _reason}` for uncached guilds" do
       assert {:error, _reason} = MemberConverter.into("abc", 123_901_823_912_138)

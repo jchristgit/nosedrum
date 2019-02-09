@@ -29,7 +29,7 @@ defmodule Nosedrum.Converters.ChannelTest do
 
   describe "into/2" do
     # makes API call
-    test "returns `{:error, reason}` for uncached guild"
+    # test "returns `{:error, reason}` for uncached guild"
 
     test "returns `{:error, reason}` for unsuccessful by-id lookup", %{guild: guild} do
       assert {:error, _reason} = ChannelConverter.into("123908102931", guild.id)
