@@ -28,7 +28,8 @@ defmodule Nosedrum.Invoker.Split do
         storage \\ Nosedrum.Storage.ETS,
         storage_process \\ :nosedrum_commands
       ) do
-    with [@prefix <> command | args] <- Helpers.quoted_split(message.content),
+    with @prefix <> content <- message.content,
+         [command | args] <- Helpers.quoted_split(content),
          cog when cog != nil <- storage.lookup_command(command, storage_process) do
       handle_command(cog, message, args)
     else
