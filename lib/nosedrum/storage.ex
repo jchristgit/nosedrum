@@ -5,6 +5,10 @@ defmodule Nosedrum.Storage do
   How you start a storage is up to the module itself - what is
   expected is that storage modules implement the behaviours
   documented in this module.
+
+  The public-facing API of storage modules takes an optional argument,
+  the storage process or other information used to identify the storage
+  such as an ETS table name.
   """
 
   @typedoc """
@@ -39,14 +43,14 @@ defmodule Nosedrum.Storage do
 
   If the command was not found, `nil` should be returned.
   """
-  @callback lookup_command(name :: String.t()) :: command_group | nil
+  @callback lookup_command(name :: String.t(), storage :: reference) :: command_group | nil
 
   @doc """
   Add a new command under the given `path`.
 
   If the command already exists, no error should be returned.
   """
-  @callback add_command(path :: command_group, command :: Module.t()) ::
+  @callback add_command(path :: command_group, command :: Module.t(), storage :: reference) ::
               :ok | {:error, String.t()}
 
   @doc """
@@ -54,7 +58,8 @@ defmodule Nosedrum.Storage do
 
   If the command does not exist, no error should be returned.
   """
-  @callback remove_command(path :: command_path) :: :ok | {:error, String.t()}
+  @callback remove_command(path :: command_path, storage :: reference) ::
+              :ok | {:error, String.t()}
 
   @doc """
   Return a mapping of command names to `t:command_group/0`s.
@@ -63,5 +68,5 @@ defmodule Nosedrum.Storage do
   a mapping of subcommand names to subcommand modules as described
   on `t:command_group/0`s documentation should be returned.
   """
-  @callback all_commands() :: %{String.t() => command_group}
+  @callback all_commands(storage :: reference) :: %{String.t() => command_group}
 end

@@ -19,6 +19,9 @@ Versioning](https://semver.org/spec/v2.0.0.html).
   predicates which depend on previous predicates to evaluate as `:passthrough`,
   for example, a permission predicate might want a `guild_only` predicate used
   before.
+- `Nosedrum.Storage` was updated to allow implementations to take a `reference`
+  that identifies which storage you want to access. In the case of
+  `Nosedrum.Storage.ETS`, you can use this to pass the ETS table reference.
 
 ## 0.1.0 - 03.02.2019
 Initial release.

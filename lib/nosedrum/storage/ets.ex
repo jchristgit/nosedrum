@@ -7,41 +7,46 @@ defmodule Nosedrum.Storage.ETS do
   """
   @behaviour Nosedrum.Storage
   @default_table :nosedrum_commands
+  @default_table_options [{:read_concurrency, true}, :ordered_set, :public, :named_table]
 
   @doc false
   use GenServer
 
   @impl true
-  def add_command({name}, command) do
-    :ets.insert(@default_table, {name, command})
+  def add_command(path, command, table_ref \\ @default_table)
+
+  def add_command({name}, command, table_ref) do
+    :ets.insert(table_ref, {name, command})
 
     :ok
   end
 
-  def add_command({name, key}, command) do
-    case lookup_command(name) do
+  def add_command({name, key}, command, table_ref) do
+    case lookup_command(name, table_ref) do
       nil ->
-        :ets.insert(@default_table, {name, %{key => command}})
+        :ets.insert(table_ref, {name, %{key => command}})
         :ok
 
       module when not is_map(module) ->
         {:error, "command `#{name} is a top-level command, cannot add subcommand `#{key}"}
 
       map ->
-        :ets.insert(@default_table, {name, Map.put(map, key, command)})
+        :ets.insert(table_ref, {name, Map.put(map, key, command)})
         :ok
     end
   end
 
   @impl true
-  def remove_command({name}) do
-    :ets.delete(@default_table, name)
+  def remove_command(path, table_ref \\ @default_table)
+
+  def remove_command({name}, table_ref) do
+    :ets.delete(table_ref, name)
 
     :ok
   end
 
-  def remove_command({name, key}) do
-    case lookup_command(name) do
+  def remove_command({name, key}, table_ref) do
+    case lookup_command(name, table_ref) do
       nil ->
         :ok
 
@@ -49,14 +54,14 @@ defmodule Nosedrum.Storage.ETS do
         {:error, "command `#{name}` is a top-level command, cannot remove subcommand `#{key}`"}
 
       map ->
-        :ets.insert(@default_table, {name, Map.delete(map, key)})
+        :ets.insert(table_ref, {name, Map.delete(map, key)})
         :ok
     end
   end
 
   @impl true
-  def lookup_command(name) do
-    case :ets.lookup(@default_table, name) do
+  def lookup_command(name, table_ref \\ @default_table) do
+    case :ets.lookup(table_ref, name) do
       [] ->
         nil
 
@@ -66,23 +71,33 @@ defmodule Nosedrum.Storage.ETS do
   end
 
   @impl true
-  def all_commands do
-    @default_table
+  def all_commands(table_ref \\ @default_table) do
+    table_ref
     |> :ets.tab2list()
     |> Enum.reduce(%{}, fn {name, cog}, acc -> Map.put(acc, name, cog) end)
   end
 
-  @doc false
-  @spec start_link(Keyword.t()) :: GenServer.on_start()
-  def start_link(options) do
-    GenServer.start_link(__MODULE__, :ok, options)
+  @doc """
+  Initialize the ETS command storage.
+
+  By default, the table used for storing commands is a named table with
+  the name `#{@default_table}`. The table reference is stored internally
+  as the state of this process, the public-facing API functions default
+  to using the table name to access the module.
+  """
+  @spec start_link(atom(), Keyword.t()) :: GenServer.on_start()
+  def start_link(
+        table_name \\ @default_table,
+        table_options \\ @default_table_options,
+        gen_options
+      ) do
+    GenServer.start_link(__MODULE__, {table_name, table_options}, gen_options)
   end
 
   @impl true
   @doc false
-  def init(:ok) do
-    tid =
-      :ets.new(@default_table, [{:read_concurrency, true}, :ordered_set, :public, :named_table])
+  def init({table_name, table_options}) do
+    tid = :ets.new(table_name, table_options)
 
     {:ok, tid}
   end
