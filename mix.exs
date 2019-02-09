@@ -35,8 +35,12 @@ defmodule Nosedrum.MixProject do
       ],
       groups_for_modules: [
         Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.Predicates],
-        Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.Storage],
-        Implementations: [Nosedrum.Invoker.Split, Nosedrum.Storage.ETS]
+        Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.MessageCache, Nosedrum.Storage],
+        Implementations: [
+          Nosedrum.Invoker.Split,
+          Nosedrum.MessageCache.Agent,
+          Nosedrum.Storage.ETS
+        ]
       ]
     ]
   end
