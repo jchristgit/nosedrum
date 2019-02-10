@@ -21,7 +21,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         },
         content: "testing is fun",
         channel_id: 123_913_103,
-        id: 1231,
+        id: 1_231,
         guild_id: 12_301_283_091
       }
 
@@ -34,7 +34,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
     end
 
     test "returns nil for cached guild with unknown message ID", %{pid: pid, message: message} do
-      refute MessageCache.get(message.guild_id, 3751, pid)
+      refute MessageCache.get(message.guild_id, 3_751, pid)
     end
 
     test "returns cached message tuple for cached entry", %{pid: pid, message: message} do
@@ -53,7 +53,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         },
         content: "testing is fun",
         channel_id: 123_913_103,
-        id: 1231,
+        id: 1_231,
         guild_id: 12_301_283_091
       }
 
@@ -71,7 +71,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         content: "whatever",
         channel_id: 1_203_981_092,
         id: 1_205_912,
-        guild_id: 57189
+        guild_id: 57_189
       }
 
       assert :ok = MessageCache.update(irrelevant_message, pid)
@@ -95,7 +95,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         %{
           author: %{id: 1931},
           content: "abc",
-          channel_id: 12931,
+          channel_id: 12_931,
           id: 120_391,
           guild_id: guild_id
         },
@@ -103,7 +103,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
           author: %{id: 152_801},
           content: "asdc",
           channel_id: 120_491,
-          id: 15795,
+          id: 15_795,
           guild_id: guild_id
         }
       ]
@@ -140,7 +140,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
 
       message = %{
         author: %{id: 123_901},
-        channel_id: 1390,
+        channel_id: 1_390,
         content: "test",
         id: 1_290_134,
         guild_id: 12_039_182_390

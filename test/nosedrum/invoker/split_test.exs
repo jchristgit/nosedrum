@@ -15,6 +15,7 @@ defmodule Nosedrum.Invoker.SplitTest do
       start_supervised!(CommandStorage)
       :ok
     end
+
     test "ignores messages" do
       message = %{content: ".test abc"}
       assert :ignored = CommandInvoker.handle_message(message)
