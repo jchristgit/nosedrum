@@ -39,6 +39,7 @@ defmodule Nosedrum.MixProject do
         Implementations: [
           Nosedrum.Invoker.Split,
           Nosedrum.MessageCache.Agent,
+          Nosedrum.MessageCache.ETS,
           Nosedrum.Storage.ETS
         ]
       ]
