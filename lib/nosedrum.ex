@@ -14,7 +14,7 @@ defmodule Nosedrum do
   off the `Nosedrum.Command` behaviour that you can explore if you're looking
   for inspiration.
 
-  The core of the framework consists of three parts:
+  The command processing related parts of the framework consists of three parts:
   - `Nosedrum.Command`, the behaviour that all commands must implement.
   - `Nosedrum.Invoker`, the behaviour of command processors. Command processors
     take a message, look it up in the provided storage implementation,
@@ -25,6 +25,12 @@ defmodule Nosedrum do
     command names along with their corresponding `Nosedrum.Command`
     implementations internally. An ETS-based command storage implementation is
     provided with `Nosedrum.Storage.ETS`.
+
+  Additionally, the following utilities are provided:
+  - `Nosedrum.Converters`, functions for converting parts of messages to objects
+    from Nostrum such as channels, members, and roles.
+  - `Nosedrum.MessageCache`, a behaviour for defining message caches, along with
+    an ETS-based and an Agent-based implementation.
 
   # Installation
   Simply add `:nosedrum` to your `mix.exs` file:
