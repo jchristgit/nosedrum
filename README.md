@@ -43,7 +43,7 @@ the GitHub version of nostrum:
 def deps do
   [
     {:nostrum, github: "Kraigie/nostrum", override: true},
-    {:nosedrum, "~> 0.1"},
+    {:nosedrum, "~> 0.2"},
   ]
 end
 ```

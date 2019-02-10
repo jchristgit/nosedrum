@@ -6,6 +6,10 @@ and this project adheres to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Changed
+
+
+## 0.2.0 - 10.02.2019
 ### Added
 - The `Nosedrum.Predicates` module, which includes the `has_permission/1`
   and `guild_only/1` predicates and performs predicate evaluation in command
@@ -26,6 +30,7 @@ Versioning](https://semver.org/spec/v2.0.0.html).
   `Nosedrum.Storage.ETS`, you can use this to pass the ETS table reference.
 - `Nosedrum.Invoker` now supports passing the storage process reference (or ETS
   table name in case of `Nosedrum.Storage.ETS` for `handle_message`.
+
 
 ## 0.1.0 - 03.02.2019
 Initial release.
