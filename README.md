@@ -34,16 +34,23 @@ inspiration.
 The documentation can be found at https://hexdocs.pm/nosedrum.
 
 ## Installation
-
-Since `nostrum`s hex release is out of date and we can only depend on packages
-from hex when publishing to hex, you need to specify `override: true` when using
-the GitHub version of nostrum:
+Simply add `:nosedrum` to your `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:nostrum, github: "Kraigie/nostrum", override: true},
     {:nosedrum, "~> 0.2"},
+  ]
+end
+```
+
+If you want to install the GitHub version of Nostrum, you will need to specify
+it with `override: true` in your `mix.exs`, for example:
+```elixir
+def deps do
+  [
+    {:nosedrum, "~> 0.2"},
+    {:nostrum, github: "Kraigie/nostrum", override: true}
   ]
 end
 ```

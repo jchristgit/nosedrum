@@ -32,27 +32,24 @@ defmodule Nosedrum do
   - `Nosedrum.MessageCache`, a behaviour for defining message caches, along with
     an ETS-based and an Agent-based implementation.
 
-  # Installation
-  Simply add `:nosedrum` to your `mix.exs` file:
+
+  Simply add `:nosedrum` to your `mix.exs`:
 
       def deps do
         [
-          {:nostrum, github: "Kraigie/nostrum"},
-          {:nosedrum, "~> #{@short_version}"}
+          {:nosedrum, "~> 0.2"},
         ]
       end
 
-  If `mix` complains due to conflicting versions, you will need to specify
-  `override: true` in your dependencies:
+  If you want to install the GitHub version of Nostrum, you will need to specify
+  it with `override: true` in your `mix.exs`, for example:
 
       def deps do
         [
-          {:nostrum, github: "Kraigie/nostrum", override: true},
-          {:nosedrum, "~> #{@short_version}"}
+          {:nosedrum, "~> 0.2"},
+          {:nostrum, github: "Kraigie/nostrum", override: true}
         ]
       end
-
-  Note that `nosedrum` requires at least version 0.3.0 of `nostrum`.
 
   # Getting started
   To start off, your commands need to implement the `Nosedrum.Command` behaviour.

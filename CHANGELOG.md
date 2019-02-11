@@ -9,6 +9,11 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 
+## 0.2.1 - 11.02.2019
+### Changed
+- Use hex version of Nostrum.
+
+
 ## 0.2.0 - 10.02.2019
 ### Added
 - The `Nosedrum.Predicates` module, which includes the `has_permission/1`
