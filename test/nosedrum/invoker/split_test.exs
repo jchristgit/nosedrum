@@ -72,14 +72,14 @@ defmodule Nosedrum.Invoker.SplitTest do
     setup do
       storage_pid = start_supervised!(CommandStorage)
       storage_tid = GenServer.call(storage_pid, :tid)
-      assert :ok = CommandStorage.add_command({"test", :default}, SimpleParsedCommand)
+      assert :ok = CommandStorage.add_command({"test", :default}, SimpleDefaultSubcommand)
 
       %{storage: storage_tid}
     end
 
     test "invokes command on proper invocation", %{storage: storage_tid} do
       message = %{content: ".test me"}
-      assert "me" = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
+      assert ["me"] = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
 end
