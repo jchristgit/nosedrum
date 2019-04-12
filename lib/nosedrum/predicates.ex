@@ -18,38 +18,7 @@ defmodule Nosedrum.Predicates do
   alias Nostrum.Struct.Guild.Member
   alias Nostrum.Struct.Message
 
-  # TODO: Once nostrum 0.3 is published on Hex, use `Permission.all()` here.
-  @all_permissions [
-    :add_reactions,
-    :administrator,
-    :attach_files,
-    :ban_members,
-    :change_nickname,
-    :connect,
-    :create_instant_invite,
-    :deafen_members,
-    :embed_links,
-    :kick_members,
-    :manage_channels,
-    :manage_emojis,
-    :manage_guild,
-    :manage_messages,
-    :manage_nicknames,
-    :manage_roles,
-    :manage_webhooks,
-    :mention_everyone,
-    :move_members,
-    :mute_members,
-    :priority_speaker,
-    :read_message_history,
-    :send_messages,
-    :send_tts_messages,
-    :speak,
-    :use_external_emojis,
-    :use_vad,
-    :view_audit_log,
-    :view_channel
-  ]
+  @all_permissions Permission.all()
 
   @typedoc """
   The result of a predicate evaluation, determining whether the command
