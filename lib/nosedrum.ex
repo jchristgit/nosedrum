@@ -32,7 +32,6 @@ defmodule Nosedrum do
   - `Nosedrum.MessageCache`, a behaviour for defining message caches, along with
     an ETS-based and an Agent-based implementation.
 
-
   Simply add `:nosedrum` to your `mix.exs`:
 
       def deps do
