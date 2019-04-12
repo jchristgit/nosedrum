@@ -12,8 +12,6 @@ defmodule Nosedrum.Converters do
   alias Nostrum.Struct.{Channel, Guild}
   alias Nostrum.Struct.Guild.{Member, Role}
 
-  # TODO: add support for choosing only specific channel types, because
-  #       e.g. voice or category channels may not be desirable in some cases
   @doc """
   Convert the given `text` to a `t:Nostrum.Struct.Channel.t/0`.
 

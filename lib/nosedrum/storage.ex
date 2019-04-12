@@ -21,8 +21,6 @@ defmodule Nosedrum.Storage do
   @type command_group ::
           Module.t() | %{optional(:default) => Module.t(), required(String.t()) => Module.t()}
 
-  # TODO: aliases
-
   @typedoc """
   The "invocation path" of the command.
 

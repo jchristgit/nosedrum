@@ -1,7 +1,5 @@
 defmodule Nosedrum.MessageCache.ETS do
   @default_table :nosedrum_message_cache
-  # TODO: Consider replacing `:ordered_set` with `:bag`: we don't need to check for
-  #       uniqueness because snowflakes are already unique.
   @default_table_options [
     {:read_concurrency, true},
     {:write_concurrency, true},
