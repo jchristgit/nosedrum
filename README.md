@@ -26,7 +26,7 @@ Additionally, the following utilities are provided:
 
 `nosedrum`s provided implementations are largely based off what was originally
 written for [bolt](https://github.com/jchristgit/bolt). bolt also contains
-around [57
+around [59
 commands](https://github.com/jchristgit/bolt/tree/master/lib/bolt/cogs) based
 off the `Nosedrum.Command` behaviour that you can explore if you're looking for
 inspiration.
