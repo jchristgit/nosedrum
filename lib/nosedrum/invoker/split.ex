@@ -8,21 +8,55 @@ defmodule Nosedrum.Invoker.Split do
       config :nosedrum,
         prefix: "!"
 
-  The default prefix is `.`. Note that the prefix is looked up at
-  compilation time to avoid constant ETS reads.
+  The default prefix is `.`, and the prefix are looked up at compilation time
+  due to the nature of Elixir's binary matching. This means that if you change
+  your prefix, you need to recompile this module, usually using
+  `mix deps.compile --force nosedrum`.
 
   This invoker checks predicates and reports errors
   directly in the channel in which they were caused.
   """
 
   @behaviour Nosedrum.Invoker
+
+  # This must be looked up at compilation time due to the nature of Elixir's
+  # binary matching. Also, SPEEEEEEEEEEEEEED!!
   @prefix Application.get_env(:nosedrum, :prefix, ".")
 
   alias Nosedrum.{Helpers, Predicates}
   alias Nostrum.Api
   alias Nostrum.Struct.Message
 
-  @doc false
+  @doc """
+  Handle the given message.
+
+  This involves checking whether the message starts with the given prefix, splitting
+  the message into command and arguments, looking up a candidate command, and finally
+  resolving it and invoking the module.
+
+  ## Arguments
+
+  - `message`: The message to handle.
+  - `storage`: The storage implementation the command invoker should use.
+  - `storage_process`: The storage process, ETS table, or similar that is used by
+    the storage process. For instance, this allows you to use different ETS tables
+    for the `Nosedrum.Storage.ETS` module if you wish.
+
+  ## Return value
+
+  Returns `:ignored` if one of the following applies:
+  - The message does not start with the configured prefix.
+  - The message only contains the configured prefix.
+  - No command could be looked up that matches the command the message invokes.
+
+  ## Examples
+
+      iex> Nosedrum.Invoker.Split.handle_message(%{content: "foo"})
+      :ignored
+      iex> Nosedrum.Invoker.Split.handle_message(%{content: "."})
+      :ignored
+  """
+  @spec handle_message(Message.t(), Module.t(), atom() | pid()) :: :ignored | any()
   def handle_message(
         message,
         storage \\ Nosedrum.Storage.ETS,

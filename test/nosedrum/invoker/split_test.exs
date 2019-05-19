@@ -3,6 +3,8 @@ defmodule Nosedrum.Invoker.SplitTest do
   alias Nosedrum.Storage.ETS, as: CommandStorage
   use ExUnit.Case, async: true
 
+  doctest Nosedrum.Invoker.Split
+
   describe "handle_message/1-3 with non-prefixed messages" do
     test "ignores messages" do
       message = %{content: "hello world"}
