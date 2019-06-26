@@ -36,7 +36,7 @@ defmodule Nosedrum do
 
       def deps do
         [
-          {:nosedrum, "~> 0.2"},
+          {:nosedrum, "#{@short_version}"},
         ]
       end
 
@@ -45,7 +45,7 @@ defmodule Nosedrum do
 
       def deps do
         [
-          {:nosedrum, "~> 0.2"},
+          {:nosedrum, "#{@short_version}"},
           {:nostrum, github: "Kraigie/nostrum", override: true}
         ]
       end
