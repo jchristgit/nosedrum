@@ -1,5 +1,4 @@
 defmodule Nosedrum do
-  @short_version String.replace_trailing(Mix.Project.config()[:version], ".0", "")
   @moduledoc """
   `nosedrum` is a command framework for use with the excellent
   [`nostrum`](https://github.com/Kraigie/nostrum) library.
@@ -36,17 +35,9 @@ defmodule Nosedrum do
 
       def deps do
         [
-          {:nosedrum, "#{@short_version}"},
-        ]
-      end
-
-  If you want to install the GitHub version of Nostrum, you will need to specify
-  it with `override: true` in your `mix.exs`, for example:
-
-      def deps do
-        [
-          {:nosedrum, "#{@short_version}"},
-          {:nostrum, github: "Kraigie/nostrum", override: true}
+          {:nosedrum, "~> #{String.replace_trailing(Mix.Project.config()[:version], ".0", "")}"},
+          # To use the GitHub version of Nostrum:
+          # {:nostrum, github: "Kraigie/nostrum", override: true}
         ]
       end
 
