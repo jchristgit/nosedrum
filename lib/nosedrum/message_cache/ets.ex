@@ -22,7 +22,7 @@ defmodule Nosedrum.MessageCache.ETS do
       one_day_ago = DateTime.add(now, -1, :day)
       snowflake = Nostrum.Snowflake.from_datetime!(one_day_ago)
       match_spec = [{{:"$1", :_, :_, :_, :_}, [{:<, :"$1", snowflake}], [true]}]
-      :ets.select_delete(#{@default_table}, match_spec)
+      :ets.select_delete(:#{@default_table}, match_spec)
 
   For deleting in different ways such as by guild ID, use
   [`:ets.fun2ms/1`](http://erlang.org/doc/man/ets.html#fun2ms-1) to generate match
@@ -41,7 +41,7 @@ defmodule Nosedrum.MessageCache.ETS do
   Initialize the ETS message cache.
 
   By default, the table used for storing messages is a named table with
-  the name `#{@default_table}`. The table reference is stored internally
+  the name `:#{@default_table}`. The table reference is stored internally
   as the state of this process, the public-facing API functions default
   to using the table name to access the module.
   """
