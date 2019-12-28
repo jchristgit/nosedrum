@@ -59,7 +59,7 @@ defmodule Nosedrum.MixProject do
     [
       {:nostrum, "~> 0.3"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.1", only: [:dev, :test], runtime: false},
       {:benchee, "~> 0.13", only: :dev, optional: true, runtime: false}
     ]
   end
