@@ -13,50 +13,74 @@ defmodule Nosedrum.Storage.ETS do
   @doc false
   use GenServer
 
+  @spec put_nested_command(Map.t(), [String.t()], Module.t()) :: Nosedrum.Storage.command_group()
+  defp put_nested_command(acc, [name], command), do: Map.put(acc, name, command)
+
+  defp put_nested_command(acc, [name | path], command),
+    do: Map.put(acc, name, put_nested_command(Map.get(acc, name, %{}), path, command))
+
   @impl true
   def add_command(path, command, table_ref \\ @default_table)
 
-  def add_command({name}, command, table_ref) do
+  def add_command([name], command, table_ref) do
     :ets.insert(table_ref, {name, command})
 
     :ok
   end
 
-  def add_command({name, key}, command, table_ref) do
+  def add_command([name | path], command, table_ref) do
     case lookup_command(name, table_ref) do
       nil ->
-        :ets.insert(table_ref, {name, %{key => command}})
+        cog = put_nested_command(%{}, path, command)
+        :ets.insert(table_ref, {name, cog})
         :ok
 
       module when not is_map(module) ->
-        {:error, "command `#{name} is a top-level command, cannot add subcommand `#{key}"}
+        {:error, "command `#{name} is a top-level command, cannot add subcommand at `#{path}"}
 
       map ->
-        :ets.insert(table_ref, {name, Map.put(map, key, command)})
+        cog = put_nested_command(map, path, command)
+        :ets.insert(table_ref, {name, cog})
         :ok
     end
   end
 
+  @spec is_empty_cog?(Map.t() | Module.t()) :: boolean()
+  defp is_empty_cog?({_key, module}) when is_atom(module), do: false
+  defp is_empty_cog?({_key, %{}}), do: true
+  defp is_empty_cog?({_key, cog}), do: Enum.all?(cog, &is_empty_cog?/1)
+
   @impl true
   def remove_command(path, table_ref \\ @default_table)
 
-  def remove_command({name}, table_ref) do
+  def remove_command([name], table_ref) do
     :ets.delete(table_ref, name)
 
     :ok
   end
 
-  def remove_command({name, key}, table_ref) do
+  def remove_command([name | path], table_ref) do
     case lookup_command(name, table_ref) do
       nil ->
         :ok
 
       module when not is_map(module) ->
-        {:error, "command `#{name}` is a top-level command, cannot remove subcommand `#{key}`"}
+        {:error,
+         "command `#{name}` is a top-level command, cannot remove subcommand at `#{path}`"}
 
       map ->
-        :ets.insert(table_ref, {name, Map.delete(map, key)})
-        :ok
+        {_dropped_cog, updated_cog} = pop_in(map, path)
+
+        case Enum.reject(updated_cog, &is_empty_cog?/1) do
+          [] ->
+            :ets.delete(table_ref, name)
+            :ok
+
+          entries ->
+            mapped = Map.new(entries)
+            :ets.insert(table_ref, {name, mapped})
+            :ok
+        end
     end
   end
 

@@ -98,12 +98,14 @@ defmodule Nosedrum.Invoker.Split do
     maybe_subcommand = List.first(original_args)
 
     case Map.fetch(command_map, maybe_subcommand) do
-      {:ok, subcommand_module} ->
+      {:ok, subcommand} ->
         # If we have at least one subcommand, that means `original_args`
         # needs to at least contain one element, so `args` is either empty
         # or the rest of the arguments excluding the subcommand name.
         [_subcommand | args] = original_args
-        invoke(subcommand_module, msg, args)
+        # Recursively traverse down to a command module via the `is_map/1`
+        # guard clause attached to this function head.
+        handle_command(subcommand, msg, args)
 
       :error ->
         # Does the command group have a default command to invoke?

@@ -5,6 +5,11 @@ defmodule Nosedrum.Invoker.SplitTest do
 
   doctest Nosedrum.Invoker.Split
 
+  defmodule SimpleCommand do
+    def command(_msg, _args), do: :command_return
+    def predicates, do: []
+  end
+
   describe "handle_message/1-3 with non-prefixed messages" do
     test "ignores messages" do
       message = %{content: "hello world"}
@@ -25,15 +30,10 @@ defmodule Nosedrum.Invoker.SplitTest do
   end
 
   describe "handle_command/1-3 with regular commands" do
-    defmodule SimpleCommand do
-      def command(_msg, _args), do: :command_return
-      def predicates, do: []
-    end
-
     setup do
       storage_pid = start_supervised!(CommandStorage)
       storage_tid = GenServer.call(storage_pid, :tid)
-      assert :ok = CommandStorage.add_command({"simple_command"}, SimpleCommand)
+      assert :ok = CommandStorage.add_command(["simple_command"], SimpleCommand)
 
       %{storage: storage_tid}
     end
@@ -54,7 +54,7 @@ defmodule Nosedrum.Invoker.SplitTest do
     setup do
       storage_pid = start_supervised!(CommandStorage)
       storage_tid = GenServer.call(storage_pid, :tid)
-      assert :ok = CommandStorage.add_command({"simple", "subcommand"}, SimpleParsedCommand)
+      assert :ok = CommandStorage.add_command(["simple", "subcommand"], SimpleParsedCommand)
 
       %{storage: storage_tid}
     end
@@ -62,6 +62,21 @@ defmodule Nosedrum.Invoker.SplitTest do
     test "invokes command on proper invocation", %{storage: storage_tid} do
       message = %{content: ".simple subcommand"}
       assert :parsed_args = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
+    end
+  end
+
+  describe "handle_command/1-3 with nested subcomamnds" do
+    setup do
+      storage_pid = start_supervised!(CommandStorage)
+      storage_tid = GenServer.call(storage_pid, :tid)
+      assert :ok = CommandStorage.add_command(["simple", "nested", "subcommand"], SimpleCommand)
+
+      %{storage: storage_tid}
+    end
+
+    test "invokes command on proper invocation", %{storage: storage_tid} do
+      message = %{content: ".simple nested subcommand"}
+      assert :command_return = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
 
@@ -74,13 +89,21 @@ defmodule Nosedrum.Invoker.SplitTest do
     setup do
       storage_pid = start_supervised!(CommandStorage)
       storage_tid = GenServer.call(storage_pid, :tid)
-      assert :ok = CommandStorage.add_command({"test", :default}, SimpleDefaultSubcommand)
+      assert :ok = CommandStorage.add_command(["test", :default], SimpleDefaultSubcommand)
+
+      assert :ok =
+               CommandStorage.add_command(["test", "nested", :default], SimpleDefaultSubcommand)
 
       %{storage: storage_tid}
     end
 
     test "invokes command on proper invocation", %{storage: storage_tid} do
       message = %{content: ".test me"}
+      assert ["me"] = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
+    end
+
+    test "invokes subcommand on proper invocation", %{storage: storage_tid} do
+      message = %{content: ".test nested me"}
       assert ["me"] = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
