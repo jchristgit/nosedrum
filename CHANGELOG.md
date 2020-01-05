@@ -7,6 +7,10 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 
 ## Unreleased
+### Added
+- Support for nested subcommands. This may require an update to custom invokers,
+  see changes to `Nosedrum.Invoker.Split` for details.
+
 ### Fixed
 - Prevent compiler warning about `@short_version` module attribute.
 

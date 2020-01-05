@@ -12,14 +12,15 @@ defmodule Nosedrum.Storage do
   """
 
   @typedoc """
-  A single command module or mapping of subcommand names to subcommand modules.
+  A single command module or mapping of subcommand names to command groups.
 
   In addition to subcommand names, the key `:default` can be specified by
-  the module. `:default` is invoked when none of the subcommands in the
+  the module. `:default` should be invoked when none of the subcommands in the
   map match.
   """
   @type command_group ::
-          Module.t() | %{optional(:default) => Module.t(), required(String.t()) => Module.t()}
+          Module.t()
+          | %{optional(:default) => command_group, required(String.t()) => command_group}
 
   @typedoc """
   The "invocation path" of the command.
@@ -28,13 +29,13 @@ defmodule Nosedrum.Storage do
   to allow users to identify the command they want to operate on.
 
   ## Usage
-  To identify a single command, use a single element tuple, such as `{"echo"}`.
-  To identify a subcommand, use a pair, such as `{"infraction", "search"}`.
+  To identify a single command, use a single element list, such as `["echo"]`.
+  To identify a subcommand, use a pair, such as `["infraction", "search"]`.
   To identify the default subcommand invoked when no matching subcommand is
   found, specify the group name first, then `:default`, such as
-  `{"tags", :default}`.
+  `["tags", :default]`.
   """
-  @type command_path :: {String.t()} | {String.t(), String.t() | :default}
+  @type command_path :: [String.t() | :default, ...]
 
   @doc """
   Look up a command group under the specified `name`.
@@ -48,7 +49,7 @@ defmodule Nosedrum.Storage do
 
   If the command already exists, no error should be returned.
   """
-  @callback add_command(path :: command_group, command :: Module.t(), storage :: reference) ::
+  @callback add_command(path :: command_path, command :: Module.t(), storage :: reference) ::
               :ok | {:error, String.t()}
 
   @doc """
