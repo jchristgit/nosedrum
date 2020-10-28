@@ -50,7 +50,7 @@ defmodule Nosedrum.MixProject do
   def application do
     [
       applications: [],
-      extra_applications: []
+      extra_applications: [:nostrum]
     ]
   end
 
