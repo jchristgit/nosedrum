@@ -9,6 +9,6 @@ otp_release:
 script:
   - mix format --check-formatted
   - mix credo --strict
-  - mix test --cover
+  - mix test --cover --no-start
 
 # vim: sw=2 ts=2:
