@@ -46,10 +46,10 @@ defmodule Nosedrum.Converters.Channel do
   defp find_channel(channels, text) do
     case channel_mention_to_id(text) do
       {:ok, id} ->
-        Map.get(
+        Enum.find(
           channels,
-          id,
-          {:error, "No channel with ID `#{id}` found on this guild"}
+          {:error, "No channel with ID `#{id}` found on this guild"},
+          &(&1.id == id)
         )
 
       {:error, _reason} ->

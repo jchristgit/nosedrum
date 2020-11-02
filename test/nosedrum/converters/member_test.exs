@@ -27,9 +27,7 @@ defmodule Nosedrum.Converters.MemberTest do
 
     guild = %Guild{
       id: guild_id,
-      members: %{
-        user.id => member
-      }
+      members: [member]
     }
 
     GuildRegister.create_guild_process(guild_id, guild)

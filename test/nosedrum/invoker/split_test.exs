@@ -107,4 +107,52 @@ defmodule Nosedrum.Invoker.SplitTest do
       assert ["me"] = CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
+
+  describe "handle_command/1-3 with predicates denying" do
+    defmodule PredicatedCommandWithNoperm do
+      def command(_msg, args), do: args
+      def predicates, do: [fn _msg -> {:noperm, "you shall not pass"} end]
+    end
+
+    setup do
+      storage_pid = start_supervised!(CommandStorage)
+      storage_tid = GenServer.call(storage_pid, :tid)
+      assert :ok = CommandStorage.add_command(["test"], PredicatedCommandWithNoperm)
+      %{storage: storage_tid}
+    end
+
+    test "bubbles up noperm from predicate", %{storage: storage_tid} do
+      message = %{content: ".test"}
+
+      assert {:noperm, "you shall not pass"} =
+               CommandInvoker.handle_message(message, CommandStorage, storage_tid)
+    end
+  end
+
+  describe "handle_command/1-3 with predicates failing" do
+    defmodule PredicatedCommandWithInternalFailure do
+      def command(_msg, args), do: args
+      def predicates, do: [fn _msg -> {:error, "I shall not pass"} end]
+    end
+
+    setup do
+      storage_pid = start_supervised!(CommandStorage)
+      storage_tid = GenServer.call(storage_pid, :tid)
+
+      assert :ok =
+               CommandStorage.add_command(
+                 ["test"],
+                 PredicatedCommandWithInternalFailure
+               )
+
+      %{storage: storage_tid}
+    end
+
+    test "bubbles up noperm from predicate", %{storage: storage_tid} do
+      message = %{content: ".test"}
+
+      assert {:error, "I shall not pass"} =
+               CommandInvoker.handle_message(message, CommandStorage, storage_tid)
+    end
+  end
 end

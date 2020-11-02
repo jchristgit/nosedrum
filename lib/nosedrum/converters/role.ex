@@ -79,10 +79,10 @@ defmodule Nosedrum.Converters.Role do
     case role_mention_to_id(text) do
       # We have a direct snowflake given. Try to find an exact match.
       {:ok, id} ->
-        case Map.get(
+        case Enum.find(
                roles,
-               id,
-               {:error, "No role with ID `#{id}` found on this guild"}
+               {:error, "No role with ID `#{id}` found on this guild"},
+               &(&1.id == id)
              ) do
           {:error, _reason} = error -> error
           role -> {:ok, role}

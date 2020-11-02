@@ -18,9 +18,7 @@ defmodule Nosedrum.Converters.RoleTest do
 
     guild = %Guild{
       id: 512,
-      roles: %{
-        role.id => role
-      }
+      roles: [role]
     }
 
     GuildRegister.create_guild_process(guild.id, guild)

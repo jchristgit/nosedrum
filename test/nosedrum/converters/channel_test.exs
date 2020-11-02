@@ -18,9 +18,7 @@ defmodule Nosedrum.Converters.ChannelTest do
 
     guild = %Guild{
       id: 940_124,
-      channels: %{
-        channel.id => channel
-      }
+      channels: [channel]
     }
 
     GuildRegister.create_guild_process(guild.id, guild)

@@ -26,11 +26,15 @@ defmodule Nosedrum.Predicates do
 
   The values represent the following:
   - `:passthrough` if the predicate permits the command to be invoked.
-  - `{:error, reason}` if the predicate does not permit the command to be
-    invoked, or if the predicate could not determine its result.
+  - `{:noperm, any()}` if the predicate does not permit the command to be invoked.
+  - `{:error, any()}` if the predicate could not determine its result.
+
+  On `:passthrough`, invokers will continue with predicate checking and
+  finally invoke the command. On `:noperm` or `:error`, command execution
+  is aborted.
   """
   @typedoc since: "0.2.0"
-  @type evaluation_result :: :passthrough | {:error, String.t()}
+  @type evaluation_result :: :passthrough | {:noperm, any()} | {:error, any()}
 
   @typedoc """
   A condition that must pass before a command is invoked.
@@ -66,7 +70,7 @@ defmodule Nosedrum.Predicates do
   def evaluate(message, predicates) do
     predicates
     |> Stream.map(& &1.(message))
-    |> Enum.find(:passthrough, &match?({:error, _reason}, &1))
+    |> Enum.find(:passthrough, &match?({kind, _reason} when kind in [:error, :noperm], &1))
   end
 
   @doc """
