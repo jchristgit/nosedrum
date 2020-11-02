@@ -24,7 +24,6 @@ defmodule Nosedrum.Invoker.Split do
   @prefix Application.get_env(:nosedrum, :prefix, ".")
 
   alias Nosedrum.{Helpers, Predicates}
-  alias Nostrum.Api
   alias Nostrum.Struct.Message
 
   @doc """
@@ -113,12 +112,7 @@ defmodule Nosedrum.Invoker.Split do
           # If yes, invoke it with all arguments.
           invoke(command_map.default, msg, original_args)
         else
-          # Otherwise, respond with all known subcommands in the command group.
-          subcommand_string =
-            command_map |> Map.keys() |> Stream.map(&"`#{&1}`") |> Enum.join(", ")
-
-          response = "🚫 unknown subcommand, known subcommands: #{subcommand_string}"
-          Api.create_message!(msg.channel_id, response)
+          {:error, {:unknown_subcommand, maybe_subcommand, :known, Map.keys(command_map)}}
         end
     end
   end

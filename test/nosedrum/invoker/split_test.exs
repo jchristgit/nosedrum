@@ -155,4 +155,21 @@ defmodule Nosedrum.Invoker.SplitTest do
                CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
+
+  describe "handle_command/1-3 with unknown subcommands" do
+    setup do
+      storage_pid = start_supervised!(CommandStorage)
+      storage_tid = GenServer.call(storage_pid, :tid)
+      assert :ok = CommandStorage.add_command(["simple_command", "go"], SimpleCommand)
+
+      %{storage: storage_tid}
+    end
+
+    test "invokes command on proper invocation", %{storage: storage_tid} do
+      message = %{content: ".simple_command help"}
+
+      assert {:error, {:unknown_subcommand, "help", :known, ["go"]}} =
+               CommandInvoker.handle_message(message, CommandStorage, storage_tid)
+    end
+  end
 end
