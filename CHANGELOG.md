@@ -14,6 +14,15 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - Prevent compiler warning about `@short_version` module attribute.
 
+### Changed
+- Return error tuples instead of creating error messages in the API.
+  Specifically, this means that for the following events, manual error checking
+  needs to be performed:
+  - Unknown subcommands - these return `{:error, {:unknown_subcommand, name,
+    :known, known_subcommands}}` from the invoker.
+  - Predicate permission check failures or error - these return `{:error,
+    :predicate, predicate_result}` from the invoker.
+
 
 ## 0.2.1 - 11.02.2019
 ### Changed
