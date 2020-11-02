@@ -13,8 +13,7 @@ defmodule Nosedrum.Invoker.Split do
   your prefix, you need to recompile this module, usually using
   `mix deps.compile --force nosedrum`.
 
-  This invoker checks predicates and reports errors
-  directly in the channel in which they were caused.
+  This invoker checks predicates and returns predicate failures to the caller.
   """
 
   @behaviour Nosedrum.Invoker
@@ -55,7 +54,11 @@ defmodule Nosedrum.Invoker.Split do
       iex> Nosedrum.Invoker.Split.handle_message(%{content: "."})
       :ignored
   """
-  @spec handle_message(Message.t(), Module.t(), atom() | pid()) :: :ignored | any()
+  @spec handle_message(Message.t(), Module.t(), atom() | pid()) ::
+          :ignored
+          | {:error, {:unknown_subcommand, String.t(), :known, [String.t() | :default]}}
+          | {:error, :predicate, {:error | :noperm, any()}}
+          | any()
   def handle_message(
         message,
         storage \\ Nosedrum.Storage.ETS,
@@ -80,19 +83,22 @@ defmodule Nosedrum.Invoker.Split do
   end
 
   @spec invoke(Module.t(), Message.t(), [String.t()]) ::
-          any() | {:noperm, any()} | {:error, any()}
+          any() | {:error, :predicate, {:noperm | :error, any()}}
   defp invoke(command_module, msg, args) do
     case Predicates.evaluate(msg, command_module.predicates()) do
       :passthrough ->
         command_module.command(msg, parse_args(command_module, args))
 
       {atom, _reason} = response when atom in [:noperm, :error] ->
-        response
+        {:error, :predicate, response}
     end
   end
 
   @spec handle_command(Map.t() | Module.t(), Message.t(), [String.t()]) ::
-          :ignored | {:ok, Message.t()} | any()
+          :ignored
+          | {:error, {:unknown_subcommand, String.t(), :known, [String.t() | :default]}}
+          | {:error, :predicate, {:error | :noperm, any()}}
+          | any()
   defp handle_command(command_map, msg, original_args) when is_map(command_map) do
     maybe_subcommand = List.first(original_args)
 

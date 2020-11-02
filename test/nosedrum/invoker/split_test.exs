@@ -124,7 +124,7 @@ defmodule Nosedrum.Invoker.SplitTest do
     test "bubbles up noperm from predicate", %{storage: storage_tid} do
       message = %{content: ".test"}
 
-      assert {:noperm, "you shall not pass"} =
+      assert {:error, :predicate, {:noperm, "you shall not pass"}} =
                CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
@@ -151,7 +151,7 @@ defmodule Nosedrum.Invoker.SplitTest do
     test "bubbles up noperm from predicate", %{storage: storage_tid} do
       message = %{content: ".test"}
 
-      assert {:error, "I shall not pass"} =
+      assert {:error, :predicate, {:error, "I shall not pass"}} =
                CommandInvoker.handle_message(message, CommandStorage, storage_tid)
     end
   end
