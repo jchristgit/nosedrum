@@ -54,7 +54,7 @@ defmodule Nosedrum.Converters.Channel do
 
       {:error, _reason} ->
         Enum.find(
-          Map.values(channels),
+          channels,
           {:error,
            "No channel named `#{
              text |> Helpers.escape_server_mentions() |> String.replace("`", "\`")

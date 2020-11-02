@@ -90,9 +90,7 @@ defmodule Nosedrum.Converters.Role do
 
       # We do not have a snowflake given, assume it's a name and search through the roles by name.
       {:error, _reason} ->
-        roles
-        |> Map.values()
-        |> find_by_name(text, ilike)
+        find_by_name(roles, text, ilike)
     end
   end
 

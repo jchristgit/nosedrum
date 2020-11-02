@@ -85,7 +85,7 @@ defmodule Nosedrum.Converters.Member do
   defp find_by_name_and_discrim(members, name, discrim) do
     result =
       Enum.find(
-        Map.values(members),
+        members,
         {
           :error,
           "there is no member named `#{
@@ -106,7 +106,7 @@ defmodule Nosedrum.Converters.Member do
           String.t()
         ) :: {:ok, Member.t()} | {:error, String.t()}
   defp find_by_name(members, name) do
-    case Enum.find(Map.values(members), &(&1.user.username == name)) do
+    case Enum.find(members, &(&1.user.username == name)) do
       nil ->
         error_value = {
           :error,
@@ -114,7 +114,7 @@ defmodule Nosedrum.Converters.Member do
             "nicknamed `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"
         }
 
-        case Enum.find(Map.values(members), error_value, &(&1.nick == name)) do
+        case Enum.find(members, error_value, &(&1.nick == name)) do
           {:error, _reason} = error -> error
           member -> {:ok, member}
         end
