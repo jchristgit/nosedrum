@@ -1,12 +1,14 @@
 language: elixir
 elixir:
-  - 1.8.1
+  - "1.10.4"
+  - "1.11.1"
 otp_release:
-  - '21.3'
+  - "22.3.4"
+  - "23.0.4"
 
 script:
   - mix format --check-formatted
   - mix credo --strict
-  - mix test --cover
+  - mix test --cover --no-start
 
 # vim: sw=2 ts=2:
