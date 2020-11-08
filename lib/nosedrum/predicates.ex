@@ -130,10 +130,10 @@ defmodule Nosedrum.Predicates do
             |> Atom.to_string()
             |> String.upcase()
 
-          {:error, "🚫 you need the `#{permission_string}` permission to do that"}
+          {:noperm, "🚫 you need the `#{permission_string}` permission to do that"}
 
         {:is_on_guild, false} ->
-          {:error, "🚫 this command can only be used on guilds"}
+          {:noperm, "🚫 this command can only be used on guilds"}
 
         {:member, nil} ->
           {:error, "❌ you're not in the guild member cache, can't check perms"}
