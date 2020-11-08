@@ -22,17 +22,19 @@ defmodule Nosedrum.PredicatesTest do
 
     cached_guild = %Guild{
       id: cached_guild_id,
-      members: %{
-        admin_id => %Member{
-          roles: [role_can_ban_id]
+      members: [
+        %Member{
+          roles: [role_can_ban_id],
+          user: %User{id: admin_id}
         },
-        guest_id => %Member{
-          roles: []
+        %Member{
+          roles: [],
+          user: %User{id: guest_id}
         }
-      },
-      roles: %{
-        role_can_ban_id => role_can_ban
-      }
+      ],
+      roles: [
+        role_can_ban
+      ]
     }
 
     GuildRegister.create_guild_process(cached_guild_id, cached_guild)
@@ -78,10 +80,10 @@ defmodule Nosedrum.PredicatesTest do
       end
     end
 
-    test "returns `{:error, _reason}` when guild is nil" do
+    test "returns `{:noperm, _reason}` when not used on a guild" do
       predicate = Predicates.has_permission(:ban_members)
       message = %Message{guild_id: nil}
-      assert {:error, _reason} = predicate.(message)
+      assert {:noperm, _reason} = predicate.(message)
     end
 
     test "returns `{:error, _reason}` when guild is uncached" do

@@ -12,9 +12,9 @@ defmodule Nosedrum.ConvertersTest do
 
     guild = %Guild{
       id: 940_124,
-      channels: %{},
-      roles: %{},
-      members: %{}
+      channels: [],
+      roles: [],
+      members: []
     }
 
     GuildRegister.create_guild_process(guild.id, guild)

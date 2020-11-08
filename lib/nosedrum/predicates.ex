@@ -116,7 +116,7 @@ defmodule Nosedrum.Predicates do
       with {:is_on_guild, true} <- {:is_on_guild, msg.guild_id != nil},
            {:ok, guild} <- GuildCache.get(msg.guild_id),
            {:member, member} when member != nil <-
-             {:member, Map.get(guild.members, msg.author.id)},
+             {:member, Enum.find(guild.members, &(&1.user.id == msg.author.id))},
            {:has_permission, true} <-
              {:has_permission, permission in Member.guild_permissions(member, guild)} do
         :passthrough
