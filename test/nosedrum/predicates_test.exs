@@ -96,13 +96,13 @@ defmodule Nosedrum.PredicatesTest do
       assert {:error, _reason} = predicate.(message)
     end
 
-    test "returns `{:error, _reason}` when member does not have permissions", %{
+    test "returns `{:noperm, _reason}` when member does not have permissions", %{
       guest_id: guest_id,
       guild_id: guild_id
     } do
       predicate = Predicates.has_permission(:ban_members)
       message = %Message{author: %User{id: guest_id}, guild_id: guild_id}
-      assert {:error, _reason} = predicate.(message)
+      assert {:noperm, _reason} = predicate.(message)
     end
 
     test "returns `:passthrough` when member has permissions", %{
