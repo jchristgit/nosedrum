@@ -1,3 +1,4 @@
+# Via https://github.com/Kraigie/nostrum/blob/master/.github/workflows/test_and_lint.yml
 name: Test & Lint
 on: [push, pull_request]
 jobs:
