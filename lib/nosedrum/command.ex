@@ -101,7 +101,7 @@ defmodule Nosedrum.Command do
       end
 
       @impl true
-      def predicates, do: [&is_bot/2]
+      def predicates, do: [&is_bot/1]
   """
   @callback predicates() :: [
               (Message.t() -> :passthrough | {:noperm, String.t()} | {:error, String.t()})
