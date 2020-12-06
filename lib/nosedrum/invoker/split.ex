@@ -20,7 +20,7 @@ defmodule Nosedrum.Invoker.Split do
 
   # This must be looked up at compilation time due to the nature of Elixir's
   # binary matching. Also, SPEEEEEEEEEEEEEED!!
-  @prefix Application.get_env(:nosedrum, :prefix, ".")
+  @prefix Application.compile_env(:nosedrum, :prefix, ".")
 
   alias Nosedrum.{Helpers, Predicates}
   alias Nostrum.Struct.Message
