@@ -81,7 +81,7 @@ defmodule Nosedrum.PredicatesTest do
     test "returns `{:error, _reason}` when guild is nil" do
       predicate = Predicates.has_permission(:ban_members)
       message = %Message{guild_id: nil}
-      assert {:error, _reason} = predicate.(message)
+      assert {:noperm, _reason} = predicate.(message)
     end
 
     test "returns `{:error, _reason}` when guild is uncached" do
