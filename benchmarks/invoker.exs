@@ -5,7 +5,7 @@ defmodule MyCommand do
 end
 
 Nosedrum.Storage.ETS.start_link(name: Nosedrum.Storage.ETS)
-Nosedrum.Storage.ETS.add_command({".echo"}, MyCommand)
+Nosedrum.Storage.ETS.add_command([".echo"], MyCommand)
 
 inputs = [
   {"short non-commands", %{content: "hi guys"}},
