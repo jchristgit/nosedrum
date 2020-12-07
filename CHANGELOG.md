@@ -8,6 +8,11 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+
+## v0.3.0 - 7.12.2020
+
 ### Added
 - Support for nested subcommands. Command paths now need to be passed as a list
   instead of a tuple. This may also require an update to custom invokers, see
