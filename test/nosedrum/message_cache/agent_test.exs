@@ -38,8 +38,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
     end
 
     test "returns cached message tuple for cached entry", %{pid: pid, message: message} do
-      cache_message = {message.id, message.channel_id, message.author.id, message.content}
-      assert ^cache_message = MessageCache.get(message.guild_id, message.id, pid)
+      assert ^message = MessageCache.get(message.guild_id, message.id, pid)
     end
   end
 
@@ -61,10 +60,8 @@ defmodule Nosedrum.MessageCache.AgentTest do
       %{pid: pid, message: message}
     end
 
-    test "does not update state for unknown guilds", %{pid: pid} do
-      old_state = Agent.get(pid, fn state -> state end)
-
-      irrelevant_message = %{
+    test "updates state for new guilds", %{pid: pid} do
+      new_message = %{
         author: %{
           id: 123_901_823
         },
@@ -74,15 +71,13 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: 57_189
       }
 
-      assert :ok = MessageCache.update(irrelevant_message, pid)
-      assert ^old_state = Agent.get(pid, fn state -> state end)
+      assert :ok = MessageCache.update(new_message, pid)
     end
 
     test "updates message content for cached messages", %{pid: pid, message: message} do
       updated_message = %{message | content: "new content"}
-      cache_entry = {message.id, message.channel_id, message.author.id, updated_message.content}
       assert :ok = MessageCache.update(updated_message, pid)
-      assert ^cache_entry = MessageCache.get(message.guild_id, message.id, pid)
+      assert ^updated_message = MessageCache.get(message.guild_id, message.id, pid)
     end
   end
 
@@ -120,16 +115,11 @@ defmodule Nosedrum.MessageCache.AgentTest do
     end
 
     test "returns all messages for cached guild", %{pid: pid, messages: [msg, second_msg]} do
-      first_msg_id = msg.id
-      second_msg_id = second_msg.id
-
-      assert [{^first_msg_id, _, _, _}, {^second_msg_id, _, _, _}] =
-               MessageCache.recent_in_guild(msg.guild_id, nil, pid)
+      assert [^msg, ^second_msg] = MessageCache.recent_in_guild(msg.guild_id, nil, pid)
     end
 
     test "returns sliced messages with specified limit", %{pid: pid, messages: [msg | _]} do
-      msg_id = msg.id
-      assert [{^msg_id, _, _, _}] = MessageCache.recent_in_guild(msg.guild_id, 1, pid)
+      assert [^msg] = MessageCache.recent_in_guild(msg.guild_id, 1, pid)
     end
   end
 
@@ -159,17 +149,12 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: message.guild_id
       }
 
-      new_message_cache_entry =
-        {new_message.id, new_message.channel_id, new_message.author.id, new_message.content}
-
-      message_id = message.id
-      assert {^message_id, _, _, _} = MessageCache.get(message.guild_id, message.id, pid)
-      assert [{^message_id, _, _, _}] = MessageCache.recent_in_guild(message.guild_id, nil, pid)
+      assert message = MessageCache.get(message.guild_id, message.id, pid)
+      assert [message] = MessageCache.recent_in_guild(message.guild_id, nil, pid)
       assert :ok = MessageCache.consume(new_message, pid)
-      assert [^new_message_cache_entry] = MessageCache.recent_in_guild(message.guild_id, nil, pid)
+      assert [^new_message] = MessageCache.recent_in_guild(message.guild_id, nil, pid)
 
-      assert ^new_message_cache_entry =
-               MessageCache.get(new_message.guild_id, new_message.id, pid)
+      assert ^new_message = MessageCache.get(new_message.guild_id, new_message.id, pid)
     end
   end
 

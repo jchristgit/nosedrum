@@ -9,6 +9,9 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ## Unreleased
 
 ### Changed
+- Cache entire messages in message cache implementations.
+- Return direct values from `:ets.insert` or `Agent.get_and_update` in
+  `Nosedrum.MessageCache` implementations.
 
 
 ## v0.3.0 - 7.12.2020

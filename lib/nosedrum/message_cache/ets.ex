@@ -32,6 +32,14 @@ defmodule Nosedrum.MessageCache.ETS do
   table ID when not using a named table.
   """
 
+  # Perhaps, someday, check match specs with `map_get`:
+  #
+  #   def recent_in_guild(guild_id, nil, table_ref) do
+  #     :ets.select_reverse(table_ref, [
+  #       {{:"$1", :"$2"}, [{:==, {:map_get, :"$2", :guild_id}, guild_id}], [:"$2"]}
+  #     ])
+  #   end
+
   @behaviour Nosedrum.MessageCache
 
   @doc false
@@ -71,7 +79,7 @@ defmodule Nosedrum.MessageCache.ETS do
   def get(_guild_id, message_id, table_ref \\ @default_table) do
     case :ets.lookup(table_ref, message_id) do
       [] -> nil
-      [{id, _guild_id, channel_id, author_id, content}] -> {id, channel_id, author_id, content}
+      [{_message_id, _guild_id, message}] -> message
     end
   end
 
@@ -80,9 +88,7 @@ defmodule Nosedrum.MessageCache.ETS do
 
   def recent_in_guild(guild_id, nil, table_ref) do
     :ets.select_reverse(table_ref, [
-      # {Message.id(), Guild.id(), Channel.id(), User.id(), Message.content()}
-      {{:"$1", :"$2", :"$3", :"$4", :"$5"}, [{:==, :"$2", guild_id}],
-       [{{:"$1", :"$3", :"$4", :"$5"}}]}
+      {{:"$1", :"$2", :"$3"}, [{:==, :"$2", guild_id}], [:"$3"]}
     ])
   end
 
@@ -90,11 +96,7 @@ defmodule Nosedrum.MessageCache.ETS do
     selection =
       :ets.select_reverse(
         table_ref,
-        [
-          # {Message.id(), Guild.id(), Channel.id(), User.id(), Message.content()}
-          {{:"$1", :"$2", :"$3", :"$4", :"$5"}, [{:==, :"$2", guild_id}],
-           [{{:"$1", :"$3", :"$4", :"$5"}}]}
-        ],
+        [{{:"$1", :"$2", :"$3"}, [{:==, :"$2", guild_id}], [:"$3"]}],
         limit
       )
 
@@ -104,21 +106,22 @@ defmodule Nosedrum.MessageCache.ETS do
     end
   end
 
+  @doc """
+  See `c:Nosedrum.MessageCache.consume/2`.
+  Returns the result of `:ets.insert`.
+  """
   @impl true
   def consume(message, table_ref \\ @default_table) do
-    cache_entry =
-      {message.id, message.guild_id, message.channel_id, message.author.id, message.content}
-
-    :ets.insert(table_ref, cache_entry)
-
-    :ok
+    :ets.insert(table_ref, {message.id, message.guild_id, message})
   end
 
   @impl true
+  @doc """
+  See `c:Nosedrum.MessageCache.update/2`.
+  Returns the result of `:ets.insert/2`.
+  """
   def update(message, table_ref \\ @default_table) do
     # Erlang table column indices start from 1, so 5 references the content here.
-    :ets.update_element(table_ref, message.id, [{5, message.content}])
-
-    :ok
+    :ets.insert(table_ref, {message.id, message.guild_id, message})
   end
 end

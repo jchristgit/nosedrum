@@ -70,7 +70,7 @@ defmodule Nosedrum.MessageCache.Agent do
       state
       |> elem(0)
       |> Map.get(guild_id, [])
-      |> Enum.find(&(elem(&1, 0) == message_id))
+      |> Enum.find(&(&1.id == message_id))
     end)
   end
 
@@ -99,8 +99,6 @@ defmodule Nosedrum.MessageCache.Agent do
     Agent.get_and_update(
       cache,
       fn {messages, has_hit_limit, limit} = state ->
-        new_cache_message = {msg.id, msg.channel_id, msg.author.id, msg.content}
-
         hits_limit_after_insertion =
           has_hit_limit or length(Map.get(messages, msg.guild_id, [])) >= limit
 
@@ -108,10 +106,10 @@ defmodule Nosedrum.MessageCache.Agent do
           Map.update(
             messages,
             msg.guild_id,
-            [new_cache_message],
+            [msg],
             &if(hits_limit_after_insertion,
-              do: [new_cache_message | Enum.drop(&1, -1)],
-              else: [new_cache_message | &1]
+              do: [msg | Enum.drop(&1, -1)],
+              else: [msg | &1]
             )
           )
 
@@ -121,8 +119,6 @@ defmodule Nosedrum.MessageCache.Agent do
         {state, updated_state}
       end
     )
-
-    :ok
   end
 
   @impl true
@@ -130,13 +126,12 @@ defmodule Nosedrum.MessageCache.Agent do
     Agent.get_and_update(
       cache,
       fn {messages, _has_hit_limit, _limit} = state ->
-        with guild_msgs when guild_msgs != nil <- Map.get(messages, msg.guild_id),
+        with guild_msgs when guild_msgs != nil <- Map.get(messages, msg.guild_id, []),
              cached_idx when cached_idx != nil <-
-               Enum.find_index(guild_msgs, &(elem(&1, 0) == msg.id)) do
+               Enum.find_index(guild_msgs, &(&1.id == msg.id)) do
           updated_messages = %{
             messages
-            | msg.guild_id =>
-                List.update_at(guild_msgs, cached_idx, &put_elem(&1, 3, msg.content))
+            | msg.guild_id => List.replace_at(guild_msgs, cached_idx, msg)
           }
 
           updated_state = put_elem(state, 0, updated_messages)
@@ -146,7 +141,5 @@ defmodule Nosedrum.MessageCache.Agent do
         end
       end
     )
-
-    :ok
   end
 end

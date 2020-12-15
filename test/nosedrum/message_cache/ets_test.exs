@@ -17,7 +17,7 @@ defmodule Nosedrum.MessageCache.ETSTest do
         guild_id: 12_301_283_091
       }
 
-      :ok = MessageCache.consume(message, tid)
+      true = MessageCache.consume(message, tid)
       %{tid: tid, message: message}
     end
 
@@ -30,8 +30,7 @@ defmodule Nosedrum.MessageCache.ETSTest do
     end
 
     test "returns cached message tuple for cached entry", %{tid: tid, message: message} do
-      cache_message = {message.id, message.channel_id, message.author.id, message.content}
-      assert ^cache_message = MessageCache.get(message.guild_id, message.id, tid)
+      assert ^message = MessageCache.get(message.guild_id, message.id, tid)
     end
   end
 
@@ -50,14 +49,12 @@ defmodule Nosedrum.MessageCache.ETSTest do
         guild_id: 12_301_283_091
       }
 
-      :ok = MessageCache.consume(message, tid)
+      true = MessageCache.consume(message, tid)
       %{tid: tid, message: message}
     end
 
-    test "does not update state for unknown guilds", %{tid: tid} do
-      old_state = :ets.tab2list(tid)
-
-      irrelevant_message = %{
+    test "updates state for new guilds", %{tid: tid} do
+      new_message = %{
         author: %{
           id: 123_901_823
         },
@@ -67,15 +64,13 @@ defmodule Nosedrum.MessageCache.ETSTest do
         guild_id: 57_189
       }
 
-      assert :ok = MessageCache.update(irrelevant_message, tid)
-      assert ^old_state = :ets.tab2list(tid)
+      assert true = MessageCache.update(new_message, tid)
     end
 
     test "updates message content for cached messages", %{tid: tid, message: message} do
       updated_message = %{message | content: "new content"}
-      cache_entry = {message.id, message.channel_id, message.author.id, updated_message.content}
-      assert :ok = MessageCache.update(updated_message, tid)
-      assert ^cache_entry = MessageCache.get(message.guild_id, message.id, tid)
+      assert true = MessageCache.update(updated_message, tid)
+      assert ^updated_message = MessageCache.get(message.guild_id, message.id, tid)
     end
   end
 
@@ -114,16 +109,11 @@ defmodule Nosedrum.MessageCache.ETSTest do
     end
 
     test "returns all messages for cached guild", %{tid: tid, messages: [msg, second_msg]} do
-      first_msg_id = msg.id
-      second_msg_id = second_msg.id
-
-      assert [{^first_msg_id, _, _, _}, {^second_msg_id, _, _, _}] =
-               MessageCache.recent_in_guild(msg.guild_id, nil, tid)
+      assert [^msg, ^second_msg] = MessageCache.recent_in_guild(msg.guild_id, nil, tid)
     end
 
     test "returns sliced messages with specified limit", %{tid: tid, messages: [msg | _]} do
-      msg_id = msg.id
-      assert [{^msg_id, _, _, _}] = MessageCache.recent_in_guild(msg.guild_id, 1, tid)
+      assert [^msg] = MessageCache.recent_in_guild(msg.guild_id, 1, tid)
     end
   end
 
@@ -155,7 +145,7 @@ defmodule Nosedrum.MessageCache.ETSTest do
         guild_id: 12_095_190
       }
 
-      assert :ok = MessageCache.consume(message)
+      assert true = MessageCache.consume(message)
     end
 
     test "update/1-2 provides a default table name" do
@@ -167,7 +157,7 @@ defmodule Nosedrum.MessageCache.ETSTest do
         id: 125_091_809_251
       }
 
-      assert :ok = MessageCache.update(message)
+      assert true = MessageCache.update(message)
     end
   end
 end
