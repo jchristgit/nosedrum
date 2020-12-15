@@ -34,7 +34,7 @@ defmodule Nosedrum.MessageCache.ETS do
 
   # Perhaps, someday, check match specs with `map_get`:
   #
-  #   def recent_in_guild(guild_id, nil, table_ref) do
+  #   def recent_in_guild(guild_id, :infinity, table_ref) do
   #     :ets.select_reverse(table_ref, [
   #       {{:"$1", :"$2"}, [{:==, {:map_get, :"$2", :guild_id}, guild_id}], [:"$2"]}
   #     ])
@@ -86,7 +86,7 @@ defmodule Nosedrum.MessageCache.ETS do
   @impl true
   def recent_in_guild(guild_id, limit, table_ref \\ @default_table)
 
-  def recent_in_guild(guild_id, nil, table_ref) do
+  def recent_in_guild(guild_id, :infinity, table_ref) do
     :ets.select_reverse(table_ref, [
       {{:"$1", :"$2", :"$3"}, [{:==, :"$2", guild_id}], [:"$3"]}
     ])

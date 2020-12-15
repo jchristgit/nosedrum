@@ -105,11 +105,11 @@ defmodule Nosedrum.MessageCache.ETSTest do
     end
 
     test "returns empty list for unknown guild", %{tid: tid} do
-      assert [] = MessageCache.recent_in_guild(21_951_095, nil, tid)
+      assert [] = MessageCache.recent_in_guild(21_951_095, :infinity, tid)
     end
 
     test "returns all messages for cached guild", %{tid: tid, messages: [msg, second_msg]} do
-      assert [^msg, ^second_msg] = MessageCache.recent_in_guild(msg.guild_id, nil, tid)
+      assert [^msg, ^second_msg] = MessageCache.recent_in_guild(msg.guild_id, :infinity, tid)
     end
 
     test "returns sliced messages with specified limit", %{tid: tid, messages: [msg | _]} do
@@ -129,7 +129,7 @@ defmodule Nosedrum.MessageCache.ETSTest do
     end
 
     test "recent_in_guild/2-3 provides a default table name" do
-      assert [] = MessageCache.recent_in_guild(1_295_012_951, nil)
+      assert [] = MessageCache.recent_in_guild(1_295_012_951, :infinity)
     end
 
     test "recent_in_guild/2-3 provides a default table name with a specified limit" do

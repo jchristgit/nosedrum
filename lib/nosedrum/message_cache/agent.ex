@@ -77,7 +77,7 @@ defmodule Nosedrum.MessageCache.Agent do
   @impl true
   def recent_in_guild(guild_id, limit, cache \\ __MODULE__)
 
-  def recent_in_guild(guild_id, nil, cache) do
+  def recent_in_guild(guild_id, :infinity, cache) do
     Agent.get(cache, fn state ->
       state
       |> elem(0)

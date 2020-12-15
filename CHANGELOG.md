@@ -11,7 +11,11 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - Cache entire messages in message cache implementations.
 - Return direct values from `:ets.insert` or `Agent.get_and_update` in
-  `Nosedrum.MessageCache` implementations.
+  `Nosedrum.MessageCache` implementations. If you match on the `:ok` value
+  returned in `MessageCache.get` or `MessageCache.update`, you will need to
+  update your code.
+- Change value to signal "return all cached messages" in
+  `Nosedrum.MessageCache.recent_in_guild` from `nil` to `:infinity`.
 
 
 ## v0.3.0 - 7.12.2020

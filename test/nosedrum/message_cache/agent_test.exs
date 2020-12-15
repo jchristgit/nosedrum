@@ -25,7 +25,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: 12_301_283_091
       }
 
-      :ok = MessageCache.consume(message, pid)
+      MessageCache.consume(message, pid)
       %{pid: pid, message: message}
     end
 
@@ -56,7 +56,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: 12_301_283_091
       }
 
-      :ok = MessageCache.consume(message, pid)
+      MessageCache.consume(message, pid)
       %{pid: pid, message: message}
     end
 
@@ -71,12 +71,12 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: 57_189
       }
 
-      assert :ok = MessageCache.update(new_message, pid)
+      assert MessageCache.update(new_message, pid)
     end
 
     test "updates message content for cached messages", %{pid: pid, message: message} do
       updated_message = %{message | content: "new content"}
-      assert :ok = MessageCache.update(updated_message, pid)
+      assert MessageCache.update(updated_message, pid)
       assert ^updated_message = MessageCache.get(message.guild_id, message.id, pid)
     end
   end
@@ -111,11 +111,11 @@ defmodule Nosedrum.MessageCache.AgentTest do
     end
 
     test "returns empty list for unknown guild", %{pid: pid} do
-      assert [] = MessageCache.recent_in_guild(21_951_095, nil, pid)
+      assert [] = MessageCache.recent_in_guild(21_951_095, :infinity, pid)
     end
 
     test "returns all messages for cached guild", %{pid: pid, messages: [msg, second_msg]} do
-      assert [^msg, ^second_msg] = MessageCache.recent_in_guild(msg.guild_id, nil, pid)
+      assert [^msg, ^second_msg] = MessageCache.recent_in_guild(msg.guild_id, :infinity, pid)
     end
 
     test "returns sliced messages with specified limit", %{pid: pid, messages: [msg | _]} do
@@ -136,7 +136,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: 12_039_182_390
       }
 
-      :ok = MessageCache.consume(message, pid)
+      MessageCache.consume(message, pid)
       %{pid: pid, message: message}
     end
 
@@ -150,9 +150,9 @@ defmodule Nosedrum.MessageCache.AgentTest do
       }
 
       assert message = MessageCache.get(message.guild_id, message.id, pid)
-      assert [message] = MessageCache.recent_in_guild(message.guild_id, nil, pid)
-      assert :ok = MessageCache.consume(new_message, pid)
-      assert [^new_message] = MessageCache.recent_in_guild(message.guild_id, nil, pid)
+      assert [message] = MessageCache.recent_in_guild(message.guild_id, :infinity, pid)
+      assert MessageCache.consume(new_message, pid)
+      assert [^new_message] = MessageCache.recent_in_guild(message.guild_id, :infinity, pid)
 
       assert ^new_message = MessageCache.get(new_message.guild_id, new_message.id, pid)
     end
@@ -173,7 +173,7 @@ defmodule Nosedrum.MessageCache.AgentTest do
     end
 
     test "recent_in_guild/2-3 with no limit defaults to using the module name" do
-      assert [] = MessageCache.recent_in_guild(1_295_012_951, nil)
+      assert [] = MessageCache.recent_in_guild(1_295_012_951, :infinity)
     end
 
     test "recent_in_guild/2-3 with limit defaults to using the module name" do
@@ -189,11 +189,11 @@ defmodule Nosedrum.MessageCache.AgentTest do
         guild_id: 12_095_190
       }
 
-      assert :ok = MessageCache.consume(message)
+      assert MessageCache.consume(message)
     end
 
     test "update/1-2 defaults to using the module name" do
-      assert :ok = MessageCache.update(%{guild_id: 1_291_049_124_210})
+      assert MessageCache.update(%{guild_id: 1_291_049_124_210})
     end
   end
 end

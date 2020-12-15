@@ -21,14 +21,14 @@ defmodule Nosedrum.MessageCache do
 
   @doc """
   Retrieve up to `limit` messages for the given `guild_id` from the cache
-  process identified by `cache`. If `limit` is `nil`, return all
+  process identified by `cache`. If `limit` is `:infinity`, return all
   messages for that guild from the cache.
 
   If the guild is not cached, an empty message list is returned.
   """
   @callback recent_in_guild(
               guild_id :: Guild.id(),
-              limit :: pos_integer | nil,
+              limit :: pos_integer | :infinity,
               cache :: reference()
             ) ::
               {:ok, [Message.t()]} | {:error, String.t()}
