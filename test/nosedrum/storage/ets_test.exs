@@ -3,6 +3,7 @@ defmodule Nosedrum.Storage.ETSTest do
   use ExUnit.Case, async: true
 
   defmodule TestCommand do
+    def aliases, do: ["nose", "drum"]
   end
 
   describe "reading with no table entries" do
@@ -33,22 +34,28 @@ defmodule Nosedrum.Storage.ETSTest do
     setup do
       pid = start_supervised!(Storage.ETS)
       command_name = "zoink"
-      :ok = Storage.ETS.add_command([command_name], Command)
+      :ok = Storage.ETS.add_command([command_name], TestCommand)
       %{pid: pid, command_name: command_name}
     end
 
     test "lookup_command/1 returns the added command" do
-      assert Storage.ETS.lookup_command("zoink") == Command
+      assert Storage.ETS.lookup_command("zoink") == TestCommand
+      assert Storage.ETS.lookup_command("nose") == TestCommand
+      assert Storage.ETS.lookup_command("drum") == TestCommand
     end
 
     test "all_commands/0 shows added command", %{command_name: command_name} do
-      assert Storage.ETS.all_commands() == %{command_name => Command}
+      assert Storage.ETS.all_commands() == %{
+               command_name => TestCommand,
+               "nose" => TestCommand,
+               "drum" => TestCommand
+             }
     end
 
     test "add_command/2 returns error when trying to add subcommand", %{
       command_name: command_name
     } do
-      assert {:error, _reason} = Storage.ETS.add_command([command_name, "test"], Command)
+      assert {:error, _reason} = Storage.ETS.add_command([command_name, "test"], TestCommand)
     end
 
     test "remove_command/2 returns error when trying to remove subcommand", %{
@@ -90,7 +97,7 @@ defmodule Nosedrum.Storage.ETSTest do
     setup do
       pid = start_supervised!(Storage.ETS)
       command_path = ["zerg", "spawn", "minion"]
-      :ok = Storage.ETS.add_command(command_path, Command)
+      :ok = Storage.ETS.add_command(command_path, TestCommand)
       %{pid: pid, command_path: command_path}
     end
 
@@ -98,12 +105,24 @@ defmodule Nosedrum.Storage.ETSTest do
       assert :ok = Storage.ETS.add_command([group, subgroup, "promote"], Command)
 
       assert Storage.ETS.lookup_command(group) == %{
-               subgroup => %{subcommand => Command, "promote" => Command}
+               subgroup => %{
+                 subcommand => TestCommand,
+                 "nose" => TestCommand,
+                 "drum" => TestCommand,
+                 "promote" => Command
+               }
              }
     end
 
     test "remove_command/2 removes the entry", %{command_path: [group, subgroup, subcommand]} do
-      assert Storage.ETS.lookup_command(group) == %{subgroup => %{subcommand => Command}}
+      assert Storage.ETS.lookup_command(group) == %{
+               subgroup => %{
+                 subcommand => TestCommand,
+                 "nose" => TestCommand,
+                 "drum" => TestCommand
+               }
+             }
+
       assert :ok = Storage.ETS.remove_command([group, subgroup, subcommand])
       assert Storage.ETS.lookup_command(group) == nil
     end
