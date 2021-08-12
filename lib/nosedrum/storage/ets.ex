@@ -14,7 +14,14 @@ defmodule Nosedrum.Storage.ETS do
   use GenServer
 
   @spec put_nested_command(Map.t(), [String.t()], Module.t()) :: Nosedrum.Storage.command_group()
-  defp put_nested_command(acc, [name], command), do: Map.put(acc, name, command)
+  defp put_nested_command(acc, [name], command) do
+    if function_exported?(command, :aliases, 0) do
+      Enum.reduce(command.aliases(), acc, &Map.put(&2, &1, command))
+    else
+      acc
+    end
+    |> Map.put(name, command)
+  end
 
   defp put_nested_command(acc, [name | path], command),
     do: Map.put(acc, name, put_nested_command(Map.get(acc, name, %{}), path, command))
@@ -23,6 +30,10 @@ defmodule Nosedrum.Storage.ETS do
   def add_command(path, command, table_ref \\ @default_table)
 
   def add_command([name], command, table_ref) do
+    if function_exported?(command, :aliases, 0) do
+      Enum.each(command.aliases, &:ets.insert(table_ref, {&1, command}))
+    end
+
     :ets.insert(table_ref, {name, command})
 
     :ok
@@ -30,18 +41,13 @@ defmodule Nosedrum.Storage.ETS do
 
   def add_command([name | path], command, table_ref) do
     case lookup_command(name, table_ref) do
-      nil ->
-        cog = put_nested_command(%{}, path, command)
+      maybe_map when is_map(maybe_map) or is_nil(maybe_map) ->
+        cog = put_nested_command(maybe_map || %{}, path, command)
         :ets.insert(table_ref, {name, cog})
         :ok
 
       module when not is_map(module) ->
         {:error, "command `#{name} is a top-level command, cannot add subcommand at `#{path}"}
-
-      map ->
-        cog = put_nested_command(map, path, command)
-        :ets.insert(table_ref, {name, cog})
-        :ok
     end
   end
 
@@ -54,6 +60,12 @@ defmodule Nosedrum.Storage.ETS do
   def remove_command(path, table_ref \\ @default_table)
 
   def remove_command([name], table_ref) do
+    command = lookup_command(name, table_ref)
+
+    if function_exported?(command, :aliases, 0) do
+      Enum.each(command.aliases(), &:ets.delete(table_ref, {&1, command}))
+    end
+
     :ets.delete(table_ref, name)
 
     :ok
@@ -69,7 +81,14 @@ defmodule Nosedrum.Storage.ETS do
          "command `#{name}` is a top-level command, cannot remove subcommand at `#{path}`"}
 
       map ->
-        {_dropped_cog, updated_cog} = pop_in(map, path)
+        {dropped_cog, updated_cog} = pop_in(map, path)
+
+        updated_cog =
+          if function_exported?(dropped_cog, :aliases, 0) do
+            Map.drop(updated_cog, dropped_cog.aliases())
+          else
+            updated_cog
+          end
 
         case Enum.reject(updated_cog, &is_empty_cog?/1) do
           [] ->

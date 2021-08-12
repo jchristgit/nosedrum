@@ -129,5 +129,13 @@ defmodule Nosedrum.Command do
   """
   @callback command(msg :: Message.t(), args :: [String.t()] | any()) :: any()
 
-  @optional_callbacks [parse_args: 1]
+  @doc """
+  An optional callback that returns a list of aliases for the command.
+
+  If any of the aliases returned conflict with existing commands/aliases, they
+  will be overwritten.
+  """
+  @callback aliases() :: [String.t()]
+
+  @optional_callbacks [parse_args: 1, aliases: 0]
 end
