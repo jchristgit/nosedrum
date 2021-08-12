@@ -1,6 +1,6 @@
 defmodule Nosedrum.Storage.ETSTest do
   alias Nosedrum.Storage
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   defmodule TestCommand do
     def aliases, do: ["nose", "drum"]
