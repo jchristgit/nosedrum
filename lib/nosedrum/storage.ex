@@ -47,7 +47,9 @@ defmodule Nosedrum.Storage do
   @doc """
   Add a new command under the given `path`.
 
-  If the command already exists, no error should be returned.
+  If a command has the c:Nosedrum.Command.aliases/0 callback defined,
+  they will also be added under `path`. If the command already exists,
+  no error should be returned.
   """
   @callback add_command(path :: command_path, command :: Module.t(), storage :: reference) ::
               :ok | {:error, String.t()}
@@ -55,7 +57,9 @@ defmodule Nosedrum.Storage do
   @doc """
   Remove the command under the given `path`.
 
-  If the command does not exist, no error should be returned.
+  If a command has the c:Nosedrum.Command.aliases/0 callback defined,
+  they will also be removed under `path`. If the command does not exist,
+  no error should be returned.
   """
   @callback remove_command(path :: command_path, storage :: reference) ::
               :ok | {:error, String.t()}
