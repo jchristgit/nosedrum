@@ -95,11 +95,11 @@ defmodule Nosedrum do
           "ed" => MyBot.Cogs.Ed
         }
 
-        def handle_event({:READY, {_data}, _ws_state}) do
+        def handle_event({:READY, _data, _ws_state}) do
           Enum.each(@commands, fn {name, cog} -> CommandStorage.add_command([name], cog) end)
         end
 
-        def handle_event({:MESSAGE_CREATE, {msg}, _ws_state}) do
+        def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
           CommandInvoker.handle_message(msg, CommandStorage)
         end
 
