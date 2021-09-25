@@ -9,6 +9,19 @@ defmodule Nosedrum.Interactor.Dispatcher do
   alias Nostrum.Struct.Interaction
   alias Nosedrum.Interactor
 
+  @option_type_map %{
+    sub_command: 1,
+    sub_command_group: 2,
+    string: 3,
+    integer: 4,
+    boolean: 5,
+    user: 6,
+    channel: 7,
+    role: 8,
+    mentionable: 9,
+    number: 10,
+  }
+
   ## Api
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -20,51 +33,80 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   # TODO: Add an `:overwrite?` option to add_command. When false, add_command will do nothing if a command under the
-  # given path is already registered
+  # given path is already registered. Default to true
   @impl true
-  def add_command(path, scope, command) do
-    payload = build_payload(path, command)
+  def add_command(path, scope) do
+    payload = build_payload(path)
 
-    GenServer.call(__MODULE__, {:add, payload, path, scope, command})
+    GenServer.call(__MODULE__, {:add, payload, path, scope})
   end
 
-  defp build_payload(path, command) when is_binary(path) do
+  def add_command(name, command, scope) do
+    path = %{name => command}
+    payload = build_payload(path)
+
+    GenServer.call(__MODULE__, {:add, payload, path, scope})
+  end
+
+  # defp build_payload(name, command) do
+  #   options = if function_exported?(command, :options, 0) do
+  #     command.options()
+  #     |> parse_option_types()
+  #   else
+  #     []
+  #   end
+
+  #   %{
+  #     type: parse_type(command.type()),
+  #     name: name,
+  #     description: command.description(),
+  #     options: options,
+  #   }
+  # end
+
+  defp build_payload(path) when is_map(path) do
+    if map_size(path) == 1 do
+      item = Enum.take(path, 1) |> List.first()
+      build_payload(path, item)
+    else
+      Enum.map(path, &build_payload(path, &1))
+    end
+  end
+
+  defp build_payload(path, {{name, desc}, map}) do
+    if get_depth(path) == 3 do
+      %{
+        name: name,
+        description: desc,
+        options: build_payload(map),
+      }
+    else
+      # Determine type based on depth of the remaining path. 2 is SUB_COMMAND_GROUP and 1 is SUB_COMMAND
+      type = get_depth(map) == 2 && 2 || 1
+
+      %{
+        type: type,
+        name: name,
+        description: desc,
+        options: build_payload(map),
+      }
+    end
+  end
+
+  defp build_payload(_path, {name, command}) when is_binary(name) and is_atom(command) do
     options = if function_exported?(command, :options, 0) do
       command.options()
+      |> parse_option_types()
     else
       []
     end
-    IO.inspect command
-    IO.inspect function_exported?(command, :options, 0)
 
     %{
       type: parse_type(command.type()),
-      name: path,
+      name: name,
       description: command.description(),
       options: options,
     }
-  end
-
-  defp build_payload(path, command) when is_list(path) do
-    Enum.map(path, fn {{name, desc}, list} ->
-      if get_depth(path) == 3 do
-        %{
-          name: name,
-          description: desc,
-          options: build_payload(list, command),
-        }
-      else
-        # Determine type based on depth of the remaining path. 2 is SUB_COMMAND_GROUP and 1 is SUB_COMMAND
-        type = get_depth(list) == 2 && 2 || 1
-
-        %{
-          type: type,
-          name: name,
-          description: desc,
-          options: build_payload(list, command),
-        }
-      end
-    end)
   end
 
   @impl true
@@ -79,21 +121,21 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   @impl true
-  def handle_call({:add, payload, path, :global, command}, _from, commands) do
+  def handle_call({:add, payload, path, :global}, _from, commands) do
     case Nostrum.Api.create_global_application_command(payload) do
       {:ok, _} = response ->
-        {:reply, response, Map.put(commands, path, command)}
+        {:reply, response, Map.merge(commands, path)}
       error ->
         {:reply, {:error, error}, commands}
     end
   end
 
   @impl true
-  def handle_call({:add, payload, path, {:guild, guild_ids}, command}, _from, commands) when is_list(guild_ids) do
+  def handle_call({:add, payload, path, {:guild, guild_ids}}, _from, commands) when is_list(guild_ids) do
     Enum.each(guild_ids, fn guild_id ->
       case Nostrum.Api.create_guild_application_command(guild_id, payload) do
         {:ok, _} = response ->
-          {:reply, response, Map.put(commands, path, command)}
+          {:reply, response, Map.merge(commands, path)}
         error ->
           {:reply, {:error, error}, commands}
       end
@@ -101,10 +143,10 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   @impl true
-  def handle_call({:add, payload, path, {:guild, guild_id}, command}, _from, commands) do
+  def handle_call({:add, payload, path, {:guild, guild_id}}, _from, commands) do
     case Nostrum.Api.create_guild_application_command(guild_id, payload) do
       {:ok, _} = response ->
-        {:reply, response, Map.put(commands, path, command)}
+        {:reply, response, Map.merge(commands, path)}
       error ->
         {:reply, {:error, error}, commands}
     end
@@ -112,6 +154,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
 
   @impl true
   def handle_cast({:handle, %Interaction{data: %{name: name}} = interaction}, commands) do
+    IO.inspect interaction.data
     with {:ok, module} <- Map.fetch(commands, name) do
       response = module.command(interaction)
       Interactor.respond(interaction, response)
@@ -127,15 +170,25 @@ defmodule Nosedrum.Interactor.Dispatcher do
     }, type)
   end
 
-  defp get_depth(path, depth) when is_binary(path) do
-    depth + 1
+  defp parse_option_types(options) do
+    Enum.map(options, fn
+      map when is_map_key(map, :type) ->
+        Map.update!(map, :type, &Map.fetch!(@option_type_map, &1))
+
+      map -> map
+    end)
   end
 
   defp get_depth(path, depth) do
-    get_depth(path, depth + 1)
+    Enum.reduce(path, 0, fn
+      {{_name, _desc}, map}, cur_max when is_map(map) ->
+        max(cur_max, get_depth(map, depth + 1))
+      {_name, command}, cur_max when is_atom(command) ->
+        max(cur_max, depth)
+    end)
   end
 
   defp get_depth(path) do
-    get_depth(path, 0)
+    get_depth(path, 1)
   end
 end

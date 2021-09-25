@@ -6,19 +6,6 @@ defmodule Nosedrum.ApplicationCommand do
   Like regular commands, application command modules are stateless on their own.
   """
 
-  @option_type_map %{
-    sub_command: 1,
-    sub_command_group: 2,
-    string: 3,
-    integer: 4,
-    boolean: 5,
-    user: 6,
-    channel: 7,
-    role: 8,
-    mentionable: 9,
-    number: 10,
-  }
-
   @type response_type :: :channel_message_with_source | :deferred_channel_message_with_source |
   :deferred_update_message | :pong | :update_message
 

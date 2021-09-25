@@ -30,9 +30,9 @@ defmodule Nosedrum.Interactor do
   **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
   """
   @type application_command_path ::
-    String.t()
+    %{name :: String.t() => app_cmd_module :: module}
     | %{
-      {name :: String.t(), desc :: String.t()} => [application_command_path()]
+      {group_name :: String.t(), group_desc :: String.t()} => application_command_path
     }
 
   @doc """
@@ -47,7 +47,7 @@ defmodule Nosedrum.Interactor do
 
   If the command already exists, it will be overwritten.
   """
-  @callback add_command(path :: application_command_path, scope :: command_scope, command :: Module.t()) ::
+  @callback add_command(path :: application_command_path, scope :: command_scope) ::
               :ok | {:error, String.t()}
 
   @doc """
