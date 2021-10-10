@@ -24,15 +24,16 @@ defmodule Nosedrum.Interactor do
   @type command_scope :: :global | {:guild, Snowflake.t() | [Snowflake.t()]}
 
   @typedoc """
-  Defines either the name of an Application Command, or a structure of commands, subcommands, subcommand groups, as
+  Defines a structure of commands, subcommands, subcommand groups, as
   outlined in the [official documentation](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups)
 
   **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
   """
   @type application_command_path ::
-    %{name :: String.t() => app_cmd_module :: module}
-    | %{
-      {group_name :: String.t(), group_desc :: String.t()} => application_command_path
+    %{
+      {group_name :: String.t(), group_desc :: String.t()} => [
+        application_command_path | [Nosedrum.ApplicationCommand.option()]
+      ]
     }
 
   @doc """
@@ -47,7 +48,7 @@ defmodule Nosedrum.Interactor do
 
   If the command already exists, it will be overwritten.
   """
-  @callback add_command(path :: application_command_path, scope :: command_scope) ::
+  @callback add_command(name_or_path :: String.t() | application_command_path, command_module :: module, scope :: command_scope) ::
               :ok | {:error, String.t()}
 
   @doc """
@@ -55,7 +56,7 @@ defmodule Nosedrum.Interactor do
 
   If the command does not exist, no error should be returned.
   """
-  @callback remove_command(path :: application_command_path, scope :: command_scope) ::
+  @callback remove_command(name_or_path :: String.t() | application_command_path, scope :: command_scope) ::
               :ok | {:error, String.t()}
 
   @doc """
