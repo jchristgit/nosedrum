@@ -6,8 +6,12 @@ defmodule Nosedrum.ApplicationCommand do
   Like regular commands, application command modules are stateless on their own.
   """
 
-  @type response_type :: :channel_message_with_source | :deferred_channel_message_with_source |
-  :deferred_update_message | :pong | :update_message
+  @type response_type ::
+          :channel_message_with_source
+          | :deferred_channel_message_with_source
+          | :deferred_update_message
+          | :pong
+          | :update_message
 
   @typedoc """
   `:allowed_mentions` should contain "users", "roles", and/or "everyone", or be an empty list.
@@ -28,20 +32,20 @@ defmodule Nosedrum.ApplicationCommand do
   either `:embeds` or `:content` must be present.
 
   ## Example
+  ```elixir
+  def command(interaction) do
+    # ...
 
-    def command(interaction) do
-      # ...
+    # Since `:content` is included, Nosedrum will infer `type: :channel_message_with_source`
+    response = [
+      content: "Hello, world!",
+      ephemeral?: true,
+      allowed_mentions: ["users", "roles"]
+    ]
 
-      # Since `:content` is included, Nosedrum will infer `type: :channel_message_with_source`
-      response = [
-        content: "Hello, world!",
-        ephemeral?: true,
-        allowed_mentions: ["users", "roles"]
-      ]
-
-      {:response, response}
-    end
-
+    {:response, response}
+  end
+  ```
   """
   @type response :: [response_field]
 
@@ -88,8 +92,9 @@ defmodule Nosedrum.ApplicationCommand do
   Returns a description of the command. Used when registering the command with Discord.
 
   ## Example
-
-    def description, do: "This is a command description."
+  ```elixir
+  def description, do: "This is a command description."
+  ```
   """
   @callback description() :: String.t()
 
@@ -102,33 +107,34 @@ defmodule Nosedrum.ApplicationCommand do
   [Application Command documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure).
 
   ## Example
-
-    # For example, the options for a /role command might look like...
-    def options, do:
-      [
-        %{
-          type: :user,
-          name: "user",
-          description: "The user to assign the role to.",
-          required: true # Defaults to false if not specified.
-        },
-        %{
-          type: :role,
-          name: "role",
-          description: "The role to be assigned.",
-          required: true,
-          choices: [
-            %{
-              name: "Event Notifications",
-              value: 123456789123456789 # A role ID, passed to your `command/1` callback via the Interaction struct.
-            },
-            %{
-              name: "Announcements",
-              value: 123456789123456790
-            }
-          ]
-        }
-      ]
+  ```elixir
+  # For example, the options for a /role command might look like...
+  def options, do:
+    [
+      %{
+        type: :user,
+        name: "user",
+        description: "The user to assign the role to.",
+        required: true # Defaults to false if not specified.
+      },
+      %{
+        type: :role,
+        name: "role",
+        description: "The role to be assigned.",
+        required: true,
+        choices: [
+          %{
+            name: "Event Notifications",
+            value: 123456789123456789 # A role ID, passed to your `command/1` callback via the Interaction struct.
+          },
+          %{
+            name: "Announcements",
+            value: 123456789123456790
+          }
+        ]
+      }
+    ]
+  ```
   """
   @callback options() :: [option]
 

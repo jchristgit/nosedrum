@@ -19,7 +19,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
     channel: 7,
     role: 8,
     mentionable: 9,
-    number: 10,
+    number: 10
   }
 
   ## Api
@@ -37,6 +37,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
   @impl true
   def add_command(path, command, scope) do
     payload = build_payload(path, command)
+
     command_name =
       if is_binary(path) do
         path
@@ -48,57 +49,6 @@ defmodule Nosedrum.Interactor.Dispatcher do
       end
 
     GenServer.call(__MODULE__, {:add, payload, command_name, command, scope})
-  end
-
-  defp build_payload(name, command) when is_binary(name) do
-      Code.ensure_loaded(command)
-      options = if function_exported?(command, :options, 0) do
-        command.options()
-        |> parse_option_types()
-      else
-        []
-      end
-
-      %{
-        type: parse_type(command.type()),
-        name: name,
-        description: command.description(),
-        options: options,
-      }
-  end
-
-  # This seems like a hacky way to unwrap the outer list...
-  defp build_payload(path, command) do
-    build_payload({path, command})
-    |> List.first()
-  end
-
-  defp build_payload({path, command}) when is_map(path) do
-    Enum.map(path, fn {{name, desc}, value} ->
-      if get_depth(path) == 3 do
-        %{
-          name: name,
-          description: desc,
-          options: build_payload({value, command}),
-        }
-      else
-        # Determine type based on depth of the remaining path. 2 is SUB_COMMAND_GROUP and 1 is SUB_COMMAND
-        type = get_depth(value) == 2 && 2 || 1
-
-        %{
-          type: type,
-          name: name,
-          description: desc,
-          options: build_payload({value, command}),
-        }
-      end
-    end)
-  end
-
-  # TODO: Might want to let the user define a `options/1` callback in their command module, where the parameter is the
-  # tuple key for these options in the path (i.e. {"get", "Get permissions for a user"})
-  defp build_payload({options, command}) when is_list(options) do
-    parse_option_types(options)
   end
 
   @impl true
@@ -117,22 +67,26 @@ defmodule Nosedrum.Interactor.Dispatcher do
     case Nostrum.Api.create_global_application_command(payload) do
       {:ok, _} = response ->
         {:reply, response, Map.put(commands, name, command)}
+
       error ->
         {:reply, {:error, error}, commands}
     end
   end
 
   @impl true
-  def handle_call({:add, payload, name, command, guild_id_list}, _from, commands) when is_list(guild_id_list) do
+  def handle_call({:add, payload, name, command, guild_id_list}, _from, commands)
+      when is_list(guild_id_list) do
     res =
       Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
         case Nostrum.Api.create_guild_application_command(guild_id, payload) do
           {:ok, _} = response ->
             {errors, [response | responses]}
+
           error ->
             {[error | errors], responses}
         end
       end)
+
     {:reply, res, Map.put(commands, name, command)}
   end
 
@@ -141,6 +95,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
     case Nostrum.Api.create_guild_application_command(guild_id, payload) do
       {:ok, _} = response ->
         {:reply, response, Map.put(commands, name, command)}
+
       error ->
         {:reply, {:error, error}, commands}
     end
@@ -151,22 +106,26 @@ defmodule Nosedrum.Interactor.Dispatcher do
     case Nostrum.Api.delete_global_application_command(command_id) do
       {:ok, _} = response ->
         {:reply, response, Map.delete(commands, name)}
+
       error ->
         {:reply, {:error, error}, commands}
     end
   end
 
   @impl true
-  def handle_call({:remove, name, command_id, guild_id_list}, _from, commands) when is_list(guild_id_list) do
+  def handle_call({:remove, name, command_id, guild_id_list}, _from, commands)
+      when is_list(guild_id_list) do
     res =
       Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
         case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
           {:ok} ->
             {errors, [:ok | responses]}
+
           error ->
             {[error | errors], responses}
         end
       end)
+
     {:reply, res, Map.delete(commands, name)}
   end
 
@@ -175,6 +134,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
     case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
       {:ok, _} = response ->
         {:reply, response, Map.delete(commands, name)}
+
       error ->
         {:reply, {:error, error}, commands}
     end
@@ -186,15 +146,72 @@ defmodule Nosedrum.Interactor.Dispatcher do
       response = module.command(interaction)
       Interactor.respond(interaction, response)
     end
+
     {:noreply, commands}
   end
 
+  defp build_payload(name, command) when is_binary(name) do
+    Code.ensure_loaded(command)
+
+    options =
+      if function_exported?(command, :options, 0) do
+        command.options()
+        |> parse_option_types()
+      else
+        []
+      end
+
+    %{
+      type: parse_type(command.type()),
+      name: name,
+      description: command.description(),
+      options: options
+    }
+  end
+
+  # This seems like a hacky way to unwrap the outer list...
+  defp build_payload(path, command) do
+    build_payload({path, command})
+    |> List.first()
+  end
+
+  defp build_payload({path, command}) when is_map(path) do
+    Enum.map(path, fn {{name, desc}, value} ->
+      if get_depth(path) == 3 do
+        %{
+          name: name,
+          description: desc,
+          options: build_payload({value, command})
+        }
+      else
+        # Determine type based on depth of the remaining path. 2 is SUB_COMMAND_GROUP and 1 is SUB_COMMAND
+        type = (get_depth(value) == 2 && 2) || 1
+
+        %{
+          type: type,
+          name: name,
+          description: desc,
+          options: build_payload({value, command})
+        }
+      end
+    end)
+  end
+
+  # TODO: Might want to let the user define a `options/1` callback in their command module, where the parameter is the
+  # tuple key for these options in the path (i.e. {"get", "Get permissions for a user"})
+  defp build_payload({options, command}) when is_list(options) do
+    parse_option_types(options)
+  end
+
   defp parse_type(type) do
-    Map.fetch!(%{
-      slash: 1,
-      user: 2,
-      message: 3,
-    }, type)
+    Map.fetch!(
+      %{
+        slash: 1,
+        user: 2,
+        message: 3
+      },
+      type
+    )
   end
 
   defp parse_option_types(options) do
@@ -202,7 +219,8 @@ defmodule Nosedrum.Interactor.Dispatcher do
       map when is_map_key(map, :type) ->
         Map.update!(map, :type, &Map.fetch!(@option_type_map, &1))
 
-      map -> map
+      map ->
+        map
     end)
   end
 
@@ -210,6 +228,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
     Enum.reduce(path, 0, fn
       {_key, map}, cur_max when is_list(map) ->
         max(cur_max, get_depth(map, depth + 1))
+
       _, cur_max ->
         max(cur_max, depth)
     end)

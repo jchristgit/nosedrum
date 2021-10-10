@@ -18,7 +18,7 @@ defmodule Nosedrum.Interactor do
     channel_message_with_source: 4,
     deferred_channel_message_with_source: 5,
     deferred_update_message: 6,
-    update_message: 7,
+    update_message: 7
   }
 
   @type command_scope :: :global | Snowflake.t() | [Snowflake.t()]
@@ -30,11 +30,11 @@ defmodule Nosedrum.Interactor do
   **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
   """
   @type application_command_path ::
-    %{
-      {group_name :: String.t(), group_desc :: String.t()} => [
-        application_command_path | [Nosedrum.ApplicationCommand.option()]
-      ]
-    }
+          %{
+            {group_name :: String.t(), group_desc :: String.t()} => [
+              application_command_path | [Nosedrum.ApplicationCommand.option()]
+            ]
+          }
 
   @doc """
   Handle an Application Command invocation.
@@ -48,7 +48,11 @@ defmodule Nosedrum.Interactor do
 
   If the command already exists, it will be overwritten.
   """
-  @callback add_command(name_or_path :: String.t() | application_command_path, command_module :: module, scope :: command_scope) ::
+  @callback add_command(
+              name_or_path :: String.t() | application_command_path,
+              command_module :: module,
+              scope :: command_scope
+            ) ::
               :ok | {:error, String.t()}
 
   @doc """
@@ -56,13 +60,18 @@ defmodule Nosedrum.Interactor do
 
   If the command does not exist, no error should be returned.
   """
-  @callback remove_command(name_or_path :: String.t() | application_command_path, scope :: command_scope) ::
+  @callback remove_command(
+              name_or_path :: String.t() | application_command_path,
+              command_id :: Nostrum.Snowflake.t(),
+              scope :: command_scope
+            ) ::
               :ok | {:error, String.t()}
 
   @doc """
   Responds to a given Interaction with `Nosedrum.ApplicationCommand.response` value.
   """
-  @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response) :: {:ok} | Nostrum.Api.error
+  @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
+          {:ok} | Nostrum.Api.error()
   def respond(interaction, command_response) do
     type =
       command_response
@@ -73,7 +82,7 @@ defmodule Nosedrum.Interactor do
       command_response
       |> Keyword.take([:content, :embeds, :components, :tts?, :allowed_mentions])
       |> Map.new()
-      |> then(&(if command_response[:ephemeral?], do: Map.put(&1, :flags, 64), else: &1))
+      |> then(&if command_response[:ephemeral?], do: Map.put(&1, :flags, 64), else: &1)
 
     res = %{
       type: type,
