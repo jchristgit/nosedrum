@@ -21,7 +21,7 @@ defmodule Nosedrum.Interactor do
     update_message: 7,
   }
 
-  @type command_scope :: :global | {:guild, Snowflake.t() | [Snowflake.t()]}
+  @type command_scope :: :global | Snowflake.t() | [Snowflake.t()]
 
   @typedoc """
   Defines a structure of commands, subcommands, subcommand groups, as

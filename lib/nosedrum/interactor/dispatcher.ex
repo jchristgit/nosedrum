@@ -102,8 +102,8 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   @impl true
-  def remove_command(path, scope) do
-
+  def remove_command(name, command_id, scope) do
+    GenServer.call(__MODULE__, {:remove, name, command_id, scope})
   end
 
   ## Impl
@@ -123,7 +123,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   @impl true
-  def handle_call({:add, payload, name, command, {:guild, guild_id_list}}, _from, commands) when is_list(guild_id_list) do
+  def handle_call({:add, payload, name, command, guild_id_list}, _from, commands) when is_list(guild_id_list) do
     res =
       Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
         case Nostrum.Api.create_guild_application_command(guild_id, payload) do
@@ -137,10 +137,44 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   @impl true
-  def handle_call({:add, payload, name, command, {:guild, guild_id}}, _from, commands) do
+  def handle_call({:add, payload, name, command, guild_id}, _from, commands) do
     case Nostrum.Api.create_guild_application_command(guild_id, payload) do
       {:ok, _} = response ->
         {:reply, response, Map.put(commands, name, command)}
+      error ->
+        {:reply, {:error, error}, commands}
+    end
+  end
+
+  @impl true
+  def handle_call({:remove, name, command_id, :global}, _from, commands) do
+    case Nostrum.Api.delete_global_application_command(command_id) do
+      {:ok, _} = response ->
+        {:reply, response, Map.delete(commands, name)}
+      error ->
+        {:reply, {:error, error}, commands}
+    end
+  end
+
+  @impl true
+  def handle_call({:remove, name, command_id, guild_id_list}, _from, commands) when is_list(guild_id_list) do
+    res =
+      Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
+        case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
+          {:ok} ->
+            {errors, [:ok | responses]}
+          error ->
+            {[error | errors], responses}
+        end
+      end)
+    {:reply, res, Map.delete(commands, name)}
+  end
+
+  @impl true
+  def handle_call({:remove, name, command_id, guild_id}, _from, commands) do
+    case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
+      {:ok, _} = response ->
+        {:reply, response, Map.delete(commands, name)}
       error ->
         {:reply, {:error, error}, commands}
     end
