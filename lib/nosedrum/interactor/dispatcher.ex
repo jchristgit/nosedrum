@@ -164,9 +164,14 @@ defmodule Nosedrum.Interactor.Dispatcher do
     %{
       type: parse_type(command.type()),
       name: name,
-      description: command.description(),
-      options: options
     }
+    |> then(& if command.type() == :slash do
+      &1
+      |> Map.put(:description, command.description())
+      |> Map.put(:options, options)
+    else
+      &1
+    end)
   end
 
   # This seems like a hacky way to unwrap the outer list...
