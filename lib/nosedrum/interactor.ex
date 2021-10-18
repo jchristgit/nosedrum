@@ -36,12 +36,14 @@ defmodule Nosedrum.Interactor do
             ]
           }
 
+  @type name_or_pid :: atom() | pid()
+
   @doc """
   Handle an Application Command invocation.
 
   This callback is responsible
   """
-  @callback handle_interaction(interaction :: Interaction.t()) :: :ok
+  @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) :: :ok
 
   @doc """
   Add a new command under the given `path`.
@@ -51,7 +53,8 @@ defmodule Nosedrum.Interactor do
   @callback add_command(
               name_or_path :: String.t() | application_command_path,
               command_module :: module,
-              scope :: command_scope
+              scope :: command_scope,
+              name_or_pid
             ) ::
               :ok | {:error, String.t()}
 
@@ -63,7 +66,8 @@ defmodule Nosedrum.Interactor do
   @callback remove_command(
               name_or_path :: String.t() | application_command_path,
               command_id :: Nostrum.Snowflake.t(),
-              scope :: command_scope
+              scope :: command_scope,
+              name_or_pid
             ) ::
               :ok | {:error, String.t()}
 

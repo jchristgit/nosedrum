@@ -23,19 +23,19 @@ defmodule Nosedrum.Interactor.Dispatcher do
   }
 
   ## Api
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, %{}, name: Keyword.get(opts, :name, __MODULE__))
   end
 
   @impl true
-  def handle_interaction(%Interaction{} = interaction) do
-    GenServer.cast(__MODULE__, {:handle, interaction})
+  def handle_interaction(%Interaction{} = interaction, id \\ __MODULE__) do
+    GenServer.cast(id, {:handle, interaction})
   end
 
   # TODO: Add an `:overwrite?` option to add_command. When false, add_command will do nothing if a command under the
   # given path is already registered. Default to true
   @impl true
-  def add_command(path, command, scope) do
+  def add_command(path, command, scope, id \\ __MODULE__) do
     payload = build_payload(path, command)
 
     command_name =
@@ -48,12 +48,12 @@ defmodule Nosedrum.Interactor.Dispatcher do
         |> then(fn {key, _v} -> if is_tuple(key), do: elem(key, 0), else: key end)
       end
 
-    GenServer.call(__MODULE__, {:add, payload, command_name, command, scope})
+    GenServer.call(id, {:add, payload, command_name, command, scope})
   end
 
   @impl true
-  def remove_command(name, command_id, scope) do
-    GenServer.call(__MODULE__, {:remove, name, command_id, scope})
+  def remove_command(name, command_id, scope, id \\ __MODULE__) do
+    GenServer.call(id, {:remove, name, command_id, scope})
   end
 
   ## Impl
@@ -204,7 +204,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
 
   # TODO: Might want to let the user define a `options/1` callback in their command module, where the parameter is the
   # tuple key for these options in the path (i.e. {"get", "Get permissions for a user"})
-  defp build_payload({options, command}) when is_list(options) do
+  defp build_payload({options, _command}) when is_list(options) do
     parse_option_types(options)
   end
 
