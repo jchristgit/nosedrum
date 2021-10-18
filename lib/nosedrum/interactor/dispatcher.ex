@@ -6,8 +6,8 @@ defmodule Nosedrum.Interactor.Dispatcher do
 
   use GenServer
 
-  alias Nostrum.Struct.Interaction
   alias Nosedrum.Interactor
+  alias Nostrum.Struct.Interaction
 
   @option_type_map %{
     sub_command: 1,
@@ -32,8 +32,6 @@ defmodule Nosedrum.Interactor.Dispatcher do
     GenServer.cast(id, {:handle, interaction})
   end
 
-  # TODO: Add an `:overwrite?` option to add_command. When false, add_command will do nothing if a command under the
-  # given path is already registered. Default to true
   @impl true
   def add_command(path, command, scope, id \\ __MODULE__) do
     payload = build_payload(path, command)
@@ -202,8 +200,6 @@ defmodule Nosedrum.Interactor.Dispatcher do
     end)
   end
 
-  # TODO: Might want to let the user define a `options/1` callback in their command module, where the parameter is the
-  # tuple key for these options in the path (i.e. {"get", "Get permissions for a user"})
   defp build_payload({options, _command}) when is_list(options) do
     parse_option_types(options)
   end
