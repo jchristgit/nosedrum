@@ -5,7 +5,7 @@ defmodule Nosedrum.Interactor do
   `t:Interaction.t/0`s, invoking `Nosedrum.ApplicationCommand.command/1` callbacks
   and responding to the Interaction.
 
-  In addition to updating commands in its local state, an Interactor is
+  In addition to tracking commands locally for the bot, an Interactor is
   responsible for registering an Application Command with Discord when `add_command/3`
   or `remove_command/2` is called.
   """
@@ -28,6 +28,18 @@ defmodule Nosedrum.Interactor do
   outlined in the [official documentation](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups)
 
   **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
+
+  ## Example path:
+  ```elixir
+  %{
+    {"castle", MyApp.CastleCommand.description()} =>
+      %{
+        {"prepare", "Prepare the castle for an attack."} => [],
+        {"open", "Open up the castle for traders and visitors."} => [],
+        # ...
+      }
+  }
+  ```
   """
   @type application_command_path ::
           %{
@@ -36,17 +48,30 @@ defmodule Nosedrum.Interactor do
             ]
           }
 
+  @typedoc """
+  The name or pid of the Interactor process.
+  """
   @type name_or_pid :: atom() | pid()
 
   @doc """
   Handle an Application Command invocation.
 
-  This callback is responsible
+  This callback should be invoked upon receiving an interaction via the `:INTERACTION_CREATE` event.
+
+  ## Example using `Nosedrum.Interactor.Dispatcher`:
+  ```elixir
+  # In your `Nostrum.Consumer` file:
+  def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+    IO.puts "Got interaction"
+    Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+  end
+  ```
   """
   @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) :: :ok
 
   @doc """
-  Add a new command under the given `path`.
+  Add a new command under the given name or application command path. Returns `:ok` if successful, and
+  `{:error, reason}` otherwise.
 
   If the command already exists, it will be overwritten.
   """
@@ -56,10 +81,11 @@ defmodule Nosedrum.Interactor do
               scope :: command_scope,
               name_or_pid
             ) ::
-              :ok | {:error, String.t()}
+              :ok | {:error, reason :: String.t()}
 
   @doc """
-  Remove the command under the given `path`.
+  Remove the command under the given name or application command path. Returns `:ok` if successful, and
+  `{:error, reason}` otherwise.
 
   If the command does not exist, no error should be returned.
   """
@@ -69,10 +95,11 @@ defmodule Nosedrum.Interactor do
               scope :: command_scope,
               name_or_pid
             ) ::
-              :ok | {:error, String.t()}
+              :ok | {:error, reason :: String.t()}
 
   @doc """
-  Responds to a given Interaction with `Nosedrum.ApplicationCommand.response` value.
+  Responds to an Interaction with the values in the given `t:Nosedrum.ApplicationCommand.response()`. Returns `{:ok}` if
+  successful, and a `Nostrum.Api.error()` otherwise.
   """
   @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
           {:ok} | Nostrum.Api.error()

@@ -3,7 +3,11 @@ defmodule Nosedrum.ApplicationCommand do
   The application command behaviour specifies the interface that a slash, user,
   or message command module should implement.
 
-  Like regular commands, application command modules are stateless on their own.
+  Like regular commands, application command modules are stateless on their own. Implementations of the callbacks
+  defined by this behaviour are invoked from other modules/functions, notably a `Nosedrum.Interactor`.
+
+  The types defined in this module reflect the official
+  [Application Command docs](https://discord.com/developers/docs/interactions/application-commands).
   """
 
   @type response_type ::
@@ -14,7 +18,12 @@ defmodule Nosedrum.ApplicationCommand do
           | :update_message
 
   @typedoc """
-  `:allowed_mentions` should contain "users", "roles", and/or "everyone", or be an empty list.
+  A field in a keyword list interaction response.
+
+  Special notes:
+  - `:type` is required, unless `:content` or `:embeds` is present, in which case it defaults to
+  `:channel_message_with_source`.
+  - `:allowed_mentions` is a list that should contain "users", "roles", and/or "everyone", or be empty.
   """
   @type response_field ::
           {:type, response_type}
@@ -26,7 +35,7 @@ defmodule Nosedrum.ApplicationCommand do
           | {:allowed_mentions, [String.t()] | []}
 
   @typedoc """
-  A Keyword list of fields to include in the interaction response.
+  A keyword list of fields to include in the interaction response, after running the `command/1` callback.
 
   If `:type` is not specified, it will default to `:channel_message_with_source`, though one of
   either `:embeds` or `:content` must be present.
@@ -34,7 +43,6 @@ defmodule Nosedrum.ApplicationCommand do
   ## Example
   ```elixir
   def command(interaction) do
-    # ...
 
     # Since `:content` is included, Nosedrum will infer `type: :channel_message_with_source`
     response = [
@@ -50,9 +58,9 @@ defmodule Nosedrum.ApplicationCommand do
   @type response :: [response_field]
 
   @typedoc """
-  An option (aka an argument) for an application command.
+  An option (argument) for an application command.
 
-  See `options/0` for examples.
+  See callback `options/0` documentation for examples.
   """
   @type option :: %{
           optional(:required) => true | false,
@@ -76,7 +84,7 @@ defmodule Nosedrum.ApplicationCommand do
   @typedoc """
   A choice for an option.
 
-  See `options/0` for examples.
+  See callback `options/0` documentation for examples.
   """
   @type choice :: %{
           name: String.t(),
@@ -89,7 +97,8 @@ defmodule Nosedrum.ApplicationCommand do
   @callback type() :: :slash | :message | :user
 
   @doc """
-  Returns a description of the command. Used when registering the command with Discord.
+  Returns a description of the command. Used when registering the command with Discord. This is what the user will see
+  in the autofill command-selection menu.
 
   ## Example
   ```elixir
@@ -99,9 +108,9 @@ defmodule Nosedrum.ApplicationCommand do
   @callback description() :: String.t()
 
   @doc """
-  An optional callback that returns a list of options (aka arguments) that the
+  An optional callback that returns a list of options (arguments) that the
   command takes. Used when registering the command with Discord. Only valid for
-  CHAT_INPUT aka slash commands.
+  CHAT_INPUT application commands, aka slash commands.
 
   Read more in the official
   [Application Command documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure).
@@ -139,7 +148,22 @@ defmodule Nosedrum.ApplicationCommand do
   @callback options() :: [option]
 
   @doc """
-  Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`.
+  Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `c:response()`
+
+  ## Example
+  ```elixir
+  defmodule MyApp.MyCommand do
+    @behaviour Nosedrum.ApplicationCommand
+
+    # ...
+
+    @impl true
+    def command(interaction) do
+      %{name: opt_name} = List.first(interaction.data.options)
+      [content: "Hello World \#{opt_name}!"]
+    end
+  end
+  ```
   """
   @callback command(Interaction.t()) :: response
 
