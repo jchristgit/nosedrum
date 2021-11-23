@@ -43,7 +43,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
         path
         |> Enum.take(1)
         |> List.first()
-        |> then(fn {key, _v} -> if is_tuple(key), do: elem(key, 0), else: key end)
+        |> unwrap_key()
       end
 
     GenServer.call(id, {:add, payload, command_name, command, scope})
@@ -163,15 +163,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
       type: parse_type(command.type()),
       name: name
     }
-    |> then(
-      &if command.type() == :slash do
-        &1
-        |> Map.put(:description, command.description())
-        |> Map.put(:options, options)
-      else
-        &1
-      end
-    )
+    |> put_type_specific_fields(command, options)
   end
 
   # This seems like a hacky way to unwrap the outer list...
@@ -239,5 +231,23 @@ defmodule Nosedrum.Interactor.Dispatcher do
 
   defp get_depth(path) do
     get_depth(path, 1)
+  end
+
+  defp unwrap_key({key, _v}) do
+    if is_tuple(key) do
+      elem(key, 0)
+    else
+      key
+    end
+  end
+
+  defp put_type_specific_fields(payload, command, options) do
+    if command.type() == :slash do
+      payload
+      |> Map.put(:description, command.description())
+      |> Map.put(:options, options)
+    else
+      payload
+    end
   end
 end

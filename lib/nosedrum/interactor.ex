@@ -21,6 +21,10 @@ defmodule Nosedrum.Interactor do
     update_message: 7
   }
 
+  @flag_map %{
+    ephemeral?: 64
+  }
+
   @type command_scope :: :global | Snowflake.t() | [Snowflake.t()]
 
   @typedoc """
@@ -107,13 +111,13 @@ defmodule Nosedrum.Interactor do
     type =
       command_response
       |> Keyword.get(:type, :channel_message_with_source)
-      |> then(&Map.get(@callback_type_map, &1))
+      |> convert_callback_type()
 
     data =
       command_response
       |> Keyword.take([:content, :embeds, :components, :tts?, :allowed_mentions])
       |> Map.new()
-      |> then(&if command_response[:ephemeral?], do: Map.put(&1, :flags, 64), else: &1)
+      |> put_flags(command_response)
 
     res = %{
       type: type,
@@ -121,5 +125,19 @@ defmodule Nosedrum.Interactor do
     }
 
     Nostrum.Api.create_interaction_response(interaction, res)
+  end
+
+  defp convert_callback_type(type) do
+    Map.get(@callback_type_map, type)
+  end
+
+  defp put_flags(data_map, command_response) do
+    Enum.reduce(@flag_map, data_map, fn {flag, value} ->
+      if command_response[flag] do
+        Map.put(data_map, :flags, value)
+      else
+        data_map
+      end
+    end)
   end
 end
