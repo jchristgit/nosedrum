@@ -8,6 +8,64 @@ defmodule Nosedrum.ApplicationCommand do
 
   The types defined in this module reflect the official
   [Application Command docs](https://discord.com/developers/docs/interactions/application-commands).
+
+  ## Example Slash Command
+  This command echos the passed message back to the user.
+  ```elixir
+  # In your application command module file, e.g. ./lib/my_app/commands/echo.ex
+  defmodule MyApp.Commands.Echo do
+    @behaviour Nosedrum.ApplicationCommand
+
+    @impl true
+    def description() do
+      "Echos a message."
+    end
+
+    @impl true
+    def command(interaction) do
+      [%{name: "message", value: message}] = interaction.data.options
+      [
+        content: message,
+        ephemeral?: true
+      ]
+    end
+
+    @impl true
+    def type() do
+      :slash
+    end
+
+    @impl true
+    def options() do
+      [
+        %{
+          type: :string,
+          name: "message",
+          description: "The message for the bot to echo.",
+          required: true
+        }
+      ]
+    end
+  end
+  ```
+
+  ```elixir
+  # In your Nostrum.Consumer file, e.g. ./lib/my_app/consumer.ex
+  defmodule MyApp.Consumer do
+    use Nostrum.Consumer
+
+    # ...
+
+    # You may use `:global` instead of a guild id at GUILD_ID_HERE, but note
+    # that global commands could take up to an hour to become available.
+    def handle_event({:READY, _data, _ws_state}) do
+      case Nosedrum.Interactor.Dispatcher.add_command("echo", MyApp.Commands.Echo, GUILD_ID_HERE) do
+        {:ok, _} -> IO.puts("Registered Echo command.")
+        e -> IO.inspect(e, label: "An error occurred registering the Echo command")
+      end
+    end
+  end
+  ```
   """
 
   @type response_type ::
@@ -35,7 +93,7 @@ defmodule Nosedrum.ApplicationCommand do
           | {:allowed_mentions, [String.t()] | []}
 
   @typedoc """
-  A keyword list of fields to include in the interaction response, after running the `command/1` callback.
+  A keyword list of fields to include in the interaction response, after running the `c:command/1` callback.
 
   If `:type` is not specified, it will default to `:channel_message_with_source`, though one of
   either `:embeds` or `:content` must be present.
@@ -43,15 +101,12 @@ defmodule Nosedrum.ApplicationCommand do
   ## Example
   ```elixir
   def command(interaction) do
-
     # Since `:content` is included, Nosedrum will infer `type: :channel_message_with_source`
-    response = [
+    [
       content: "Hello, world!",
       ephemeral?: true,
       allowed_mentions: ["users", "roles"]
     ]
-
-    {:response, response}
   end
   ```
   """
@@ -60,7 +115,7 @@ defmodule Nosedrum.ApplicationCommand do
   @typedoc """
   An option (argument) for an application command.
 
-  See callback `options/0` documentation for examples.
+  See callback `c:options/0` documentation for examples.
   """
   @type option :: %{
           optional(:required) => true | false,
@@ -84,7 +139,7 @@ defmodule Nosedrum.ApplicationCommand do
   @typedoc """
   A choice for an option.
 
-  See callback `options/0` documentation for examples.
+  See callback `c:options/0` documentation for examples.
   """
   @type choice :: %{
           name: String.t(),
@@ -92,7 +147,7 @@ defmodule Nosedrum.ApplicationCommand do
         }
 
   @doc """
-  Returns an atom indicating what kind of application command this module represents.
+  Returns one of `:slash`, `:message`, or `:user`, indicating what kind of application command this module represents.
   """
   @callback type() :: :slash | :message | :user
 
@@ -115,9 +170,8 @@ defmodule Nosedrum.ApplicationCommand do
   Read more in the official
   [Application Command documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-structure).
 
-  ## Example
+  ## Example options callback for a "/role" command
   ```elixir
-  # For example, the options for a /role command might look like...
   def options, do:
     [
       %{
@@ -148,7 +202,7 @@ defmodule Nosedrum.ApplicationCommand do
   @callback options() :: [option]
 
   @doc """
-  Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `c:response()`
+  Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `t:response/0`
 
   ## Example
   ```elixir
@@ -165,7 +219,7 @@ defmodule Nosedrum.ApplicationCommand do
   end
   ```
   """
-  @callback command(Interaction.t()) :: response
+  @callback command(interaction :: Interaction.t()) :: response
 
   @optional_callbacks [options: 0]
 end

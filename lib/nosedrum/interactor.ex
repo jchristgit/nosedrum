@@ -2,16 +2,14 @@ defmodule Nosedrum.Interactor do
   @moduledoc """
   Interactors take the role of both `Nosedrum.Invoker` and `Nosedrum.Storage` when
   it comes to Discord's Application Commands. An Interactor handles incoming
-  `t:Interaction.t/0`s, invoking `Nosedrum.ApplicationCommand.command/1` callbacks
+  `t:Nostrum.Struct.Interaction.t/0`s, invoking `c:Nosedrum.ApplicationCommand.command/1` callbacks
   and responding to the Interaction.
 
   In addition to tracking commands locally for the bot, an Interactor is
-  responsible for registering an Application Command with Discord when `add_command/3`
-  or `remove_command/2` is called.
+  responsible for registering an Application Command with Discord when `c:add_command/4`
+  or `c:remove_command/4` is called.
   """
-
-  alias Nostrum.Snowflake
-  alias Nostrum.Struct.Interaction
+  alias Nostrum.Struct.{Guild, Interaction}
 
   @callback_type_map %{
     pong: 1,
@@ -25,11 +23,11 @@ defmodule Nosedrum.Interactor do
     ephemeral?: 64
   }
 
-  @type command_scope :: :global | Snowflake.t() | [Snowflake.t()]
+  @type command_scope :: :global | Guild.id() | [Guild.id()]
 
   @typedoc """
   Defines a structure of commands, subcommands, subcommand groups, as
-  outlined in the [official documentation](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups)
+  outlined in the [official documentation](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups).
 
   **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
 
@@ -102,8 +100,8 @@ defmodule Nosedrum.Interactor do
               :ok | {:error, reason :: String.t()}
 
   @doc """
-  Responds to an Interaction with the values in the given `t:Nosedrum.ApplicationCommand.response()`. Returns `{:ok}` if
-  successful, and a `Nostrum.Api.error()` otherwise.
+  Responds to an Interaction with the values in the given `t:Nosedrum.ApplicationCommand.response/0`. Returns `{:ok}` if
+  successful, and a `t:Nostrum.Api.error/0` otherwise.
   """
   @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
           {:ok} | Nostrum.Api.error()
@@ -132,11 +130,11 @@ defmodule Nosedrum.Interactor do
   end
 
   defp put_flags(data_map, command_response) do
-    Enum.reduce(@flag_map, data_map, fn {flag, value} ->
+    Enum.reduce(@flag_map, data_map, fn {flag, value}, data_map_acc ->
       if command_response[flag] do
-        Map.put(data_map, :flags, value)
+        Map.put(data_map_acc, :flags, value)
       else
-        data_map
+        data_map_acc
       end
     end)
   end
