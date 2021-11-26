@@ -34,7 +34,11 @@ defmodule Nosedrum.MixProject do
         Predicates: &(&1[:section] == :predicates)
       ],
       groups_for_modules: [
-        "Application Commands": [Nosedrum.ApplicationCommand, Nosedrum.Interactor, Nosedrum.Interactor.Dispatcher],
+        "Application Commands": [
+          Nosedrum.ApplicationCommand,
+          Nosedrum.Interactor,
+          Nosedrum.Interactor.Dispatcher
+        ],
         Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.Predicates],
         Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.MessageCache, Nosedrum.Storage],
         Implementations: [
