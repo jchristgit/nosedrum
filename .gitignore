@@ -22,4 +22,8 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 nosedrum-*.tar
 
+# Visual Studio Code project files
 .vscode/
+
+# macOS iCloud sync toggle to prevent filesystem bugs
+/.nosync
