@@ -81,7 +81,7 @@ defmodule Nosedrum.ApplicationCommand do
         {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher},
       ]
 
-      options = [strategy: :rest_for_one, name: Bolt.Supervisor]
+      options = [strategy: :rest_for_one, name: MyApp.Supervisor]
       Supervisor.start_link(children, options)
     end
   end

@@ -7,7 +7,10 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
-### Changed
+### Fixed
+
+- Name of the example application in the `Nosedrum.ApplicationCommand`
+  supervisor example.
 
 
 ## v0.4.0 - 27.11.2021
