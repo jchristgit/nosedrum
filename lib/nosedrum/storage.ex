@@ -19,7 +19,7 @@ defmodule Nosedrum.Storage do
   map match.
   """
   @type command_group ::
-          Module.t()
+          module
           | %{optional(:default) => command_group, required(String.t()) => command_group}
 
   @typedoc """
@@ -51,7 +51,7 @@ defmodule Nosedrum.Storage do
   they will also be added under `path`. If the command already exists,
   no error should be returned.
   """
-  @callback add_command(path :: command_path, command :: Module.t(), storage :: reference) ::
+  @callback add_command(path :: command_path, command :: module, storage :: reference) ::
               :ok | {:error, String.t()}
 
   @doc """

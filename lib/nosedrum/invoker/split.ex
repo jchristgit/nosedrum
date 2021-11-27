@@ -54,7 +54,7 @@ defmodule Nosedrum.Invoker.Split do
       iex> Nosedrum.Invoker.Split.handle_message(%{content: "."})
       :ignored
   """
-  @spec handle_message(Message.t(), Module.t(), atom() | pid()) ::
+  @spec handle_message(Message.t(), module, atom() | pid()) ::
           :ignored
           | {:error, {:unknown_subcommand, String.t(), :known, [String.t() | :default]}}
           | {:error, :predicate, {:error | :noperm, any()}}

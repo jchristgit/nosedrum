@@ -129,7 +129,7 @@ defmodule Nosedrum.Storage.ETS do
   as the state of this process, the public-facing API functions default
   to using the table name to access the module.
   """
-  @spec start_link(atom() | nil, List.t(), Keyword.t()) :: GenServer.on_start()
+  @spec start_link(atom() | nil, Keyword.t(), Keyword.t()) :: GenServer.on_start()
   def start_link(
         table_name \\ @default_table,
         table_options \\ @default_table_options,
