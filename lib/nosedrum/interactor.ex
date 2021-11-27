@@ -9,6 +9,7 @@ defmodule Nosedrum.Interactor do
   responsible for registering an Application Command with Discord when `c:add_command/4`
   or `c:remove_command/4` is called.
   """
+  @moduledoc since: "0.4.0"
   alias Nostrum.Struct.{Guild, Interaction}
 
   @callback_type_map %{

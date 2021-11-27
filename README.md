@@ -3,10 +3,26 @@
 `nosedrum` is a command framework for use with the excellent
 [`nostrum`](https://github.com/Kraigie/nostrum) library.
 
-It contains behaviour specifications for easily implementing command handling in
-your bot along with other conveniences to ease creating an interactive bot.
+It contains behaviour specifications for easily implementing command handling
+for both Discord's application commands and the traditional text-based
+commands in your bot along with other conveniences to ease creating an
+interactive bot.
 
-The command processing related parts of the framework consists of three parts:
+`nosedrum`s provided implementations are largely based off what was originally
+written for [bolt](https://github.com/jchristgit/bolt). bolt also contains
+around [57
+commands](https://github.com/jchristgit/bolt/tree/master/lib/bolt/cogs) based
+off the `Nosedrum.Command` behaviour that you can explore if you're looking
+for inspiration.
+
+The application command related parts of the framework consist of two parts:
+- `Nosedrum.ApplicationCommand`, the behaviour that all application commands
+  must implement.
+- `Nosedrum.Invoker`, the behaviour for any slash command invoker. A default
+  implementation provided by nosedrum resides at `Nosedrum.Invoker.Dispatcher`.
+
+The traditional command processing related parts of the framework consists of
+three parts:
 - `Nosedrum.Command`, the behaviour that all commands must implement.
 - `Nosedrum.Invoker`, the behaviour of command processors. Command processors
   take a message, look it up in the provided storage implementation,
@@ -39,7 +55,7 @@ Simply add `:nosedrum` to your `mix.exs`:
 ```elixir
 def deps do
   [
-    {:nosedrum, "~> 0.3"},
+    {:nosedrum, "~> 0.4"},
   ]
 end
 ```
@@ -49,7 +65,7 @@ it with `override: true` in your `mix.exs`, for example:
 ```elixir
 def deps do
   [
-    {:nosedrum, "~> 0.3"},
+    {:nosedrum, "~> 0.4"},
     {:nostrum, github: "Kraigie/nostrum", override: true}
   ]
 end

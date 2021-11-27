@@ -66,7 +66,28 @@ defmodule Nosedrum.ApplicationCommand do
     end
   end
   ```
+
+  You will also need to start the `Nosedrum.Interactor.Dispatcher` as part of
+  your supervision tree, for example, by adding this to your application start
+  function:
+
+  ```elixir
+  # ./lib/my_app/application.ex
+  defmodule MyApp.Application do
+    # ...
+    def start(type, args) do
+      children = [
+        # ...
+        {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher},
+      ]
+
+      options = [strategy: :rest_for_one, name: Bolt.Supervisor]
+      Supervisor.start_link(children, options)
+    end
+  end
+  ```
   """
+  @moduledoc since: "0.4.0"
 
   @type response_type ::
           :channel_message_with_source

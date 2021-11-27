@@ -4,7 +4,9 @@ defmodule Nosedrum do
   [`nostrum`](https://github.com/Kraigie/nostrum) library.
 
   It contains behaviour specifications for easily implementing command handling
-  in your bot along with other conveniences to ease creating an interactive bot.
+  for both Discord's application commands and the traditional text-based
+  commands in your bot along with other conveniences to ease creating an
+  interactive bot.
 
   `nosedrum`s provided implementations are largely based off what was originally
   written for [bolt](https://github.com/jchristgit/bolt). bolt also contains
@@ -13,7 +15,14 @@ defmodule Nosedrum do
   off the `Nosedrum.Command` behaviour that you can explore if you're looking
   for inspiration.
 
-  The command processing related parts of the framework consists of three parts:
+  The application command related parts of the framework consist of two parts:
+  - `Nosedrum.ApplicationCommand`, the behaviour that all application commands
+    must implement.
+  - `Nosedrum.Invoker`, the behaviour for any slash command invoker. A default
+    implementation provided by nosedrum resides at `Nosedrum.Invoker.Dispatcher`.
+
+  The traditional command processing related parts of the framework consists of
+  three parts:
   - `Nosedrum.Command`, the behaviour that all commands must implement.
   - `Nosedrum.Invoker`, the behaviour of command processors. Command processors
     take a message, look it up in the provided storage implementation,
@@ -42,8 +51,12 @@ defmodule Nosedrum do
       end
 
   # Getting started
-  To start off, your commands need to implement the `Nosedrum.Command` behaviour.
-  As a simple example, let's reimplement
+
+  For getting started with application commands, see the
+  `Nosedrum.ApplicationCommand` module.
+
+  To write a traditional command, your commands need to implement the
+  `Nosedrum.Command` behaviour.  As a simple example, let's reimplement
   [`ed`](https://www.gnu.org/fun/jokes/ed-msg.html).
 
       defmodule MyBot.Cogs.Ed do

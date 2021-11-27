@@ -2,6 +2,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
   @moduledoc """
   An implementation of `Nosedrum.Interactor`, dispatching Application Command Interactions to the appropriate modules.
   """
+  @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Interactor
 
   use GenServer

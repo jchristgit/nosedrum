@@ -8,7 +8,19 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Added
+
+- Application command support, via the `Nosedrum.ApplicationCommand` behaviour,
+  as well as the `Nosedrum.Interactor` behaviour & the
+  `Nosedrum.Interactor.Dispatcher` implementation.
+- First-class alias support for traditional commands. If you implemented your
+  own `Nosedrum.Storage`, then you will need to update it to incorporate this
+  change. See [the diff for
+  `Nosedrum.Storage.ETS`](https://github.com/jchristgit/nosedrum/commit/9debfa61fe787078ea2f2337dae9833a9608b477#diff-a464efb4145969295c7ab63ec6b50f734c2b3f45e32f12e5050eaeb4aea4679a)
+  as an example of nosedrum implemented it.
+
 ### Changed
+
 - Cache entire messages in message cache implementations.
 - Return direct values from `:ets.insert` or `Agent.get_and_update` in
   `Nosedrum.MessageCache` implementations. If you match on the `:ok` value

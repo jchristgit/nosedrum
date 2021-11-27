@@ -136,6 +136,7 @@ defmodule Nosedrum.Command do
   with `add_command/2` or `remove_command/2`. If any of the aliases returned conflict
   with existing commands/aliases, they will be overwritten.
   """
+  @doc since: "0.4.0"
   @callback aliases() :: [String.t()]
 
   @optional_callbacks [parse_args: 1, aliases: 0]
