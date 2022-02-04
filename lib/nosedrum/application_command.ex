@@ -64,6 +64,10 @@ defmodule Nosedrum.ApplicationCommand do
         e -> IO.inspect(e, label: "An error occurred registering the Echo command")
       end
     end
+
+    def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+      Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+    end
   end
   ```
 
