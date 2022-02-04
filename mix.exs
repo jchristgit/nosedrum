@@ -29,6 +29,8 @@ defmodule Nosedrum.MixProject do
 
   defp docs do
     [
+      # ???
+      source_ref: "master",
       groups_for_functions: [
         Evaluation: &(&1[:section] == :evaluation),
         Predicates: &(&1[:section] == :predicates)
