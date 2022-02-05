@@ -25,6 +25,38 @@ defmodule Nosedrum.Invoker.Split do
   alias Nosedrum.{Helpers, Predicates}
   alias Nostrum.Struct.Message
 
+  @spec remove_prefix(String.t()) :: String.t() | :not_found
+  if is_list(@prefix) do
+    defp remove_prefix(message) do
+      with(
+        # Find the prefix that was used in the message, going through the list of prefixes
+        real_prefix when real_prefix != :not_found <-
+          Enum.find(
+            if(is_list(@prefix), do: @prefix, else: [@prefix]),
+            :not_found,
+            &String.starts_with?(message, &1)
+          ),
+        # Then, just remove the prefix from the message
+        prefix_length <- byte_size(real_prefix),
+        content <-
+          message
+          |> binary_part(prefix_length, byte_size(message) - prefix_length)
+      ) do
+        content
+      else
+        _no_match -> :not_found
+      end
+    end
+  else
+    defp remove_prefix(message) do
+      with @prefix <> content <- message do
+        content
+      else
+        _no_match -> :not_found
+      end
+    end
+  end
+
   @doc """
   Handle the given message.
 
@@ -64,16 +96,7 @@ defmodule Nosedrum.Invoker.Split do
         storage \\ Nosedrum.Storage.ETS,
         storage_process \\ :nosedrum_commands
       ) do
-    with real_prefix when real_prefix != :not_found <-
-           Enum.find(
-             if(is_list(@prefix), do: @prefix, else: [@prefix]),
-             :not_found,
-             &String.starts_with?(message.content, &1)
-           ),
-         prefix_length <- byte_size(real_prefix),
-         content <-
-           message.content
-           |> binary_part(prefix_length, byte_size(message.content) - prefix_length),
+    with content when content != :not_found <- remove_prefix(message.content),
          [command | args] <- Helpers.quoted_split(content),
          cog when cog != nil <- storage.lookup_command(command, storage_process) do
       handle_command(cog, message, args)
