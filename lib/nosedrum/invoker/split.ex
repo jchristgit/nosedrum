@@ -64,23 +64,16 @@ defmodule Nosedrum.Invoker.Split do
         storage \\ Nosedrum.Storage.ETS,
         storage_process \\ :nosedrum_commands
       ) do
-    possible_content =
-      if is_list(@prefix) do
-        real_prefix = Enum.find(@prefix, :not_found, &String.starts_with?(message.content, &1))
-
-        if real_prefix != :not_found do
-          prefix_length = byte_size(real_prefix)
-
-          message.content
-          |> binary_part(prefix_length, byte_size(message.content) - prefix_length)
-        else
-          real_prefix
-        end
-      else
-        with @prefix <> cont <- message.content, do: cont, else: (_mismatch -> :not_found)
-      end
-
-    with content when content != :not_found <- possible_content,
+    with real_prefix when real_prefix != :not_found <-
+           Enum.find(
+             if(is_list(@prefix), do: @prefix, else: [@prefix]),
+             :not_found,
+             &String.starts_with?(message.content, &1)
+           ),
+         prefix_length <- byte_size(real_prefix),
+         content <-
+           message.content
+           |> binary_part(prefix_length, byte_size(message.content) - prefix_length),
          [command | args] <- Helpers.quoted_split(content),
          cog when cog != nil <- storage.lookup_command(command, storage_process) do
       handle_command(cog, message, args)
