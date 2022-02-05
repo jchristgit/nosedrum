@@ -1,7 +1,7 @@
 defmodule Nosedrum.Invoker.SplitTest do
   alias Nosedrum.Invoker.Split, as: CommandInvoker
   alias Nosedrum.Storage.ETS, as: CommandStorage
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   doctest Nosedrum.Invoker.Split
 
