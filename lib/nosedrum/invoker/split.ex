@@ -67,8 +67,15 @@ defmodule Nosedrum.Invoker.Split do
     possible_content =
       if is_list(@prefix) do
         real_prefix = Enum.find(@prefix, :not_found, &String.starts_with?(message.content, &1))
-        prefix_length = byte_size(real_prefix)
-        message.content |> binary_part(prefix_length, byte_size(message.content) - prefix_length)
+
+        if real_prefix != :not_found do
+          prefix_length = byte_size(real_prefix)
+
+          message.content
+          |> binary_part(prefix_length, byte_size(message.content) - prefix_length)
+        else
+          real_prefix
+        end
       else
         with @prefix <> cont <- message.content, do: cont, else: (_mismatch -> :not_found)
       end
