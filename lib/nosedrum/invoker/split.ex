@@ -1,12 +1,22 @@
 defmodule Nosedrum.Invoker.Split do
   @moduledoc """
   An `OptionParser.split/1`-based command processor.
-
-  This parser supports a single prefix configured via the `nosedrum.prefix`
-  configuration variable:
+  This parser supports command prefixes configured via the `nosedrum.prefix`
+  configuration variable. You can specify a single prefix (as a string):
 
       config :nosedrum,
         prefix: "!"
+
+  Or a multiple prefixes (as a list of strings):
+
+      config :nosedrum,
+        prefix: ["!", "?"]
+
+  If multiple prefixes are specified, the first match in the list will be used.
+  For example, if the prefixes are `["a", "ab"]`, then the message `"ab foo"`
+  will invoke the command `b`, with the argument `foo`.  However, if the prefixes
+  were ordered `["ab", "a"]`, the message `"ab foo"` would invoke the command
+  `foo` with no arguments.
 
   The default prefix is `.`, and the prefix are looked up at compilation time
   due to the nature of Elixir's binary matching. This means that if you change
