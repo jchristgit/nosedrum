@@ -32,7 +32,7 @@ defmodule Nosedrum.Invoker.Split do
         # Find the prefix that was used in the message, going through the list of prefixes
         real_prefix when real_prefix != :not_found <-
           Enum.find(
-            if(is_list(@prefix), do: @prefix, else: [@prefix]),
+            @prefix,
             :not_found,
             &String.starts_with?(message, &1)
           ),
