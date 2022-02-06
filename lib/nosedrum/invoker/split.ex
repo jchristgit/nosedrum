@@ -1,6 +1,7 @@
 defmodule Nosedrum.Invoker.Split do
   @moduledoc """
   An `OptionParser.split/1`-based command processor.
+
   This parser supports command prefixes configured via the `nosedrum.prefix`
   configuration variable. You can specify a single prefix (as a string):
 
