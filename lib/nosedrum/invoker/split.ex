@@ -16,7 +16,7 @@ defmodule Nosedrum.Invoker.Split do
   If multiple prefixes are specified, the first match in the list will be used.
   For example, if the prefixes are `["a", "ab"]`, then the message `"ab foo"`
   will invoke the command `b`, with the argument `foo`.  However, if the prefixes
-  were ordered `["ab", "a"]`, the message `"ab foo"` would invoke the command
+  were ordered `["ab", "a"]`, the message `"abfoo"` would invoke the command
   `foo` with no arguments.
 
   The default prefix is `.`, and the prefix are looked up at compilation time
