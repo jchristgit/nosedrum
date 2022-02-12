@@ -2,11 +2,22 @@ defmodule Nosedrum.Invoker.Split do
   @moduledoc """
   An `OptionParser.split/1`-based command processor.
 
-  This parser supports a single prefix configured via the `nosedrum.prefix`
-  configuration variable:
+  This parser supports command prefixes configured via the `nosedrum.prefix`
+  configuration variable. You can specify a single prefix (as a string):
 
       config :nosedrum,
         prefix: "!"
+
+  Or a multiple prefixes (as a list of strings):
+
+      config :nosedrum,
+        prefix: ["!", "?"]
+
+  If multiple prefixes are specified, the first match in the list will be used.
+  For example, if the prefixes are `["a", "ab"]`, then the message `"ab foo"`
+  will invoke the command `b`, with the argument `foo`.  However, if the prefixes
+  were ordered `["ab", "a"]`, the message `"abfoo"` would invoke the command
+  `foo` with no arguments.
 
   The default prefix is `.`, and the prefix are looked up at compilation time
   due to the nature of Elixir's binary matching. This means that if you change
@@ -24,6 +35,38 @@ defmodule Nosedrum.Invoker.Split do
 
   alias Nosedrum.{Helpers, Predicates}
   alias Nostrum.Struct.Message
+
+  @spec remove_prefix(String.t()) :: String.t() | :not_found
+  if is_list(@prefix) do
+    defp remove_prefix(message) do
+      with(
+        # Find the prefix that was used in the message, going through the list of prefixes
+        real_prefix when real_prefix != :not_found <-
+          Enum.find(
+            @prefix,
+            :not_found,
+            &String.starts_with?(message, &1)
+          ),
+        # Then, just remove the prefix from the message
+        prefix_length <- byte_size(real_prefix),
+        content <-
+          message
+          |> binary_part(prefix_length, byte_size(message) - prefix_length)
+      ) do
+        content
+      else
+        _no_match -> :not_found
+      end
+    end
+  else
+    defp remove_prefix(message) do
+      with @prefix <> content <- message do
+        content
+      else
+        _no_match -> :not_found
+      end
+    end
+  end
 
   @doc """
   Handle the given message.
@@ -64,7 +107,7 @@ defmodule Nosedrum.Invoker.Split do
         storage \\ Nosedrum.Storage.ETS,
         storage_process \\ :nosedrum_commands
       ) do
-    with @prefix <> content <- message.content,
+    with content when content != :not_found <- remove_prefix(message.content),
          [command | args] <- Helpers.quoted_split(content),
          cog when cog != nil <- storage.lookup_command(command, storage_process) do
       handle_command(cog, message, args)
