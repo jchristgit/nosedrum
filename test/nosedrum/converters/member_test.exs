@@ -1,7 +1,7 @@
 defmodule Nosedrum.Converters.MemberTest do
   alias Nosedrum.Converters.Member, as: MemberConverter
   alias Nostrum.Cache.CacheSupervisor
-  alias Nostrum.Cache.Guild.GuildRegister
+  alias Nostrum.Cache.GuildCache.ETS, as: GuildCache
   alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.Member
   alias Nostrum.Struct.User
@@ -30,7 +30,7 @@ defmodule Nosedrum.Converters.MemberTest do
       members: [member]
     }
 
-    GuildRegister.create_guild_process(guild_id, guild)
+    GuildCache.create(guild)
 
     %{guild: guild, member: member}
   end

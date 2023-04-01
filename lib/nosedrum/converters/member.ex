@@ -88,9 +88,7 @@ defmodule Nosedrum.Converters.Member do
         members,
         {
           :error,
-          "there is no member named `#{
-            name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")
-          }##{discrim}` on this guild"
+          "there is no member named `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}##{discrim}` on this guild"
         },
         &(&1.user.username == name and &1.user.discriminator == discrim)
       )

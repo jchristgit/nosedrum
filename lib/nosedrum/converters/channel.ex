@@ -56,9 +56,7 @@ defmodule Nosedrum.Converters.Channel do
         Enum.find(
           channels,
           {:error,
-           "No channel named `#{
-             text |> Helpers.escape_server_mentions() |> String.replace("`", "\`")
-           }` found on this guild"},
+           "No channel named `#{text |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild"},
           &(&1.name == text)
         )
     end

@@ -7,6 +7,11 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+### Changed
+
+- Updated nostrum to 0.6.1.
+- Updated all other dependencies.
+
 ### Fixed
 
 - Name of the example application in the `Nosedrum.ApplicationCommand`

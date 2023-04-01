@@ -1,7 +1,7 @@
 defmodule Nosedrum.PredicatesTest do
   alias Nosedrum.Predicates
   alias Nostrum.Cache.CacheSupervisor
-  alias Nostrum.Cache.Guild.GuildRegister
+  alias Nostrum.Cache.GuildCache.ETS, as: GuildCache
   alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.{Member, Role}
   alias Nostrum.Struct.Message
@@ -35,7 +35,7 @@ defmodule Nosedrum.PredicatesTest do
       }
     }
 
-    GuildRegister.create_guild_process(cached_guild_id, cached_guild)
+    GuildCache.create(cached_guild)
 
     %{admin_id: admin_id, guest_id: guest_id, guild_id: cached_guild_id}
   end
