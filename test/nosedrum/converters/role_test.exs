@@ -1,7 +1,7 @@
 defmodule Nosedrum.Converters.RoleTest do
   alias Nosedrum.Converters.Role, as: RoleConverter
   alias Nostrum.Cache.CacheSupervisor
-  alias Nostrum.Cache.Guild.GuildRegister
+  alias Nostrum.Cache.GuildCache.ETS, as: GuildCache
   alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.Role
   use ExUnit.Case
@@ -21,7 +21,7 @@ defmodule Nosedrum.Converters.RoleTest do
       roles: [role]
     }
 
-    GuildRegister.create_guild_process(guild.id, guild)
+    GuildCache.create(guild)
 
     %{guild: guild, role: role}
   end

@@ -47,9 +47,7 @@ defmodule Nosedrum.Converters.Role do
           roles,
           {
             :error,
-            "no role matching `#{
-              name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")
-            }` found on this guild (case-insensitive)"
+            "no role matching `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild (case-insensitive)"
           },
           &(String.downcase(&1.name) == downcased_name)
         )
@@ -57,9 +55,7 @@ defmodule Nosedrum.Converters.Role do
         Enum.find(
           roles,
           {:error,
-           "no role matching `#{
-             name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")
-           }` found on this guild"},
+           "no role matching `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild"},
           &(&1.name == name)
         )
       end

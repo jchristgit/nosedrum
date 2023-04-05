@@ -60,6 +60,7 @@ defmodule Nosedrum.Invoker.Split do
     end
   else
     defp remove_prefix(message) do
+      # credo:disable-for-next-line
       with @prefix <> content <- message do
         content
       else
