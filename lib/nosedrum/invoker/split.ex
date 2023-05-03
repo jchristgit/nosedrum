@@ -113,7 +113,8 @@ defmodule Nosedrum.Invoker.Split do
          cog when cog != nil <- storage.lookup_command(command, storage_process) do
       handle_command(cog, message, args)
     else
-      _mismatch -> :ignored
+      _mismatch ->
+        :ignored
     end
   end
 

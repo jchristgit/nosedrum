@@ -31,11 +31,9 @@ defmodule Nosedrum.Converters do
   - by mention, such as `<@1231321>`, `<@!1231321>`
   - by name#discrim combination, such as `Jimmy#9999`
   - by name, such as `Jimmy`
-  - by nickname, such as `SuperJimmy`
 
-  Note that name and nickname lookups may not be 100% accurate: if there are
-  multiple users with the same name on the server, the first one found will be
-  used.
+  Note that name lookups may not be 100% accurate: if there are multiple users
+  with the same name on the server, the first one found will be used.
   """
   @spec to_member(String.t(), Guild.id()) :: {:ok, Member.t()} | {:error, String.t()}
   defdelegate to_member(text, guild_id), to: __MODULE__.Member, as: :into

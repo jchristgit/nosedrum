@@ -64,7 +64,7 @@ defmodule Nosedrum.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.6"},
+      {:nostrum, "~> 0.7"},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:benchee, "~> 1.0", only: :dev, optional: true, runtime: false}

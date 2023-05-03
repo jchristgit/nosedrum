@@ -3,7 +3,7 @@ defmodule Nosedrum.Converters.Member do
 
   alias Nosedrum.Helpers
   alias Nostrum.Api
-  alias Nostrum.Cache.GuildCache
+  alias Nostrum.Cache.MemberCache
   alias Nostrum.Struct.Member
   alias Nostrum.Struct.Snowflake
 
@@ -83,14 +83,16 @@ defmodule Nosedrum.Converters.Member do
           pos_integer()
         ) :: {:ok, Member.t()} | {:error, String.t()}
   defp find_by_name_and_discrim(members, name, discrim) do
+    error_result = {
+      :error,
+      "there is no member named `#{Helpers.escape_server_mentions(name)}##{discrim}` on this guild"
+    }
+
     result =
       Enum.find(
         members,
-        {
-          :error,
-          "there is no member named `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}##{discrim}` on this guild"
-        },
-        &(&1.user.username == name and &1.user.discriminator == discrim)
+        error_result,
+        fn {_member, user} -> user.username == name and user.discriminator == discrim end
       )
 
     case result do
@@ -104,18 +106,12 @@ defmodule Nosedrum.Converters.Member do
           String.t()
         ) :: {:ok, Member.t()} | {:error, String.t()}
   defp find_by_name(members, name) do
-    case Enum.find(members, &(&1.user.username == name)) do
+    case Enum.find(members, fn {_member, user} -> user.username == name end) do
       nil ->
-        error_value = {
+        {
           :error,
-          "could not find any member named or " <>
-            "nicknamed `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"
+          "could not find any member named `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"
         }
-
-        case Enum.find(members, error_value, &(&1.nick == name)) do
-          {:error, _reason} = error -> error
-          member -> {:ok, member}
-        end
 
       member ->
         {:ok, member}
@@ -132,15 +128,11 @@ defmodule Nosedrum.Converters.Member do
         {:error, reason}
 
       {:error, _why} ->
-        case GuildCache.get(guild_id) do
-          {:ok, %{members: members}} ->
-            case text_to_name_and_discrim(text) do
-              {name, discrim} -> find_by_name_and_discrim(members, name, discrim)
-              :error -> find_by_name(members, text)
-            end
+        members = MemberCache.get_with_users(guild_id)
 
-          {:error, _reason} ->
-            {:error, "this guild is not in the cache, cannot find any members"}
+        case text_to_name_and_discrim(text) do
+          {name, discrim} -> find_by_name_and_discrim(members, name, discrim)
+          :error -> find_by_name(members, text)
         end
     end
   end

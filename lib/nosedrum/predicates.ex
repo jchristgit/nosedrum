@@ -14,6 +14,7 @@ defmodule Nosedrum.Predicates do
   @moduledoc since: "0.2.0"
 
   alias Nostrum.Cache.GuildCache
+  alias Nostrum.Cache.MemberCache
   alias Nostrum.Permission
   alias Nostrum.Struct.Guild.Member
   alias Nostrum.Struct.Message
@@ -115,8 +116,8 @@ defmodule Nosedrum.Predicates do
     fn msg ->
       with {:is_on_guild, true} <- {:is_on_guild, msg.guild_id != nil},
            {:ok, guild} <- GuildCache.get(msg.guild_id),
-           {:member, member} when member != nil <-
-             {:member, Map.get(guild.members, msg.author.id)},
+           {:member, {:ok, member}} <-
+             {:member, MemberCache.get(msg.guild_id, msg.author.id)},
            {:has_permission, true} <-
              {:has_permission, permission in Member.guild_permissions(member, guild)} do
         :passthrough
