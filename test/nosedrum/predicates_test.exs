@@ -1,9 +1,10 @@
 defmodule Nosedrum.PredicatesTest do
   alias Nosedrum.Predicates
   alias Nostrum.Cache.CacheSupervisor
-  alias Nostrum.Cache.GuildCache.ETS, as: GuildCache
+  alias Nostrum.Cache.GuildCache
+  alias Nostrum.Cache.MemberCache
   alias Nostrum.Struct.Guild
-  alias Nostrum.Struct.Guild.{Member, Role}
+  alias Nostrum.Struct.Guild.Role
   alias Nostrum.Struct.Message
   alias Nostrum.Struct.User
   use ExUnit.Case
@@ -20,22 +21,19 @@ defmodule Nosedrum.PredicatesTest do
       permissions: Nostrum.Permission.to_bit(:ban_members)
     }
 
+    admin = %{roles: [role_can_ban_id], user: %{id: admin_id}}
+    guest = %{roles: [], user: %{id: guest_id}}
+
     cached_guild = %Guild{
       id: cached_guild_id,
-      members: %{
-        admin_id => %Member{
-          roles: [role_can_ban_id]
-        },
-        guest_id => %Member{
-          roles: []
-        }
-      },
       roles: %{
         role_can_ban_id => role_can_ban
       }
     }
 
     GuildCache.create(cached_guild)
+    MemberCache.create(cached_guild.id, admin)
+    MemberCache.create(cached_guild.id, guest)
 
     %{admin_id: admin_id, guest_id: guest_id, guild_id: cached_guild_id}
   end

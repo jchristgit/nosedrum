@@ -55,7 +55,7 @@ Simply add `:nosedrum` to your `mix.exs`:
 ```elixir
 def deps do
   [
-    {:nosedrum, "~> 0.4"},
+    {:nosedrum, "~> 0.5"},
   ]
 end
 ```
@@ -65,7 +65,7 @@ it with `override: true` in your `mix.exs`, for example:
 ```elixir
 def deps do
   [
-    {:nosedrum, "~> 0.4"},
+    {:nosedrum, "~> 0.5"},
     {:nostrum, github: "Kraigie/nostrum", override: true}
   ]
 end

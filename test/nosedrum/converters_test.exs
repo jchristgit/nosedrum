@@ -13,8 +13,7 @@ defmodule Nosedrum.ConvertersTest do
     guild = %Guild{
       id: 940_124,
       channels: %{},
-      roles: %{},
-      members: %{}
+      roles: %{}
     }
 
     GuildCache.create(guild)

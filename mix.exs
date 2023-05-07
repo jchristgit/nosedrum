@@ -4,7 +4,7 @@ defmodule Nosedrum.MixProject do
   def project do
     [
       app: :nosedrum,
-      version: "0.5.0",
+      version: "0.5.0-rc1",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/jchristgit/nosedrum",
@@ -64,10 +64,13 @@ defmodule Nosedrum.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.7"},
+      # {:nostrum, "~> 0.7"},
+      {:nostrum, "~> 0.7.0-rc1"},
+      # {:nostrum, github: "Kraigie/nostrum"},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:benchee, "~> 1.0", only: :dev, optional: true, runtime: false}
+      {:benchee, "~> 1.0", only: :dev, optional: true, runtime: false},
+      {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
     ]
   end
 end

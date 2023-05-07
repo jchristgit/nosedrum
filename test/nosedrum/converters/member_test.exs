@@ -1,10 +1,11 @@
 defmodule Nosedrum.Converters.MemberTest do
   alias Nosedrum.Converters.Member, as: MemberConverter
   alias Nostrum.Cache.CacheSupervisor
-  alias Nostrum.Cache.GuildCache.ETS, as: GuildCache
+  alias Nostrum.Cache.GuildCache
+  alias Nostrum.Cache.MemberCache
+  alias Nostrum.Cache.UserCache
   alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.Member
-  alias Nostrum.Struct.User
   use ExUnit.Case
 
   doctest Nosedrum.Converters.Member
@@ -12,7 +13,7 @@ defmodule Nosedrum.Converters.MemberTest do
   setup_all do
     start_supervised!(CacheSupervisor)
 
-    user = %User{
+    user = %{
       id: 34_444,
       username: "Testuser",
       discriminator: 1234
@@ -20,19 +21,18 @@ defmodule Nosedrum.Converters.MemberTest do
 
     guild_id = 5189
 
-    member = %Member{
-      nick: "Superuser",
-      user: user
-    }
+    member = %Member{nick: "Superuser", user_id: user.id}
+    raw_member = %{nick: member.nick, user: %{id: member.user_id}}
 
     guild = %Guild{
-      id: guild_id,
-      members: [member]
+      id: guild_id
     }
 
+    MemberCache.create(guild.id, raw_member)
+    UserCache.create(user)
     GuildCache.create(guild)
 
-    %{guild: guild, member: member}
+    %{guild: guild, member: member, user: user}
   end
 
   describe "into/2" do
@@ -53,9 +53,9 @@ defmodule Nosedrum.Converters.MemberTest do
 
     test "returns `{:error, _reason}` with bad `name#discrim` combo", %{
       guild: guild,
-      member: member
+      user: user
     } do
-      text = "#{member.user.username}#1029381039812"
+      text = "#{user.username}#1029381039812"
       assert {:error, _reason} = MemberConverter.into(text, guild.id)
     end
 
@@ -66,21 +66,19 @@ defmodule Nosedrum.Converters.MemberTest do
 
     test "returns `{:ok, member}` with successful `name#discrim` lookup", %{
       guild: guild,
-      member: member
+      member: member,
+      user: user
     } do
-      text = "#{member.user.username}##{member.user.discriminator}"
+      text = "#{user.username}##{user.discriminator}"
       assert {:ok, ^member} = MemberConverter.into(text, guild.id)
     end
 
-    test "returns `{:ok, member}` with successful by-name lookup", %{guild: guild, member: member} do
-      assert {:ok, ^member} = MemberConverter.into(member.user.username, guild.id)
-    end
-
-    test "returns `{:ok, member}` with successful by-nickname lookup", %{
+    test "returns `{:ok, member}` with successful by-name lookup", %{
       guild: guild,
-      member: member
+      member: member,
+      user: user
     } do
-      assert {:ok, ^member} = MemberConverter.into(member.nick, guild.id)
+      assert {:ok, ^member} = MemberConverter.into(user.username, guild.id)
     end
   end
 end

@@ -136,7 +136,7 @@ defmodule Nosedrum.Predicates do
         {:is_on_guild, false} ->
           {:noperm, "🚫 this command can only be used on guilds"}
 
-        {:member, nil} ->
+        {:member, {:error, :not_found}} ->
           {:error, "❌ you're not in the guild member cache, can't check perms"}
       end
     end

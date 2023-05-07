@@ -97,7 +97,7 @@ defmodule Nosedrum.Converters.Member do
 
     case result do
       {:error, _reason} = error -> error
-      member -> {:ok, member}
+      {member, _user} -> {:ok, member}
     end
   end
 
@@ -113,7 +113,7 @@ defmodule Nosedrum.Converters.Member do
           "could not find any member named `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"
         }
 
-      member ->
+      {member, _user} ->
         {:ok, member}
     end
   end
