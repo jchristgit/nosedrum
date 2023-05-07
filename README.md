@@ -40,13 +40,6 @@ Additionally, the following utilities are provided:
 - `Nosedrum.MessageCache`, a behaviour for defining message caches, along with
   an ETS-based and an Agent-based implementation.
 
-`nosedrum`s provided implementations are largely based off what was originally
-written for [bolt](https://github.com/jchristgit/bolt). bolt also contains
-around [59
-commands](https://github.com/jchristgit/bolt/tree/master/lib/bolt/cogs) based
-off the `Nosedrum.Command` behaviour that you can explore if you're looking for
-inspiration.
-
 The documentation can be found at https://hexdocs.pm/nosedrum.
 
 ## Installation
