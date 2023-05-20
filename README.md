@@ -16,13 +16,15 @@ off the `Nosedrum.Command` behaviour that you can explore if you're looking
 for inspiration.
 
 The application command related parts of the framework consist of two parts:
+
 - `Nosedrum.ApplicationCommand`, the behaviour that all application commands
   must implement.
-- `Nosedrum.Invoker`, the behaviour for any slash command invoker. A default
-  implementation provided by nosedrum resides at `Nosedrum.Invoker.Dispatcher`.
+- `Nosedrum.Interactor`, the behaviour for any slash command invoker. A default
+  implementation provided by nosedrum resides at `Nosedrum.Interactor.Dispatcher`.
 
 The traditional command processing related parts of the framework consists of
 three parts:
+
 - `Nosedrum.Command`, the behaviour that all commands must implement.
 - `Nosedrum.Invoker`, the behaviour of command processors. Command processors
   take a message, look it up in the provided storage implementation,
@@ -35,6 +37,7 @@ three parts:
   provided with `Nosedrum.Storage.ETS`.
 
 Additionally, the following utilities are provided:
+
 - `Nosedrum.Converters`, functions for converting parts of messages to objects
   from Nostrum such as channels, members, and roles.
 - `Nosedrum.MessageCache`, a behaviour for defining message caches, along with
@@ -43,6 +46,7 @@ Additionally, the following utilities are provided:
 The documentation can be found at https://hexdocs.pm/nosedrum.
 
 ## Installation
+
 Simply add `:nosedrum` to your `mix.exs`:
 
 ```elixir
@@ -55,6 +59,7 @@ end
 
 If you want to install the GitHub version of Nostrum, you will need to specify
 it with `override: true` in your `mix.exs`, for example:
+
 ```elixir
 def deps do
   [
@@ -63,6 +68,5 @@ def deps do
   ]
 end
 ```
-
 
 <!-- vim: set textwidth=80 sw=2 ts=2: -->
