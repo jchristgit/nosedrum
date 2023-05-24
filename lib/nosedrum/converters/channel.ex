@@ -4,6 +4,7 @@ defmodule Nosedrum.Converters.Channel do
   alias Nosedrum.Helpers
   alias Nostrum.Api
   alias Nostrum.Cache.GuildCache
+  alias Nostrum.Struct.Channel
 
   @doc """
   Convert a Discord channel mention to an ID.
@@ -40,29 +41,30 @@ defmodule Nosedrum.Converters.Channel do
   # - Channel mention
   # - Channel name
   @spec find_channel(
-          [Nostrum.Struct.Channel.t()],
+          Nostrum.Struct.Guild.channels(),
           String.t()
         ) :: Nostrum.Struct.Channel.t() | {:error, String.t()}
-  defp find_channel(channels, text) do
-    case channel_mention_to_id(text) do
-      {:ok, id} ->
-        Enum.find(
+  defp find_channel(channels, query) do
+    case channel_mention_to_id(query) do
+      {:ok, requested_id} ->
+        Map.get(
           channels,
-          {:error, "No channel with ID `#{id}` found on this guild"},
-          &(&1.id == id)
+          requested_id,
+          {:error, "No channel with ID `#{requested_id}` found on this guild"}
         )
 
       {:error, _reason} ->
-        Enum.find(
-          channels,
+        channels
+        |> Enum.find(
           {:error,
-           "No channel named `#{text |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild"},
-          &(&1.name == text)
+           "No channel named `#{query |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild"},
+          fn {_id, %Channel{name: channel_name}} -> channel_name == query end
         )
     end
   end
 
   defp okify({:error, reason}), do: {:error, reason}
+  defp okify({_id, channel}), do: {:ok, channel}
   defp okify(channel), do: {:ok, channel}
 
   @spec into(String.t(), Nostrum.Struct.Snowflake.t()) ::

@@ -10,14 +10,14 @@ defmodule Nosedrum.ConvertersTest do
   setup_all do
     start_supervised!(CacheSupervisor)
 
-    guild = %Guild{
+    guild = %{
       id: 940_124,
       channels: %{},
       roles: %{}
     }
 
     GuildCache.create(guild)
-    %{guild: guild}
+    %{guild: Guild.to_struct(guild)}
   end
 
   describe "to_channel/2" do

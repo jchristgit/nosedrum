@@ -6,23 +6,21 @@ defmodule Nosedrum.Converters.ChannelTest do
   alias Nostrum.Struct.Guild
   use ExUnit.Case
 
-  doctest Nosedrum.Converters.Channel
-
   setup_all do
     start_supervised!(CacheSupervisor)
 
-    channel = %Channel{
+    channel = %{
       id: 1_203_913,
       name: "bot-tests"
     }
 
-    guild = %Guild{
+    guild = %{
       id: 940_124,
       channels: [channel]
     }
 
     GuildCache.create(guild)
-    %{channel: channel, guild: guild}
+    %{channel: Channel.to_struct(channel), guild: Guild.to_struct(guild)}
   end
 
   describe "into/2" do

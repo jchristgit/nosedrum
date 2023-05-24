@@ -3,7 +3,6 @@ defmodule Nosedrum.PredicatesTest do
   alias Nostrum.Cache.CacheSupervisor
   alias Nostrum.Cache.GuildCache
   alias Nostrum.Cache.MemberCache
-  alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.Role
   alias Nostrum.Struct.Message
   alias Nostrum.Struct.User
@@ -24,7 +23,7 @@ defmodule Nosedrum.PredicatesTest do
     admin = %{roles: [role_can_ban_id], user: %{id: admin_id}}
     guest = %{roles: [], user: %{id: guest_id}}
 
-    cached_guild = %Guild{
+    cached_guild = %{
       id: cached_guild_id,
       roles: %{
         role_can_ban_id => role_can_ban

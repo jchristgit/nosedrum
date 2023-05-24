@@ -4,13 +4,12 @@ defmodule Nosedrum.Converters.MemberTest do
   alias Nostrum.Cache.GuildCache
   alias Nostrum.Cache.MemberCache
   alias Nostrum.Cache.UserCache
-  alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.Member
   use ExUnit.Case
 
   doctest Nosedrum.Converters.Member
 
-  setup_all do
+  setup do
     start_supervised!(CacheSupervisor)
 
     user = %{
@@ -24,7 +23,7 @@ defmodule Nosedrum.Converters.MemberTest do
     member = %Member{nick: "Superuser", user_id: user.id}
     raw_member = %{nick: member.nick, user: %{id: member.user_id}}
 
-    guild = %Guild{
+    guild = %{
       id: guild_id
     }
 

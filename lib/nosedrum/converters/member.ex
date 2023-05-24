@@ -4,6 +4,7 @@ defmodule Nosedrum.Converters.Member do
   alias Nosedrum.Helpers
   alias Nostrum.Api
   alias Nostrum.Cache.MemberCache
+  alias Nostrum.Cache.UserCache
   alias Nostrum.Struct.Member
   alias Nostrum.Struct.Snowflake
 
@@ -77,47 +78,6 @@ defmodule Nosedrum.Converters.Member do
     end
   end
 
-  @spec find_by_name_and_discrim(
-          [Member.t()],
-          String.t(),
-          pos_integer()
-        ) :: {:ok, Member.t()} | {:error, String.t()}
-  defp find_by_name_and_discrim(members, name, discrim) do
-    error_result = {
-      :error,
-      "there is no member named `#{Helpers.escape_server_mentions(name)}##{discrim}` on this guild"
-    }
-
-    result =
-      Enum.find(
-        members,
-        error_result,
-        fn {_member, user} -> user.username == name and user.discriminator == discrim end
-      )
-
-    case result do
-      {:error, _reason} = error -> error
-      {member, _user} -> {:ok, member}
-    end
-  end
-
-  @spec find_by_name(
-          [Member.t()],
-          String.t()
-        ) :: {:ok, Member.t()} | {:error, String.t()}
-  defp find_by_name(members, name) do
-    case Enum.find(members, fn {_member, user} -> user.username == name end) do
-      nil ->
-        {
-          :error,
-          "could not find any member named `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"
-        }
-
-      {member, _user} ->
-        {:ok, member}
-    end
-  end
-
   @spec into(String.t(), Snowflake.t()) :: {:ok, Member.t()} | {:error, String.t()}
   def into(text, guild_id) do
     with {:ok, user_id} <- user_mention_to_id(text),
@@ -128,11 +88,26 @@ defmodule Nosedrum.Converters.Member do
         {:error, reason}
 
       {:error, _why} ->
-        members = MemberCache.get_with_users(guild_id)
+        {query, failure_description} =
+          case text_to_name_and_discrim(text) do
+            {name, discrim} ->
+              {:nosedrum_member_converter_qlc.find_by(
+                 guild_id,
+                 name,
+                 discrim,
+                 MemberCache,
+                 UserCache
+               ),
+               "there is no member named `#{Helpers.escape_server_mentions(name)}##{discrim}` on this guild"}
 
-        case text_to_name_and_discrim(text) do
-          {name, discrim} -> find_by_name_and_discrim(members, name, discrim)
-          :error -> find_by_name(members, text)
+            :error ->
+              {:nosedrum_member_converter_qlc.find_by(guild_id, text, MemberCache, UserCache),
+               "could not find any member named `#{text |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"}
+          end
+
+        case :qlc.eval(query) do
+          [member | _] -> {:ok, member}
+          [] -> {:error, failure_description}
         end
     end
   end

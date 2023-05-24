@@ -34,7 +34,7 @@ defmodule Nosedrum.Converters.Role do
   end
 
   @spec find_by_name(
-          [Nostrum.Struct.Guild.Role.t()],
+          Nostrum.Struct.Guild.roles(),
           String.t(),
           boolean()
         ) :: Nostrum.Struct.Role.t() | {:error, String.t()}
@@ -49,20 +49,20 @@ defmodule Nosedrum.Converters.Role do
             :error,
             "no role matching `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild (case-insensitive)"
           },
-          &(String.downcase(&1.name) == downcased_name)
+          fn {_id, role} -> String.downcase(role.name) == downcased_name end
         )
       else
         Enum.find(
           roles,
           {:error,
            "no role matching `#{name |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild"},
-          &(&1.name == name)
+          fn {_id, role} -> role.name == name end
         )
       end
 
     case result do
       {:error, _reason} = error -> error
-      role -> {:ok, role}
+      {_id, role} -> {:ok, role}
     end
   end
 
@@ -75,10 +75,10 @@ defmodule Nosedrum.Converters.Role do
     case role_mention_to_id(text) do
       # We have a direct snowflake given. Try to find an exact match.
       {:ok, id} ->
-        case Enum.find(
+        case Map.get(
                roles,
-               {:error, "No role with ID `#{id}` found on this guild"},
-               &(&1.id == id)
+               id,
+               {:error, "No role with ID `#{id}` found on this guild"}
              ) do
           {:error, _reason} = error -> error
           role -> {:ok, role}

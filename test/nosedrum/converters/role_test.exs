@@ -6,24 +6,22 @@ defmodule Nosedrum.Converters.RoleTest do
   alias Nostrum.Struct.Guild.Role
   use ExUnit.Case
 
-  doctest Nosedrum.Converters.Role
-
   setup_all do
     start_supervised!(CacheSupervisor)
 
-    role = %Role{
+    role = %{
       id: 129_031_231,
       name: "Test Role"
     }
 
-    guild = %Guild{
+    guild = %{
       id: 512,
       roles: [role]
     }
 
     GuildCache.create(guild)
 
-    %{guild: guild, role: role}
+    %{guild: Guild.to_struct(guild), role: Role.to_struct(role)}
   end
 
   describe "into/2" do
