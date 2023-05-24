@@ -31,9 +31,40 @@ jobs:
           restore-keys: ${{ matrix.otp-version }}-${{ matrix.elixir-version }}-mix
       - run: mix deps.get
         name: Fetch Dependencies
-      - run: mix credo --strict
-        name: Lint
-      - run: mix format --check-formatted
-        name: Check Formatting
       - run: mix test --no-start
         name: Run Tests
+
+  # Only run lint and formatting jobs on latest OTP/Elixir versions.
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: 25
+          elixir-version: 1.14
+
+      - uses: actions/cache@v3
+        env:
+          base-key: 25-1.14
+        with:
+          path: |
+            _build
+            deps
+          # Generate a hash of the OTP version and Elixir version
+          key: ${{ env.base-key }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ env.base-key }}-mix
+
+      - run: mix deps.get
+        name: Fetch Dependencies
+
+      - run: mix credo --strict
+        name: Lint (credo)
+
+      - run: mix format --check-formatted
+        name: Lint (mix format)
+
+      - run: mix dialyzer
+        name: Run dialyzer
