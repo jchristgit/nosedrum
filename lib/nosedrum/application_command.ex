@@ -93,6 +93,8 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @moduledoc since: "0.4.0"
 
+  alias Nostrum.Struct.{Embed, Interaction}
+
   @type response_type ::
           :channel_message_with_source
           | :deferred_channel_message_with_source

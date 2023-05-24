@@ -1,7 +1,7 @@
 defmodule Nosedrum.Converters.Channel do
   @moduledoc false
 
-  alias Nosedrum.Helpers
+  alias Nosedrum.Converters
   alias Nostrum.Api
   alias Nostrum.Cache.GuildCache
   alias Nostrum.Struct.Channel
@@ -43,32 +43,31 @@ defmodule Nosedrum.Converters.Channel do
   @spec find_channel(
           Nostrum.Struct.Guild.channels(),
           String.t()
-        ) :: Nostrum.Struct.Channel.t() | {:error, String.t()}
+        ) :: Nostrum.Struct.Channel.t() | Converters.reason()
   defp find_channel(channels, query) do
     case channel_mention_to_id(query) do
       {:ok, requested_id} ->
         Map.get(
           channels,
           requested_id,
-          {:error, "No channel with ID `#{requested_id}` found on this guild"}
+          {:not_found, {:by, :id, requested_id, []}}
         )
 
       {:error, _reason} ->
-        channels
-        |> Enum.find(
-          {:error,
-           "No channel named `#{query |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` found on this guild"},
+        Enum.find(
+          channels,
+          {:not_found, {:by, :name, query, []}},
           fn {_id, %Channel{name: channel_name}} -> channel_name == query end
         )
     end
   end
 
-  defp okify({:error, reason}), do: {:error, reason}
+  defp okify({:not_found, _reason} = result), do: {:error, result}
   defp okify({_id, channel}), do: {:ok, channel}
   defp okify(channel), do: {:ok, channel}
 
-  @spec into(String.t(), Nostrum.Struct.Snowflake.t()) ::
-          {:ok, Nostrum.Struct.Guild.Channel.t()} | {:error, String.t()}
+  @spec into(String.t(), Nostrum.Snowflake.t()) ::
+          {:ok, Nostrum.Struct.Channel.t()} | {:error, Converters.reason()}
   def into(text, guild_id) do
     case GuildCache.get(guild_id) do
       {:ok, guild} ->
@@ -83,8 +82,8 @@ defmodule Nosedrum.Converters.Channel do
             |> find_channel(text)
             |> okify
 
-          {:error, _reason} ->
-            {:error, "This guild is not in the cache, nor could it be fetched from the API."}
+          {:error, reason} ->
+            {:error, {:uncached_and_fetch_error, reason}}
         end
     end
   end

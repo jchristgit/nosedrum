@@ -1,11 +1,11 @@
 defmodule Nosedrum.Converters.Member do
   @moduledoc false
 
-  alias Nosedrum.Helpers
+  alias Nosedrum.Converters
   alias Nostrum.Api
   alias Nostrum.Cache.MemberCache
   alias Nostrum.Cache.UserCache
-  alias Nostrum.Struct.Member
+  alias Nostrum.Struct.Guild.Member
   alias Nostrum.Struct.Snowflake
 
   @doc """
@@ -21,9 +21,9 @@ defmodule Nosedrum.Converters.Member do
     iex> Nosedrum.Converters.Member.user_mention_to_id("91203")
     {:ok, 91203}
     iex> Nosedrum.Converters.Member.user_mention_to_id("not valid")
-    {:error, "not a valid user ID"}
+    :error
   """
-  @spec user_mention_to_id(String.t()) :: {:ok, pos_integer()} | {:error, String.t()}
+  @spec user_mention_to_id(String.t()) :: {:ok, pos_integer()} | :error
   def user_mention_to_id(text) do
     maybe_id =
       text
@@ -33,7 +33,7 @@ defmodule Nosedrum.Converters.Member do
 
     case Integer.parse(maybe_id) do
       {value, ""} -> {:ok, value}
-      _ -> {:error, "not a valid user ID"}
+      _ -> :error
     end
   end
 
@@ -78,7 +78,7 @@ defmodule Nosedrum.Converters.Member do
     end
   end
 
-  @spec into(String.t(), Snowflake.t()) :: {:ok, Member.t()} | {:error, String.t()}
+  @spec into(String.t(), Snowflake.t()) :: {:ok, Member.t()} | {:error, Converters.reason()}
   def into(text, guild_id) do
     with {:ok, user_id} <- user_mention_to_id(text),
          {:ok, fetched_member} <- Api.get_guild_member(guild_id, user_id) do
@@ -87,27 +87,31 @@ defmodule Nosedrum.Converters.Member do
       {:error, %{message: %{message: reason}}} ->
         {:error, reason}
 
-      {:error, _why} ->
-        {query, failure_description} =
+      :error ->
+        {query, failure_options} =
           case text_to_name_and_discrim(text) do
             {name, discrim} ->
-              {:nosedrum_member_converter_qlc.find_by(
-                 guild_id,
-                 name,
-                 discrim,
-                 MemberCache,
-                 UserCache
-               ),
-               "there is no member named `#{Helpers.escape_server_mentions(name)}##{discrim}` on this guild"}
+              query =
+                :nosedrum_member_converter_qlc.find_by(
+                  guild_id,
+                  name,
+                  discrim,
+                  MemberCache,
+                  UserCache
+                )
+
+              {query, []}
 
             :error ->
-              {:nosedrum_member_converter_qlc.find_by(guild_id, text, MemberCache, UserCache),
-               "could not find any member named `#{text |> Helpers.escape_server_mentions() |> String.replace("`", "\`")}` on this guild"}
+              query =
+                :nosedrum_member_converter_qlc.find_by(guild_id, text, MemberCache, UserCache)
+
+              {query, [:not_exact]}
           end
 
         case :qlc.eval(query) do
           [member | _] -> {:ok, member}
-          [] -> {:error, failure_description}
+          [] -> {:error, {:not_found, {:by, :name, text, failure_options}}}
         end
     end
   end
