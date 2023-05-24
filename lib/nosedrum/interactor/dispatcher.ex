@@ -103,7 +103,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
   @impl true
   def handle_call({:remove, name, command_id, :global}, _from, commands) do
     case Nostrum.Api.delete_global_application_command(command_id) do
-      {:ok, _} = response ->
+      {:ok} = response ->
         {:reply, response, Map.delete(commands, name)}
 
       error ->
@@ -131,7 +131,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
   @impl true
   def handle_call({:remove, name, command_id, guild_id}, _from, commands) do
     case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
-      {:ok, _} = response ->
+      {:ok} = response ->
         {:reply, response, Map.delete(commands, name)}
 
       error ->
