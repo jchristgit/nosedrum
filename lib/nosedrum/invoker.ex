@@ -28,7 +28,7 @@ defmodule Nosedrum.Invoker do
   @callback handle_message(
               message :: Nostrum.Struct.Message.t(),
               storage :: Nostrum.Storage,
-              storage_process :: reference()
+              reference :: any()
             ) ::
               any()
 end

@@ -34,43 +34,43 @@ defmodule Nosedrum.Converters.Role do
   end
 
   @spec find_by_name(
-          Nostrum.Struct.Guild.roles(),
+          [Nostrum.Struct.Guild.Role.t()],
           String.t(),
           boolean()
         ) :: Nostrum.Struct.Guild.Role.t() | {:error, Converters.reason()}
   defp find_by_name(roles, name, case_insensitive) do
-    result =
-      if case_insensitive do
-        downcased_name = String.downcase(name)
+    if case_insensitive do
+      downcased_name = String.downcase(name)
 
-        error_return = {
-          :error,
-          {:not_found, {:by, :name, downcased_name, [:case_insensitive]}}
-        }
+      error_return = {
+        :error,
+        {:not_found, {:by, :name, downcased_name, [:case_insensitive]}}
+      }
 
-        Enum.find(
-          roles,
-          error_return,
-          fn {_id, role} -> String.downcase(role.name) == downcased_name end
-        )
-      else
-        error_return = {:error, {:not_found, {:by, :name, name, []}}}
+      Enum.find_value(
+        roles,
+        error_return,
+        fn
+          %{name: name} = role -> if String.downcase(name) == downcased_name, do: {:ok, role}
+          _other -> nil
+        end
+      )
+    else
+      error_return = {:error, {:not_found, {:by, :name, name, []}}}
 
-        Enum.find(
-          roles,
-          error_return,
-          fn {_id, role} -> role.name == name end
-        )
-      end
-
-    case result do
-      {:error, _reason} = error -> error
-      {_id, role} -> {:ok, role}
+      Enum.find_value(
+        roles,
+        error_return,
+        fn
+          %{name: ^name} = role -> {:ok, role}
+          _other -> nil
+        end
+      )
     end
   end
 
   @spec find_role(
-          %{Nostrum.Struct.Guild.Role.id() => Nostrum.Struct.Guild.Role.t()},
+          [Nostrum.Struct.Guild.Role.t()],
           String.t(),
           boolean
         ) :: {:ok, Nostrum.Struct.Guild.Role.t()} | {:error, Converters.reason()}
@@ -80,10 +80,10 @@ defmodule Nosedrum.Converters.Role do
       {:ok, id} ->
         error_return = {:error, {:not_found, {:by, :id, id, []}}}
 
-        case Map.get(roles, id, error_return) do
-          {:error, _reason} = error -> error
-          role -> {:ok, role}
-        end
+        Enum.find_value(roles, error_return, fn
+          %{id: ^id} = role -> {:ok, role}
+          _other -> nil
+        end)
 
       # We do not have a snowflake given, assume it's a name and search through the roles by name.
       :error ->
@@ -92,11 +92,11 @@ defmodule Nosedrum.Converters.Role do
   end
 
   @spec into(String.t(), Nostrum.Snowflake.t(), boolean) ::
-          {:ok, Nowstrum.Struct.Guild.Role.t()} | {:error, String.t()}
+          {:ok, Nostrum.Struct.Guild.Role.t()} | {:error, String.t()}
   def into(text, guild_id, ilike) do
     case GuildCache.get(guild_id) do
       {:ok, guild} ->
-        find_role(guild.roles, text, ilike)
+        find_role(Map.values(guild.roles), text, ilike)
 
       {:error, _reason} ->
         case Api.get_guild_roles(guild_id) do

@@ -16,7 +16,7 @@ defmodule Nosedrum.MessageCache do
 
   If no message with the given ID is cached, `nil` is returned.
   """
-  @callback get(guild_id :: Guild.id(), message_id :: Message.id(), cache :: reference()) ::
+  @callback get(guild_id :: Guild.id(), message_id :: Message.id(), cache :: any()) ::
               Message.t() | nil | {:error, String.t()}
 
   @doc """
@@ -29,21 +29,20 @@ defmodule Nosedrum.MessageCache do
   @callback recent_in_guild(
               guild_id :: Guild.id(),
               limit :: pos_integer | :infinity,
-              cache :: reference()
-            ) ::
-              {:ok, [Message.t()]} | {:error, String.t()}
+              cache :: any()
+            ) :: [Message.t()]
 
   @doc """
   Consume the given `message` in the cache process identified by `cache`.
 
   Whether this is done asynchronously or synchronously depends on the implementation.
   """
-  @callback consume(message :: Message.t(), cache :: reference()) :: any()
+  @callback consume(message :: Message.t(), cache :: any()) :: any()
 
   @doc """
   Update the given `message` in the cache, if present.
 
   Whether this is done asynchronously or synchronously depends on the implementation.
   """
-  @callback update(message :: Message.t(), cache :: reference()) :: any()
+  @callback update(message :: Message.t(), cache :: any()) :: any()
 end

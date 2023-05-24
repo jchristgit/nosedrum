@@ -41,23 +41,29 @@ defmodule Nosedrum.Converters.Channel do
   # - Channel mention
   # - Channel name
   @spec find_channel(
-          Nostrum.Struct.Guild.channels(),
+          [Nostrum.Struct.Channel.t()],
           String.t()
         ) :: Nostrum.Struct.Channel.t() | Converters.reason()
   defp find_channel(channels, query) do
     case channel_mention_to_id(query) do
       {:ok, requested_id} ->
-        Map.get(
+        Enum.find_value(
           channels,
-          requested_id,
-          {:not_found, {:by, :id, requested_id, []}}
+          {:not_found, {:by, :id, requested_id, []}},
+          fn
+            %{id: ^requested_id} = channel -> channel
+            _other -> nil
+          end
         )
 
       {:error, _reason} ->
-        Enum.find(
+        Enum.find_value(
           channels,
           {:not_found, {:by, :name, query, []}},
-          fn {_id, %Channel{name: channel_name}} -> channel_name == query end
+          fn
+            %Channel{name: ^query} = channel -> channel
+            _other -> nil
+          end
         )
     end
   end
@@ -72,6 +78,7 @@ defmodule Nosedrum.Converters.Channel do
     case GuildCache.get(guild_id) do
       {:ok, guild} ->
         guild.channels
+        |> Map.values()
         |> find_channel(text)
         |> okify
 

@@ -13,7 +13,7 @@ defmodule Nosedrum.Storage.ETS do
   @doc false
   use GenServer
 
-  @spec put_nested_command(Map.t(), [String.t()], Module.t()) :: Nosedrum.Storage.command_group()
+  @spec put_nested_command(map(), [String.t()], module()) :: Nosedrum.Storage.command_group()
   defp put_nested_command(acc, [name], command) do
     if function_exported?(command, :aliases, 0) do
       Enum.reduce(command.aliases(), acc, &Map.put(&2, &1, command))
@@ -51,7 +51,7 @@ defmodule Nosedrum.Storage.ETS do
     end
   end
 
-  @spec is_empty_cog?(Map.t() | Module.t()) :: boolean()
+  @spec is_empty_cog?({String.t() | :default, map() | module()}) :: boolean()
   defp is_empty_cog?({_key, module}) when is_atom(module), do: false
   defp is_empty_cog?({_key, %{}}), do: true
   defp is_empty_cog?({_key, cog}), do: Enum.all?(cog, &is_empty_cog?/1)
@@ -129,7 +129,6 @@ defmodule Nosedrum.Storage.ETS do
   as the state of this process, the public-facing API functions default
   to using the table name to access the module.
   """
-  @spec start_link(atom() | nil, Keyword.t(), Keyword.t()) :: GenServer.on_start()
   def start_link(
         table_name \\ @default_table,
         table_options \\ @default_table_options,

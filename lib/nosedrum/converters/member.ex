@@ -2,11 +2,10 @@ defmodule Nosedrum.Converters.Member do
   @moduledoc false
 
   alias Nosedrum.Converters
-  alias Nostrum.Api
   alias Nostrum.Cache.MemberCache
   alias Nostrum.Cache.UserCache
+  alias Nostrum.Snowflake
   alias Nostrum.Struct.Guild.Member
-  alias Nostrum.Struct.Snowflake
 
   @doc """
   Convert a Discord user mention to an ID.
@@ -81,11 +80,11 @@ defmodule Nosedrum.Converters.Member do
   @spec into(String.t(), Snowflake.t()) :: {:ok, Member.t()} | {:error, Converters.reason()}
   def into(text, guild_id) do
     with {:ok, user_id} <- user_mention_to_id(text),
-         {:ok, fetched_member} <- Api.get_guild_member(guild_id, user_id) do
+         {:ok, fetched_member} <- MemberCache.get(guild_id, user_id) do
       {:ok, fetched_member}
     else
-      {:error, %{message: %{message: reason}}} ->
-        {:error, reason}
+      {:error, _reason} = cache_error ->
+        cache_error
 
       :error ->
         {query, failure_options} =

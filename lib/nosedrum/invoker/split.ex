@@ -118,7 +118,7 @@ defmodule Nosedrum.Invoker.Split do
     end
   end
 
-  @spec parse_args(Module.t(), [String.t()]) :: [String.t()] | any()
+  @spec parse_args(module(), [String.t()]) :: [String.t()] | any()
   defp parse_args(command_module, args) do
     if function_exported?(command_module, :parse_args, 1) do
       command_module.parse_args(args)
@@ -127,7 +127,7 @@ defmodule Nosedrum.Invoker.Split do
     end
   end
 
-  @spec invoke(Module.t(), Message.t(), [String.t()]) ::
+  @spec invoke(module(), Message.t(), [String.t()]) ::
           any() | {:error, :predicate, {:noperm | :error, any()}}
   defp invoke(command_module, msg, args) do
     case Predicates.evaluate(msg, command_module.predicates()) do
@@ -139,7 +139,7 @@ defmodule Nosedrum.Invoker.Split do
     end
   end
 
-  @spec handle_command(Map.t() | Module.t(), Message.t(), [String.t()]) ::
+  @spec handle_command(map() | module(), Message.t(), [String.t()]) ::
           :ignored
           | {:error, {:unknown_subcommand, String.t(), :known, [String.t() | :default]}}
           | {:error, :predicate, {:error | :noperm, any()}}
