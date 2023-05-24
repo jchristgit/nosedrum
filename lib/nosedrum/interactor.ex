@@ -70,7 +70,8 @@ defmodule Nosedrum.Interactor do
   end
   ```
   """
-  @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) :: :ok
+  @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) ::
+              {:ok} | {:error, :unknown_command} | Nostrum.Api.error()
 
   @doc """
   Add a new command under the given name or application command path. Returns `:ok` if successful, and
