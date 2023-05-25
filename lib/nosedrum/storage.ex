@@ -1,8 +1,9 @@
 defmodule Nosedrum.Storage do
   @moduledoc """
-  `Storage`s keep track of your Application Command names and their associated modules. A `Storage` handles incoming
-  `t:Nostrum.Struct.Interaction.t/0`s, invoking `c:Nosedrum.ApplicationCommand.command/1` callbacks
-  and responding to the Interaction.
+  `Storage`s keep track of your Application Command names and their associated modules.
+
+  A `Storage` handles incoming `t:Nostrum.Struct.Interaction.t/0`s, invoking
+  `c:Nosedrum.ApplicationCommand.command/1` callbacks and responding to the Interaction.
 
   In addition to tracking commands locally for the bot, a `Storage` is
   responsible for registering an Application Command with Discord when `c:add_command/4`
@@ -26,8 +27,7 @@ defmodule Nosedrum.Storage do
   @type command_scope :: :global | Guild.id() | [Guild.id()]
 
   @typedoc """
-  Defines a structure of commands, subcommands, subcommand groups, as
-  outlined in the [official documentation](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups).
+  Defines a structure of commands, subcommands, subcommand groups.
 
   **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
 
@@ -42,6 +42,10 @@ defmodule Nosedrum.Storage do
       }
   }
   ```
+
+  ## References
+  - Official Documentation:
+  https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups
   """
   @type application_command_path ::
           %{
@@ -68,27 +72,35 @@ defmodule Nosedrum.Storage do
     Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
   end
   ```
+
+  ## Return value
+
+  Returns `{:ok}` on success, and `{:error, reason}` otherwise.
   """
   @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) ::
               {:ok} | {:error, :unknown_command} | Nostrum.Api.error()
 
   @doc """
-  Add a new command under the given name or application command path. Returns `:ok` if successful, and
-  `{:error, reason}` otherwise.
+  Add a new command under the given name or application command path.
 
   If the command already exists, it will be overwritten.
+
+  ## Return value
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
   """
   @callback add_command(
               name_or_path :: String.t() | application_command_path,
               command_module :: module,
               scope :: command_scope,
               name_or_pid
-            ) ::
-              :ok | {:error, reason :: String.t()}
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
-  Remove the command under the given name or application command path. Returns `:ok` if successful, and
-  `{:error, reason}` otherwise.
+  Remove the command under the given name or application command path.
+
+  ## Return value
+
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
 
   If the command does not exist, no error should be returned.
   """
@@ -97,12 +109,14 @@ defmodule Nosedrum.Storage do
               command_id :: Nostrum.Snowflake.t(),
               scope :: command_scope,
               name_or_pid
-            ) ::
-              :ok | {:error, reason :: String.t()}
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
-  Responds to an Interaction with the values in the given `t:Nosedrum.ApplicationCommand.response/0`. Returns `{:ok}` if
-  successful, and a `t:Nostrum.Api.error/0` otherwise.
+  Responds to an Interaction with the given `t:Nosedrum.ApplicationCommand.response/0`.
+
+  ## Return value
+
+  Returns `{:ok}` if successful, and a `t:Nostrum.Api.error/0` otherwise.
   """
   @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
           {:ok} | Nostrum.Api.error()
