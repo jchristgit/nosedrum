@@ -14,29 +14,29 @@ interactive bot.
 written for [bolt](https://github.com/jchristgit/bolt). bolt also contains
 around [57
 commands](https://github.com/jchristgit/bolt/tree/master/lib/bolt/cogs) based
-off the `Nosedrum.Command` behaviour that you can explore if you're looking
+off the `Nosedrum.TextCommand` behaviour that you can explore if you're looking
 for inspiration.
 
 The application command related parts of the framework consist of two parts:
 
 - `Nosedrum.ApplicationCommand`, the behaviour that all application commands
   must implement.
-- `Nosedrum.Interactor`, the behaviour for any slash command invoker. A default
-  implementation provided by nosedrum resides at `Nosedrum.Interactor.Dispatcher`.
+- `Nosedrum.Storage`, the behaviour for any slash command storage. A default
+  implementation provided by nosedrum resides at `Nosedrum.Storage.Dispatcher`.
 
 The traditional command processing related parts of the framework consists of
 three parts:
 
-- `Nosedrum.Command`, the behaviour that all commands must implement.
-- `Nosedrum.Invoker`, the behaviour of command processors. Command processors
+- `Nosedrum.TextCommand`, the behaviour that all commands must implement.
+- `Nosedrum.TextCommand.Invoker`, the behaviour of command processors. Command processors
   take a message, look it up in the provided storage implementation,
   and invoke commands as required. nosedrum ships with an implementation of
-  this based on bolt's original command parser named `Nosedrum.Invoker.Split`.
-- `Nosedrum.Storage`, the behaviour of command storages. Command storages
+  this based on bolt's original command parser named `Nosedrum.TextCommand.Invoker.Split`.
+- `Nosedrum.TextCommand.Storage`, the behaviour of command storages. Command storages
   allow for fast and simple lookups of commands and command groups and store
-  command names along with their corresponding `Nosedrum.Command`
+  command names along with their corresponding `Nosedrum.TextCommand`
   implementations internally. An ETS-based command storage implementation is
-  provided with `Nosedrum.Storage.ETS`.
+  provided with `Nosedrum.TextCommand.Storage.ETS`.
 
 Additionally, the following utilities are provided:
 

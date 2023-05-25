@@ -1,4 +1,4 @@
-defmodule Nosedrum.Storage do
+defmodule Nosedrum.TextCommand.Storage do
   @moduledoc """
   Storages contain commands and are used by command invokers to look up commands.
 
@@ -47,7 +47,7 @@ defmodule Nosedrum.Storage do
   @doc """
   Add a new command under the given `path`.
 
-  If a command has the c:Nosedrum.Command.aliases/0 callback defined,
+  If a command has the c:Nosedrum.TextCommand.aliases/0 callback defined,
   they will also be added under `path`. If the command already exists,
   no error should be returned.
   """
@@ -57,7 +57,7 @@ defmodule Nosedrum.Storage do
   @doc """
   Remove the command under the given `path`.
 
-  If a command has the c:Nosedrum.Command.aliases/0 callback defined,
+  If a command has the c:Nosedrum.TextCommand.aliases/0 callback defined,
   they will also be removed under `path`. If the command does not exist,
   no error should be returned.
   """

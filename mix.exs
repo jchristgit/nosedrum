@@ -38,16 +38,21 @@ defmodule Nosedrum.MixProject do
       groups_for_modules: [
         "Application Commands": [
           Nosedrum.ApplicationCommand,
-          Nosedrum.Interactor,
-          Nosedrum.Interactor.Dispatcher
+          Nosedrum.Storage,
+          Nosedrum.Storage.Dispatcher
         ],
         Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.Predicates],
-        Behaviours: [Nosedrum.Command, Nosedrum.Invoker, Nosedrum.MessageCache, Nosedrum.Storage],
+        Behaviours: [
+          Nosedrum.TextCommand,
+          Nosedrum.TextCommand.Invoker,
+          Nosedrum.MessageCache,
+          Nosedrum.TextCommand.Storage
+        ],
         Implementations: [
-          Nosedrum.Invoker.Split,
+          Nosedrum.TextCommand.Invoker.Split,
           Nosedrum.MessageCache.Agent,
           Nosedrum.MessageCache.ETS,
-          Nosedrum.Storage.ETS
+          Nosedrum.TextCommand.Storage.ETS
         ]
       ]
     ]

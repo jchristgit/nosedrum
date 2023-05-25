@@ -1,4 +1,4 @@
-defmodule Nosedrum.Invoker do
+defmodule Nosedrum.TextCommand.Invoker do
   @moduledoc """
   Invoker modules process messages from Discord.
 
@@ -13,7 +13,7 @@ defmodule Nosedrum.Invoker do
 
   This is the main entry point for invokers: from here on they
   check whether the message could contain a valid command based
-  on their configured prefix and ask the selected `Nosedrum.Storage`
+  on their configured prefix and ask the selected `Nosedrum.TextCommand.Storage`
   whether a command exists. If it exists, they proceed to invoke it
   using only the arguments to the message, with bot prefix and command
   invocation removed from the message.

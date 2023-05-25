@@ -1,11 +1,10 @@
-defmodule Nosedrum.Interactor do
+defmodule Nosedrum.Storage do
   @moduledoc """
-  Interactors take the role of both `Nosedrum.Invoker` and `Nosedrum.Storage` when
-  it comes to Discord's Application Commands. An Interactor handles incoming
+  `Storage`s keeps track of your Application Command names and their associated modules. A `Storage` handles incoming
   `t:Nostrum.Struct.Interaction.t/0`s, invoking `c:Nosedrum.ApplicationCommand.command/1` callbacks
   and responding to the Interaction.
 
-  In addition to tracking commands locally for the bot, an Interactor is
+  In addition to tracking commands locally for the bot, a `Storage` is
   responsible for registering an Application Command with Discord when `c:add_command/4`
   or `c:remove_command/4` is called.
   """
@@ -52,7 +51,7 @@ defmodule Nosedrum.Interactor do
           }
 
   @typedoc """
-  The name or pid of the Interactor process.
+  The name or pid of the Storage process.
   """
   @type name_or_pid :: atom() | pid()
 
@@ -61,12 +60,12 @@ defmodule Nosedrum.Interactor do
 
   This callback should be invoked upon receiving an interaction via the `:INTERACTION_CREATE` event.
 
-  ## Example using `Nosedrum.Interactor.Dispatcher`:
+  ## Example using `Nosedrum.Storage.Dispatcher`:
   ```elixir
   # In your `Nostrum.Consumer` file:
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
     IO.puts "Got interaction"
-    Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+    Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
   end
   ```
   """

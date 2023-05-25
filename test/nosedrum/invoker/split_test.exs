@@ -1,9 +1,9 @@
-defmodule Nosedrum.Invoker.SplitTest do
-  alias Nosedrum.Invoker.Split, as: CommandInvoker
-  alias Nosedrum.Storage.ETS, as: CommandStorage
+defmodule Nosedrum.TextCommand.Invoker.SplitTest do
+  alias Nosedrum.TextCommand.Invoker.Split, as: CommandInvoker
+  alias Nosedrum.TextCommand.Storage.ETS, as: CommandStorage
   use ExUnit.Case, async: true
 
-  doctest Nosedrum.Invoker.Split
+  doctest Nosedrum.TextCommand.Invoker.Split
 
   defmodule SimpleCommand do
     def command(_msg, _args), do: :command_return

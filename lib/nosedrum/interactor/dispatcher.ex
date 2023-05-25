@@ -1,13 +1,13 @@
-defmodule Nosedrum.Interactor.Dispatcher do
+defmodule Nosedrum.Storage.Dispatcher do
   @moduledoc """
-  An implementation of `Nosedrum.Interactor`, dispatching Application Command Interactions to the appropriate modules.
+  An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
   """
   @moduledoc since: "0.4.0"
-  @behaviour Nosedrum.Interactor
+  @behaviour Nosedrum.Storage
 
   use GenServer
 
-  alias Nosedrum.Interactor
+  alias Nosedrum.Storage
   alias Nostrum.Struct.Interaction
 
   @option_type_map %{
@@ -33,7 +33,7 @@ defmodule Nosedrum.Interactor.Dispatcher do
     case GenServer.call(id, {:fetch, interaction}) do
       {:ok, module} ->
         response = module.command(interaction)
-        Interactor.respond(interaction, response)
+        Storage.respond(interaction, response)
 
       :error ->
         {:error, :unknown_command}

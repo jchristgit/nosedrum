@@ -2,12 +2,12 @@ defmodule Nosedrum.Predicates do
   @moduledoc """
   Built-in command predicates and predicate evaluation.
 
-  `c:Nosedrum.Command.predicates/0` allows commands to specify a set of
+  `c:Nosedrum.TextCommand.predicates/0` allows commands to specify a set of
   conditions that must be met before a command is invoked, effectively allowing
   you to deny access to certain access. For instance, allowing every user on
   your server to issue a ban command may not be desirable.
 
-  For using the `c:Nosedrum.Command.predicates/0` callback, you can either
+  For using the `c:Nosedrum.TextCommand.predicates/0` callback, you can either
   define your own predicates or use [those provided by this
   module](#predicates).
   """
@@ -89,7 +89,7 @@ defmodule Nosedrum.Predicates do
   Check whether the message author has the given `permission`.
 
   This does not directly return an `t:evaluation_result/0`: it returns a
-  function allowing you to use this in your `c:Nosedrum.Command.predicates/0`
+  function allowing you to use this in your `c:Nosedrum.TextCommand.predicates/0`
   callback.
 
   When evaluation fails, an error with a description of the required permission
@@ -99,7 +99,7 @@ defmodule Nosedrum.Predicates do
   ## Example
 
       defmodule MyBot.Cogs.Ban do
-        @behaviour Nosedrum.Command
+        @behaviour Nosedrum.TextCommand
 
         def usage, do: ["ban <member>"]
         def description, do: "Ban the given `member`."

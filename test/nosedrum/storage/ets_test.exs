@@ -1,5 +1,5 @@
-defmodule Nosedrum.Storage.ETSTest do
-  alias Nosedrum.Storage
+defmodule Nosedrum.TextCommand.Storage.ETSTest do
+  alias Nosedrum.TextCommand.Storage
   use ExUnit.Case
 
   defmodule TestCommand do
