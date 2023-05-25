@@ -1,4 +1,4 @@
-defmodule Nosedrum.Predicates do
+defmodule Nosedrum.TextCommand.Predicates do
   @moduledoc """
   Built-in command predicates and predicate evaluation.
 
@@ -103,7 +103,7 @@ defmodule Nosedrum.Predicates do
 
         def usage, do: ["ban <member>"]
         def description, do: "Ban the given `member`."
-        def predicates, do: [Nosedrum.Predicates.has_permission(:ban_members)]
+        def predicates, do: [Nosedrum.TextCommand.Predicates.has_permission(:ban_members)]
         def command(msg, [target]) do
           # ... 🔨
         end

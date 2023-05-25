@@ -41,7 +41,7 @@ defmodule Nosedrum.MixProject do
           Nosedrum.Storage,
           Nosedrum.Storage.Dispatcher
         ],
-        Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.Predicates],
+        Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.TextCommand.Predicates],
         Behaviours: [
           Nosedrum.TextCommand,
           Nosedrum.TextCommand.Invoker,
