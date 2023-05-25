@@ -4,7 +4,7 @@ defmodule Nosedrum.ApplicationCommand do
   or message command module should implement.
 
   Like regular commands, application command modules are stateless on their own. Implementations of the callbacks
-  defined by this behaviour are invoked from other modules/functions, notably a `Nosedrum.Interactor`.
+  defined by this behaviour are invoked from other modules/functions, notably a `Nosedrum.Storage`.
 
   The types defined in this module reflect the official
   [Application Command docs](https://discord.com/developers/docs/interactions/application-commands).
@@ -59,19 +59,19 @@ defmodule Nosedrum.ApplicationCommand do
     # You may use `:global` instead of a guild id at GUILD_ID_HERE, but note
     # that global commands could take up to an hour to become available.
     def handle_event({:READY, _data, _ws_state}) do
-      case Nosedrum.Interactor.Dispatcher.add_command("echo", MyApp.Commands.Echo, GUILD_ID_HERE) do
+      case Nosedrum.Storage.Dispatcher.add_command("echo", MyApp.Commands.Echo, GUILD_ID_HERE) do
         {:ok, _} -> IO.puts("Registered Echo command.")
         e -> IO.inspect(e, label: "An error occurred registering the Echo command")
       end
     end
 
     def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
-      Nosedrum.Interactor.Dispatcher.handle_interaction(interaction)
+      Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
     end
   end
   ```
 
-  You will also need to start the `Nosedrum.Interactor.Dispatcher` as part of
+  You will also need to start the `Nosedrum.Storage.Dispatcher` as part of
   your supervision tree, for example, by adding this to your application start
   function:
 
@@ -82,7 +82,7 @@ defmodule Nosedrum.ApplicationCommand do
     def start(type, args) do
       children = [
         # ...
-        {Nosedrum.Interactor.Dispatcher, name: Nosedrum.Interactor.Dispatcher},
+        {Nosedrum.Storage.Dispatcher, name: Nosedrum.Storage.Dispatcher},
       ]
 
       options = [strategy: :rest_for_one, name: MyApp.Supervisor]

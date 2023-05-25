@@ -1,19 +1,20 @@
-defmodule Nosedrum.Storage.ETS do
+defmodule Nosedrum.TextCommand.Storage.ETS do
   @moduledoc """
-  An implementation of the `Nosedrum.Storage` behaviour based on ETS tables.
+  An implementation of the `Nosedrum.TextCommand.Storage` behaviour based on ETS tables.
 
   This module needs to be configured as part of your supervision tree as it
   spins up a `GenServer` which owns the command table. If you want to obtain
   the table ID of the internal ETS table, send a call with the message `:tid`.
   """
-  @behaviour Nosedrum.Storage
+  @behaviour Nosedrum.TextCommand.Storage
   @default_table :nosedrum_commands
   @default_table_options [{:read_concurrency, true}, :ordered_set, :public, :named_table]
 
   @doc false
   use GenServer
 
-  @spec put_nested_command(map(), [String.t()], module()) :: Nosedrum.Storage.command_group()
+  @spec put_nested_command(map(), [String.t()], module()) ::
+          Nosedrum.TextCommand.Storage.command_group()
   defp put_nested_command(acc, [name], command) do
     if function_exported?(command, :aliases, 0) do
       Enum.reduce(command.aliases(), acc, &Map.put(&2, &1, command))

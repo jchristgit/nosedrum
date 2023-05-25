@@ -1,13 +1,13 @@
-defmodule Nosedrum.Interactor.Dispatcher do
+defmodule Nosedrum.Storage.Dispatcher do
   @moduledoc """
-  An implementation of `Nosedrum.Interactor`, dispatching Application Command Interactions to the appropriate modules.
+  An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
   """
   @moduledoc since: "0.4.0"
-  @behaviour Nosedrum.Interactor
+  @behaviour Nosedrum.Storage
 
   use GenServer
 
-  alias Nosedrum.Interactor
+  alias Nosedrum.Storage
   alias Nostrum.Struct.Interaction
 
   @option_type_map %{
@@ -30,7 +30,14 @@ defmodule Nosedrum.Interactor.Dispatcher do
 
   @impl true
   def handle_interaction(%Interaction{} = interaction, id \\ __MODULE__) do
-    GenServer.cast(id, {:handle, interaction})
+    case GenServer.call(id, {:fetch, interaction}) do
+      {:ok, module} ->
+        response = module.command(interaction)
+        Storage.respond(interaction, response)
+
+      :error ->
+        {:error, :unknown_command}
+    end
   end
 
   @impl true
@@ -140,13 +147,8 @@ defmodule Nosedrum.Interactor.Dispatcher do
   end
 
   @impl true
-  def handle_cast({:handle, %Interaction{data: %{name: name}} = interaction}, commands) do
-    with {:ok, module} <- Map.fetch(commands, name) do
-      response = module.command(interaction)
-      Interactor.respond(interaction, response)
-    end
-
-    {:noreply, commands}
+  def handle_call({:fetch, %Interaction{data: %{name: name}}}, _from, commands) do
+    {:reply, Map.fetch(commands, name), commands}
   end
 
   defp build_payload(name, command) when is_binary(name) do
@@ -234,13 +236,8 @@ defmodule Nosedrum.Interactor.Dispatcher do
     get_depth(path, 1)
   end
 
-  defp unwrap_key({key, _v}) do
-    if is_tuple(key) do
-      elem(key, 0)
-    else
-      key
-    end
-  end
+  defp unwrap_key({{key, _}, _}), do: key
+  defp unwrap_key({key, _}), do: key
 
   defp put_type_specific_fields(payload, command, options) do
     if command.type() == :slash do

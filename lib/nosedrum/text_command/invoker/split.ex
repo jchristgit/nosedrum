@@ -1,4 +1,4 @@
-defmodule Nosedrum.Invoker.Split do
+defmodule Nosedrum.TextCommand.Invoker.Split do
   @moduledoc """
   An `OptionParser.split/1`-based command processor.
 
@@ -27,13 +27,14 @@ defmodule Nosedrum.Invoker.Split do
   This invoker checks predicates and returns predicate failures to the caller.
   """
 
-  @behaviour Nosedrum.Invoker
+  @behaviour Nosedrum.TextCommand.Invoker
 
   # This must be looked up at compilation time due to the nature of Elixir's
   # binary matching. Also, SPEEEEEEEEEEEEEED!!
   @prefix Application.compile_env(:nosedrum, :prefix, ".")
 
-  alias Nosedrum.{Helpers, Predicates}
+  alias Nosedrum.Helpers
+  alias Nosedrum.TextCommand.Predicates
   alias Nostrum.Struct.Message
 
   @spec remove_prefix(String.t()) :: String.t() | :not_found
@@ -82,7 +83,7 @@ defmodule Nosedrum.Invoker.Split do
   - `storage`: The storage implementation the command invoker should use.
   - `storage_process`: The storage process, ETS table, or similar that is used by
     the storage process. For instance, this allows you to use different ETS tables
-    for the `Nosedrum.Storage.ETS` module if you wish.
+    for the `Nosedrum.TextCommand.Storage.ETS` module if you wish.
 
   ## Return value
 
@@ -93,9 +94,9 @@ defmodule Nosedrum.Invoker.Split do
 
   ## Examples
 
-      iex> Nosedrum.Invoker.Split.handle_message(%{content: "foo"})
+      iex> Nosedrum.TextCommand.Invoker.Split.handle_message(%{content: "foo"})
       :ignored
-      iex> Nosedrum.Invoker.Split.handle_message(%{content: "."})
+      iex> Nosedrum.TextCommand.Invoker.Split.handle_message(%{content: "."})
       :ignored
   """
   @spec handle_message(Message.t(), module, atom() | pid()) ::
@@ -105,7 +106,7 @@ defmodule Nosedrum.Invoker.Split do
           | any()
   def handle_message(
         message,
-        storage \\ Nosedrum.Storage.ETS,
+        storage \\ Nosedrum.TextCommand.Storage.ETS,
         storage_process \\ :nosedrum_commands
       ) do
     with content when content != :not_found <- remove_prefix(message.content),

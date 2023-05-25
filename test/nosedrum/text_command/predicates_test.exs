@@ -1,5 +1,5 @@
-defmodule Nosedrum.PredicatesTest do
-  alias Nosedrum.Predicates
+defmodule Nosedrum.TextCommand.PredicatesTest do
+  alias Nosedrum.TextCommand.Predicates
   alias Nostrum.Cache.CacheSupervisor
   alias Nostrum.Cache.GuildCache
   alias Nostrum.Cache.MemberCache

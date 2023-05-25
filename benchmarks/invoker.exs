@@ -4,8 +4,8 @@ defmodule MyCommand do
   def command(_, [_word]), do: :ok
 end
 
-Nosedrum.Storage.ETS.start_link(name: Nosedrum.Storage.ETS)
-Nosedrum.Storage.ETS.add_command([".echo"], MyCommand)
+Nosedrum.TextCommand.Storage.ETS.start_link(name: Nosedrum.TextCommand.Storage.ETS)
+Nosedrum.TextCommand.Storage.ETS.add_command([".echo"], MyCommand)
 
 inputs = [
   {"short non-commands", %{content: "hi guys"}},
@@ -26,7 +26,7 @@ inputs = [
 ]
 
 bench = %{
-  "Split-based invoker" => &Nosedrum.Invoker.Split.handle_message(&1)
+  "Split-based invoker" => &Nosedrum.TextCommand.Invoker.Split.handle_message(&1)
 }
 
 Benchee.run(bench, time: 20, inputs: inputs)

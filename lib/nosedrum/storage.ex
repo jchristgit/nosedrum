@@ -1,75 +1,156 @@
 defmodule Nosedrum.Storage do
   @moduledoc """
-  Storages contain commands and are used by command invokers to look up commands.
+  `Storage`s keep track of your Application Command names and their associated modules.
 
-  How you start a storage is up to the module itself - what is
-  expected is that storage modules implement the behaviours
-  documented in this module.
+  A `Storage` handles incoming `t:Nostrum.Struct.Interaction.t/0`s, invoking
+  `c:Nosedrum.ApplicationCommand.command/1` callbacks and responding to the Interaction.
 
-  The public-facing API of storage modules takes an optional argument,
-  the storage process or other information used to identify the storage
-  such as an ETS table name.
+  In addition to tracking commands locally for the bot, a `Storage` is
+  responsible for registering an Application Command with Discord when `c:add_command/4`
+  or `c:remove_command/4` is called.
   """
+  @moduledoc since: "0.4.0"
+  alias Nostrum.Struct.{Guild, Interaction}
+
+  @callback_type_map %{
+    pong: 1,
+    channel_message_with_source: 4,
+    deferred_channel_message_with_source: 5,
+    deferred_update_message: 6,
+    update_message: 7
+  }
+
+  @flag_map %{
+    ephemeral?: 64
+  }
+
+  @type command_scope :: :global | Guild.id() | [Guild.id()]
 
   @typedoc """
-  A single command module or mapping of subcommand names to command groups.
+  Defines a structure of commands, subcommands, subcommand groups.
 
-  In addition to subcommand names, the key `:default` can be specified by
-  the module. `:default` should be invoked when none of the subcommands in the
-  map match.
+  **Note** that Discord only supports nesting 3 levels deep, like `command -> subcommand group -> subcommand`.
+
+  ## Example path:
+  ```elixir
+  %{
+    {"castle", MyApp.CastleCommand.description()} =>
+      %{
+        {"prepare", "Prepare the castle for an attack."} => [],
+        {"open", "Open up the castle for traders and visitors."} => [],
+        # ...
+      }
+  }
+  ```
+
+  ## References
+  - Official Documentation:
+  https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups
   """
-  @type command_group ::
-          module
-          | %{optional(:default) => command_group, required(String.t()) => command_group}
+  @type application_command_path ::
+          %{
+            {group_name :: String.t(), group_desc :: String.t()} => [
+              application_command_path | [Nosedrum.ApplicationCommand.option()]
+            ]
+          }
 
   @typedoc """
-  The "invocation path" of the command.
-
-  The public-facing API of storage modules should use this in order
-  to allow users to identify the command they want to operate on.
-
-  ## Usage
-  To identify a single command, use a single element list, such as `["echo"]`.
-  To identify a subcommand, use a pair, such as `["infraction", "search"]`.
-  To identify the default subcommand invoked when no matching subcommand is
-  found, specify the group name first, then `:default`, such as
-  `["tags", :default]`.
+  The name or pid of the Storage process.
   """
-  @type command_path :: [String.t() | :default, ...]
+  @type name_or_pid :: atom() | pid()
 
   @doc """
-  Look up a command group under the specified `name`.
+  Handle an Application Command invocation.
 
-  If the command was not found, `nil` should be returned.
+  This callback should be invoked upon receiving an interaction via the `:INTERACTION_CREATE` event.
+
+  ## Example using `Nosedrum.Storage.Dispatcher`:
+  ```elixir
+  # In your `Nostrum.Consumer` file:
+  def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+    IO.puts "Got interaction"
+    Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
+  end
+  ```
+
+  ## Return value
+
+  Returns `{:ok}` on success, and `{:error, reason}` otherwise.
   """
-  @callback lookup_command(name :: String.t(), storage :: reference) :: command_group | nil
+  @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) ::
+              {:ok} | {:error, :unknown_command} | Nostrum.Api.error()
 
   @doc """
-  Add a new command under the given `path`.
+  Add a new command under the given name or application command path.
 
-  If a command has the c:Nosedrum.Command.aliases/0 callback defined,
-  they will also be added under `path`. If the command already exists,
-  no error should be returned.
+  If the command already exists, it will be overwritten.
+
+  ## Return value
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
   """
-  @callback add_command(path :: command_path, command :: module, storage :: reference) ::
-              :ok | {:error, String.t()}
+  @callback add_command(
+              name_or_path :: String.t() | application_command_path,
+              command_module :: module,
+              scope :: command_scope,
+              name_or_pid
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
-  Remove the command under the given `path`.
+  Remove the command under the given name or application command path.
 
-  If a command has the c:Nosedrum.Command.aliases/0 callback defined,
-  they will also be removed under `path`. If the command does not exist,
-  no error should be returned.
+  ## Return value
+
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
+
+  If the command does not exist, no error should be returned.
   """
-  @callback remove_command(path :: command_path, storage :: reference) ::
-              :ok | {:error, String.t()}
+  @callback remove_command(
+              name_or_path :: String.t() | application_command_path,
+              command_id :: Nostrum.Snowflake.t(),
+              scope :: command_scope,
+              name_or_pid
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
-  Return a mapping of command names to `t:command_group/0`s.
+  Responds to an Interaction with the given `t:Nosedrum.ApplicationCommand.response/0`.
 
-  For top-level commands, the value should be a string, otherwise,
-  a mapping of subcommand names to subcommand modules as described
-  on `t:command_group/0`s documentation should be returned.
+  ## Return value
+
+  Returns `{:ok}` if successful, and a `t:Nostrum.Api.error/0` otherwise.
   """
-  @callback all_commands(storage :: reference) :: %{String.t() => command_group}
+  @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
+          {:ok} | Nostrum.Api.error()
+  def respond(interaction, command_response) do
+    type =
+      command_response
+      |> Keyword.get(:type, :channel_message_with_source)
+      |> convert_callback_type()
+
+    data =
+      command_response
+      |> Keyword.take([:content, :embeds, :components, :tts?, :allowed_mentions])
+      |> Map.new()
+      |> put_flags(command_response)
+
+    res = %{
+      type: type,
+      data: data
+    }
+
+    Nostrum.Api.create_interaction_response(interaction, res)
+  end
+
+  defp convert_callback_type(type) do
+    Map.get(@callback_type_map, type)
+  end
+
+  defp put_flags(data_map, command_response) do
+    Enum.reduce(@flag_map, data_map, fn {flag, value}, data_map_acc ->
+      if command_response[flag] do
+        Map.put(data_map_acc, :flags, value)
+      else
+        data_map_acc
+      end
+    end)
+  end
 end

@@ -1,4 +1,4 @@
-defmodule Nosedrum.Command do
+defmodule Nosedrum.TextCommand do
   @moduledoc """
   The command behaviour specifies the interface that a command module should implement.
 
@@ -132,7 +132,7 @@ defmodule Nosedrum.Command do
   @doc """
   An optional callback that returns a list of aliases for the command.
 
-  `Nosedrum.Storage` implementations use this function when adding/removing a command
+  `Nosedrum.TextCommand.Storage` implementations use this function when adding/removing a command
   with `add_command/2` or `remove_command/2`. If any of the aliases returned conflict
   with existing commands/aliases, they will be overwritten.
   """
