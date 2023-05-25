@@ -1,6 +1,6 @@
 defmodule Nosedrum.Storage do
   @moduledoc """
-  `Storage`s keeps track of your Application Command names and their associated modules. A `Storage` handles incoming
+  `Storage`s keep track of your Application Command names and their associated modules. A `Storage` handles incoming
   `t:Nostrum.Struct.Interaction.t/0`s, invoking `c:Nosedrum.ApplicationCommand.command/1` callbacks
   and responding to the Interaction.
 
