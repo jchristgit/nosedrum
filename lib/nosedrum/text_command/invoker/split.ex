@@ -33,7 +33,8 @@ defmodule Nosedrum.TextCommand.Invoker.Split do
   # binary matching. Also, SPEEEEEEEEEEEEEED!!
   @prefix Application.compile_env(:nosedrum, :prefix, ".")
 
-  alias Nosedrum.{Helpers, Predicates}
+  alias Nosedrum.Helpers
+  alias Nosedrum.TextCommand.Predicates
   alias Nostrum.Struct.Message
 
   @spec remove_prefix(String.t()) :: String.t() | :not_found
