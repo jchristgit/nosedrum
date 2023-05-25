@@ -7,12 +7,32 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## v0.5.0 - UNRELEASED
 
+
+### Breaking changes
+
+- The existing text command handling behaviour has been moved under
+  `Nosedrum.TextCommand`. Application commands have been moved more into the
+  spotlight. The following moves have been performed:
+  - `Nosedrum.Command` => `Nosedrum.TextCommand`
+  - `Nosedrum.Invoker` => `Nosedrum.TextCommand.Invoker`
+  - `Nosedrum.Invoker.Split` => `Nosedrum.TextCommand.Invoker.Split`
+  - `Nosedrum.Storage` => `Nosedrum.TextCommand.Storage`
+  - `Nosedrum.Storage.ETS` => `Nosedrum.TextCommand.Storage.ETS`
+  - `Nosedrum.Interactor` => `Nosedrum.Storage`
+- Nosedrum will now return error tuples for converter failures (text-based
+  command handling) instead of strings. The main structure that you will likely
+  want to check against is `{:error, {:not_found, {:by, :id | :name, query,
+  options}}}`. See `Nosedrum.Converters` for details.
+
+
 ### Added
 
 - Support multiple prefixes in `Nosedrum.Invoker.Split`
 
 ### Changed
 
+- Application command handling is now performed in the client process calling
+  thme, not the command interactor.
 - Updated nostrum to 0.7.0.
 - Updated all other dependencies.
 
