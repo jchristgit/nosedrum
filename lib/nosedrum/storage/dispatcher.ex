@@ -33,7 +33,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     with {:ok, module} <- GenServer.call(id, {:fetch, interaction}),
          response <- module.command(interaction),
          {:ok} <- Storage.respond(interaction, response),
-         callback_tuple when is_tuple(callback_tuple) <- Keyword.get(response, :type) do
+         {_defer_type, callback_tuple} <- Keyword.get(response, :type) do
       Storage.followup(interaction, callback_tuple)
     else
       :error ->
