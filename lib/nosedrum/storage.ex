@@ -75,10 +75,14 @@ defmodule Nosedrum.Storage do
 
   ## Return value
 
-  Returns `{:ok}` on success, and `{:error, reason}` otherwise.
+  Returns `{:ok}` on success, or `{:ok, t:Nostrum.Struct.Message.t()}` when deferring and the supplied callback
+  completes with a successful edit of the original response. `{:error, reason}` is returned otherwise.
   """
   @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) ::
-              {:ok} | {:error, :unknown_command} | Nostrum.Api.error()
+              {:ok}
+              | {:ok, Nostrum.Struct.Message.t()}
+              | {:error, :unknown_command}
+              | Nostrum.Api.error()
 
   @doc """
   Add a new command under the given name or application command path.
@@ -138,6 +142,35 @@ defmodule Nosedrum.Storage do
     }
 
     Nostrum.Api.create_interaction_response(interaction, res)
+  end
+
+  @doc """
+  Edits an interaction with a follow up response. The response is obtained by running the given
+  function/MFA tuple.
+
+  ## Return value
+
+  Returns `{:ok, `t:Nostrum.Struct.Message.t()`}` if successful, and a `t:Nostrum.Api.error/0` otherwise.
+  """
+  @spec followup(Interaction.t(), Nosedrum.ApplicationCommand.callback()) ::
+          {:ok, Nostrum.Struct.Message.t()} | Nostrum.Api.error()
+  def followup(interaction, callback_tuple) do
+    followup_response =
+      case callback_tuple do
+        {callback, args} -> apply(callback, args)
+        {module, callback, args} -> apply(module, callback, args)
+      end
+
+    data =
+      followup_response
+      |> Keyword.take([:content, :embeds, :components, :allowed_mentions])
+      |> Map.new()
+
+    Nostrum.Api.edit_interaction_response(interaction, data)
+  end
+
+  defp convert_callback_type({type, _fn}) do
+    convert_callback_type(type)
   end
 
   defp convert_callback_type(type) do

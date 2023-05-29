@@ -30,13 +30,21 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_interaction(%Interaction{} = interaction, id \\ __MODULE__) do
-    case GenServer.call(id, {:fetch, interaction}) do
-      {:ok, module} ->
-        response = module.command(interaction)
-        Storage.respond(interaction, response)
-
+    with {:ok, module} <- GenServer.call(id, {:fetch, interaction}),
+         response <- module.command(interaction),
+         {:ok} <- Storage.respond(interaction, response),
+         callback_tuple when is_tuple(callback_tuple) <- Keyword.get(response, :type) do
+      Storage.followup(interaction, callback_tuple)
+    else
       :error ->
         {:error, :unknown_command}
+
+      # the response type was not a callback tuple, no need to follow up
+      res_type when is_atom(res_type) ->
+        {:ok}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
