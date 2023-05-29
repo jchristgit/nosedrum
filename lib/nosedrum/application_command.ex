@@ -157,11 +157,12 @@ defmodule Nosedrum.ApplicationCommand do
 
   ## Deferred Response Example
 
-  In order to avoid a potential race condition when deferring, you should supply a callback function that Nosedrum for
-  to call only after the initial response. The callback should take the form of `{anonymous_fn, args}`, or an MFA
-  (Module, Function, Args) tuple, like `{MyCommand, :followup_fn, [interaction, extra_arg]}`
+  In order to avoid a potential race condition when deferring, you should supply a callback function for Nosedrum
+  to call only after the initial response succeeds. The callback should take the form of `{anonymous_fn, args}`, or an
+  MFA (Module, Function, Args) tuple, like `{MyCommand, :followup_fn, [interaction, extra_arg]}`
 
   ```elixir
+  @impl Nosedrum.ApplicationCommand
   def command(interaction) do
     [
       type: {:deferred_channel_message_with_source, {&expensive_calculation/1, [interaction]}}
@@ -171,7 +172,7 @@ defmodule Nosedrum.ApplicationCommand do
   defp expensive_calculation(interaction) do
     # ... do expensive things
     [
-      content: "Hello, world!!"
+      content: "Hello, I've been edited in after the original interaction response"
     ]
   end
   ```
