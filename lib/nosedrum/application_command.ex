@@ -96,7 +96,7 @@ defmodule Nosedrum.ApplicationCommand do
   alias Nostrum.Struct.{Embed, Interaction}
 
   @typedoc """
-  A function called by `Nosedrum.Storage.followup/2` after deferring an interaction response.
+  Called by `Nosedrum.Storage.followup/2` after deferring an interaction response.
   """
   @type callback :: {fun(), args :: list()} | {module(), fn_name :: atom(), args :: list()}
 
