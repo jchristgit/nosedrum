@@ -145,8 +145,9 @@ defmodule Nosedrum.Storage do
   end
 
   @doc """
-  Edits an interaction with a follow up response. The response is obtained by running the given
-  function/MFA tuple.
+  Edits an interaction with a follow up response.
+  
+  The response is obtained by running the given function/MFA tuple, see `c:callback/0`.
 
   ## Return value
 
