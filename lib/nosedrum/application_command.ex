@@ -97,8 +97,11 @@ defmodule Nosedrum.ApplicationCommand do
 
   @typedoc """
   Called by `Nosedrum.Storage.followup/2` after deferring an interaction response.
+
+  The callback should return a response similar to `c:command/1`, excluding the `:type`, `:tts?`, and `:ephemeral?`
+  options.
   """
-  @type callback :: {fun(), args :: list()} | {module(), fn_name :: atom(), args :: list()}
+  @type callback :: {fun(), args :: list()} | mfa()
 
   @typedoc """
   A value of the `:type` field in a `c:command/1` return value. See
@@ -139,8 +142,6 @@ defmodule Nosedrum.ApplicationCommand do
   If you are deferring an interaction response with `:deferred_channel_message_with_source` or
   `:deferred_update_message`, you should also supply a callback under `:type` in the form of
   `{:deferred_*, callback_tuple}` (See the Deferred Response Example below for more details on `callback_tuple`).
-  The callback should return a response similar to `c:command/1`, excluding the `:type`, `:tts?`, and `:ephemeral?`
-  options.
 
   ## Example
 
