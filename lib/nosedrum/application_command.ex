@@ -101,8 +101,8 @@ defmodule Nosedrum.ApplicationCommand do
   The callback should return a response similar to `c:command/1`, excluding the `:type`, `:tts?`, and `:ephemeral?`
   options.
   """
-  @type callback :: {(... -> response()), args :: list()} | mfa()
-
+  @type callback ::
+          {(... -> response()), args :: list()} | {module(), fn_name :: atom(), args :: list()}
   @typedoc """
   A value of the `:type` field in a `c:command/1` return value. See
   `t:response/0` for more details.
