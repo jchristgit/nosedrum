@@ -95,10 +95,24 @@ defmodule Nosedrum.ApplicationCommand do
 
   alias Nostrum.Struct.{Embed, Interaction}
 
+  @typedoc """
+  Called by `Nosedrum.Storage.followup/2` after deferring an interaction response.
+
+  The callback should return a response similar to `c:command/1`, excluding the `:type`, `:tts?`, and `:ephemeral?`
+  options.
+  """
+  @type callback ::
+          {(... -> response()), args :: list()} | {module(), fn_name :: atom(), args :: list()}
+  @typedoc """
+  A value of the `:type` field in a `c:command/1` return value. See
+  `t:response/0` for more details.
+  """
   @type response_type ::
           :channel_message_with_source
           | :deferred_channel_message_with_source
           | :deferred_update_message
+          | {:deferred_channel_message_with_source, callback()}
+          | {:deferred_update_message, callback()}
           | :pong
           | :update_message
 
@@ -125,7 +139,12 @@ defmodule Nosedrum.ApplicationCommand do
   If `:type` is not specified, it will default to `:channel_message_with_source`, though one of
   either `:embeds` or `:content` must be present.
 
+  If you are deferring an interaction response with `:deferred_channel_message_with_source` or
+  `:deferred_update_message`, you should also supply a callback under `:type` in the form of
+  `{:deferred_*, callback_tuple}` (See the Deferred Response Example below for more details on `callback_tuple`).
+
   ## Example
+
   ```elixir
   def command(interaction) do
     # Since `:content` is included, Nosedrum will infer `type: :channel_message_with_source`
@@ -133,6 +152,28 @@ defmodule Nosedrum.ApplicationCommand do
       content: "Hello, world!",
       ephemeral?: true,
       allowed_mentions: ["users", "roles"]
+    ]
+  end
+  ```
+
+  ## Deferred Response Example
+
+  In order to avoid a potential race condition when deferring, you should supply a callback function for Nosedrum
+  to call only after the initial response succeeds. The callback should take the form of `{anonymous_fn, args}`, or an
+  MFA (Module, Function, Args) tuple, like `{MyCommand, :followup_fn, [interaction, extra_arg]}`
+
+  ```elixir
+  @impl Nosedrum.ApplicationCommand
+  def command(interaction) do
+    [
+      type: {:deferred_channel_message_with_source, {&expensive_calculation/1, [interaction]}}
+    ]
+  end
+
+  defp expensive_calculation(interaction) do
+    # ... do expensive things
+    [
+      content: "Hello, I've been edited in after the original interaction response"
     ]
   end
   ```
