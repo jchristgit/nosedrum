@@ -4,7 +4,7 @@ defmodule Nosedrum.MixProject do
   def project do
     [
       app: :nosedrum,
-      version: "0.6.0-rc1",
+      version: "0.6.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       source_url: "https://github.com/jchristgit/nosedrum",
