@@ -170,11 +170,17 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
-    %{
+    payload = %{
       type: parse_type(command.type()),
       name: name
     }
     |> put_type_specific_fields(command, options)
+
+    if function_exported?(command, :default_member_permissions, 0) do
+      Map.put(payload, :default_member_permissions, command.default_member_permissions())
+    else
+      payload
+    end
   end
 
   # This seems like a hacky way to unwrap the outer list...
