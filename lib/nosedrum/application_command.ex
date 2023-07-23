@@ -296,7 +296,7 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @type application_command :: %{
     optional(:description_localizations) => map(),
-    optional(:default_member_permissions) => non_neg_integer(),
+    optional(:default_member_permissions) => non_neg_integer() | [Nostrum.Permission.t],
     optional(:dm_permission) => boolean(), # only for globally-scoped commands
     optional(:default_permission) => boolean(), #Not recommended for use as field will soon be deprecated.
     optional(:nsfw) => boolean()

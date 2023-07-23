@@ -173,6 +173,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     command_schema_options =
       if function_exported?(command, :command_schema_options, 0) do
         command.command_schema_options()
+        |> handle_default_member_permissions()
       else
         %{}
       end
@@ -184,6 +185,15 @@ defmodule Nosedrum.Storage.Dispatcher do
     |> put_type_specific_fields(command, options)
     |> Map.merge(command_schema_options)
   end
+
+  defp handle_default_member_permissions(%{default_member_permissions: default_member_permissions} = data)
+    when is_list(default_member_permissions), do:
+    %{data | default_member_permissions: Nostrum.Permission.to_bitset(default_member_permissions)}
+
+  defp handle_default_member_permissions(%{default_member_permissions: default_member_permissions} = data)
+    when is_integer(default_member_permissions), do: data
+
+  defp handle_default_member_permissions(data), do: data
 
   # This seems like a hacky way to unwrap the outer list...
   defp build_payload(path, command) do
