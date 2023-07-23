@@ -289,5 +289,36 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @callback command(interaction :: Interaction.t()) :: response
 
+
+  @typedoc """
+  Application command optional properties.
+  See [official Discord documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object)
+  """
+  @type application_command :: %{
+    optional(:description_localizations) => map(),
+    optional(:default_member_permissions) => non_neg_integer() | [Nostrum.Permission.t],
+    optional(:dm_permission) => boolean(), # only for globally-scoped commands
+    optional(:default_permission) => boolean(), #Not recommended for use as field will soon be deprecated.
+    optional(:nsfw) => boolean()
+  }
+
+  @doc """
+  An optional callback that returns a map contains optioanl properties of slash application command.
+  Used when registering the command with Discord. Only valid for
+  CHAT_INPUT application commands, aka slash commands.
+
+  Read more in the official
+  [Application Command documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object).
+
+  ## Example
+  ```elixir
+  def command_schema_options(), do:
+    %{
+      default_member_permissions: 8
+    }
+  ```
+  """
+  @callback command_schema_options() :: application_command()
+
   @optional_callbacks [options: 0]
 end
