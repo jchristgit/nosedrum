@@ -170,11 +170,19 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
+    command_schema_options =
+      if function_exported?(command, :command_schema_options, 0) do
+        command.command_schema_options()
+      else
+        %{}
+      end
+
     %{
       type: parse_type(command.type()),
       name: name
     }
     |> put_type_specific_fields(command, options)
+    |> Map.merge(command_schema_options)
   end
 
   # This seems like a hacky way to unwrap the outer list...
