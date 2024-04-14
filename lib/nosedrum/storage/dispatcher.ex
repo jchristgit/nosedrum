@@ -28,6 +28,27 @@ defmodule Nosedrum.Storage.Dispatcher do
     GenServer.start_link(__MODULE__, %{}, name: Keyword.get(opts, :name, __MODULE__))
   end
 
+  def submit_command_registration(guild_id, id \\ __MODULE__), do: GenServer.call(id, {:submit, guild_id})
+
+  @impl true
+  def handle_call({:build, name, command}, _from, commands) do
+    {:reply, :ok, Map.put(commands, name, command)} |> IO.inspect
+  end
+
+  def handle_call({:submit, guild_id}, _from, commands) do
+    command_list = Enum.map(commands, fn {p, c} ->
+      build_payload(p, c)
+    end) |> IO.inspect
+
+    case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
+      {:ok, _} = response ->
+        {:reply, response, commands}
+
+      error ->
+        {:reply, {:error, error}, commands}
+    end
+  end
+
   @impl true
   def handle_interaction(%Interaction{} = interaction, id \\ __MODULE__) do
     with {:ok, module} <- GenServer.call(id, {:fetch, interaction}),
@@ -62,7 +83,9 @@ defmodule Nosedrum.Storage.Dispatcher do
         |> unwrap_key()
       end
 
-    GenServer.call(id, {:add, payload, command_name, command, scope})
+    # GenServer.call(id, {:add, payload, command_name, command, scope})
+    GenServer.call(id, {:build, command_name, command})
+    :ok
   end
 
   @impl true
@@ -106,13 +129,25 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_call({:add, payload, name, command, guild_id}, _from, commands) do
-    case Nostrum.Api.create_guild_application_command(guild_id, payload) do
+    command_list = [payload] ++ Enum.map(commands, fn {p, c} ->
+      build_payload(p, c)
+    end) |> IO.inspect
+
+    case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
       {:ok, _} = response ->
         {:reply, response, Map.put(commands, name, command)}
 
       error ->
         {:reply, {:error, error}, commands}
     end
+
+    # case Nostrum.Api.create_guild_application_command(guild_id, payload) do
+    #   {:ok, _} = response ->
+    #     {:reply, response, Map.put(commands, name, command)}
+
+    #   error ->
+    #     {:reply, {:error, error}, commands}
+    # end
   end
 
   @impl true
