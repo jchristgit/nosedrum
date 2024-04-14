@@ -32,13 +32,13 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_call({:build, name, command}, _from, commands) do
-    {:reply, :ok, Map.put(commands, name, command)} |> IO.inspect
+    {:reply, :ok, Map.put(commands, name, command)}
   end
 
   def handle_call({:submit, guild_id}, _from, commands) do
     command_list = Enum.map(commands, fn {p, c} ->
       build_payload(p, c)
-    end) |> IO.inspect
+    end)
 
     case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
       {:ok, _} = response ->
