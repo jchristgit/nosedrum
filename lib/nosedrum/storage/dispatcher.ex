@@ -53,12 +53,12 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   @impl true
-  def update_discord(scope, id \\ __MODULE__) do
+  def process_queued_commands(scope, id \\ __MODULE__) do
     GenServer.call(id, {:submit, scope})
   end
 
   @impl true
-  def add_command(path, command, id \\ __MODULE__) do
+  def queue_command(path, command, id \\ __MODULE__) do
     command_name =
       if is_binary(path) do
         path
@@ -70,6 +70,23 @@ defmodule Nosedrum.Storage.Dispatcher do
       end
 
     GenServer.call(id, {:add, command_name, command})
+  end
+
+  @impl true
+  def add_command(path, command, scope, id \\ __MODULE__) do
+    payload = build_payload(path, command)
+
+    command_name =
+      if is_binary(path) do
+        path
+      else
+        path
+        |> Enum.take(1)
+        |> List.first()
+        |> unwrap_key()
+      end
+
+    GenServer.call(id, {:add, payload, command_name, command, scope})
   end
 
   @impl true
@@ -114,6 +131,46 @@ defmodule Nosedrum.Storage.Dispatcher do
   @impl true
   def handle_call({:add, name, command}, _from, commands) do
     {:reply, :ok, Map.put(commands, name, command)}
+  end
+
+
+  @impl true
+  def handle_call({:add, payload, name, command, :global}, _from, commands) do
+    case Nostrum.Api.create_global_application_command(payload) do
+      {:ok, _} = response ->
+        {:reply, response, Map.put(commands, name, command)}
+
+      error ->
+        {:reply, {:error, error}, commands}
+    end
+  end
+
+  @impl true
+  def handle_call({:add, payload, name, command, guild_id_list}, _from, commands)
+      when is_list(guild_id_list) do
+    res =
+      Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
+        case Nostrum.Api.create_guild_application_command(guild_id, payload) do
+          {:ok, _} = response ->
+            {errors, [response | responses]}
+
+          error ->
+            {[error | errors], responses}
+        end
+      end)
+
+    {:reply, res, Map.put(commands, name, command)}
+  end
+
+  @impl true
+  def handle_call({:add, payload, name, command, guild_id}, _from, commands) do
+    case Nostrum.Api.create_guild_application_command(guild_id, payload) do
+      {:ok, _} = response ->
+        {:reply, response, Map.put(commands, name, command)}
+
+      error ->
+        {:reply, {:error, error}, commands}
+    end
   end
 
   @impl true
