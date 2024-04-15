@@ -84,6 +84,7 @@ defmodule Nosedrum.Storage do
               | {:error, :unknown_command}
               | Nostrum.Api.error()
 
+
   @doc """
   Add a new command under the given name or application command path.
 
@@ -95,7 +96,6 @@ defmodule Nosedrum.Storage do
   @callback add_command(
               name_or_path :: String.t() | application_command_path,
               command_module :: module,
-              scope :: command_scope,
               name_or_pid
             ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
@@ -114,6 +114,20 @@ defmodule Nosedrum.Storage do
               scope :: command_scope,
               name_or_pid
             ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
+
+
+  @doc """
+  Register all queued commands to discord, making them available for use
+
+  Global commands can take up to 1 hour to be made available. Guild commands are available immediately.
+
+  ## Return value
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
+  """
+  @callback update_discord(
+    scope :: command_scope,
+    name_or_pid
+  ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
   Responds to an Interaction with the given `t:Nosedrum.ApplicationCommand.response/0`.

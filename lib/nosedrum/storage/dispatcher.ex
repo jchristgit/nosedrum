@@ -28,26 +28,9 @@ defmodule Nosedrum.Storage.Dispatcher do
     GenServer.start_link(__MODULE__, %{}, name: Keyword.get(opts, :name, __MODULE__))
   end
 
-  def submit_command_registration(guild_id, id \\ __MODULE__), do: GenServer.call(id, {:submit, guild_id})
-
-  @impl true
-  def handle_call({:build, name, command}, _from, commands) do
-    {:reply, :ok, Map.put(commands, name, command)}
-  end
-
-  def handle_call({:submit, guild_id}, _from, commands) do
-    command_list = Enum.map(commands, fn {p, c} ->
-      build_payload(p, c)
-    end)
-
-    case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
-      {:ok, _} = response ->
-        {:reply, response, commands}
-
-      error ->
-        {:reply, {:error, error}, commands}
-    end
-  end
+  # TODO Modify other existing add/remove/whatever commands to work on a bulk basis
+  # TODO Modify the Storage behaviour to accomodate new functions (eg. submit_command_registration)
+  # TODO Tidy up any leftover code
 
   @impl true
   def handle_interaction(%Interaction{} = interaction, id \\ __MODULE__) do
@@ -70,22 +53,23 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   @impl true
-  def add_command(path, command, scope, id \\ __MODULE__) do
-    payload = build_payload(path, command)
+  def update_discord(scope, id \\ __MODULE__) do
+    GenServer.call(id, {:submit, scope})
+  end
 
+  @impl true
+  def add_command(path, command, id \\ __MODULE__) do
     command_name =
       if is_binary(path) do
         path
-      else
+      else # Doesn't this prevent any lists being passed to :add, thus making the :add guild_id_list overload redundant?
         path
         |> Enum.take(1)
         |> List.first()
         |> unwrap_key()
       end
 
-    # GenServer.call(id, {:add, payload, command_name, command, scope})
-    GenServer.call(id, {:build, command_name, command})
-    :ok
+    GenServer.call(id, {:add, command_name, command})
   end
 
   @impl true
@@ -99,55 +83,37 @@ defmodule Nosedrum.Storage.Dispatcher do
     {:ok, init_arg}
   end
 
-  @impl true
-  def handle_call({:add, payload, name, command, :global}, _from, commands) do
-    case Nostrum.Api.create_global_application_command(payload) do
+  def handle_call({:submit, :global}, _from, commands) do
+    command_list = Enum.map(commands, fn {p, c} ->
+      build_payload(p, c)
+    end)
+
+    case Nostrum.Api.bulk_overwrite_global_application_commands(command_list) do
       {:ok, _} = response ->
-        {:reply, response, Map.put(commands, name, command)}
+        {:reply, response, commands}
 
       error ->
         {:reply, {:error, error}, commands}
     end
   end
 
-  @impl true
-  def handle_call({:add, payload, name, command, guild_id_list}, _from, commands)
-      when is_list(guild_id_list) do
-    res =
-      Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
-        case Nostrum.Api.create_guild_application_command(guild_id, payload) do
-          {:ok, _} = response ->
-            {errors, [response | responses]}
-
-          error ->
-            {[error | errors], responses}
-        end
-      end)
-
-    {:reply, res, Map.put(commands, name, command)}
-  end
-
-  @impl true
-  def handle_call({:add, payload, name, command, guild_id}, _from, commands) do
-    command_list = [payload] ++ Enum.map(commands, fn {p, c} ->
+  def handle_call({:submit, guild_id}, _from, commands) do
+    command_list = Enum.map(commands, fn {p, c} ->
       build_payload(p, c)
-    end) |> IO.inspect
+    end)
 
     case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
       {:ok, _} = response ->
-        {:reply, response, Map.put(commands, name, command)}
+        {:reply, response, commands}
 
       error ->
         {:reply, {:error, error}, commands}
     end
+  end
 
-    # case Nostrum.Api.create_guild_application_command(guild_id, payload) do
-    #   {:ok, _} = response ->
-    #     {:reply, response, Map.put(commands, name, command)}
-
-    #   error ->
-    #     {:reply, {:error, error}, commands}
-    # end
+  @impl true
+  def handle_call({:add, name, command}, _from, commands) do
+    {:reply, :ok, Map.put(commands, name, command)}
   end
 
   @impl true
