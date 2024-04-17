@@ -93,11 +93,26 @@ defmodule Nosedrum.Storage do
   ## Return value
   Returns `:ok` if successful, and `{:error, reason}` otherwise.
   """
-  @callback add_command(
+  @callback queue_command(
               name_or_path :: String.t() | application_command_path,
               command_module :: module,
               name_or_pid
             ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
+
+  @doc """
+  Add a new command under the given name or application command path.
+
+  If the command already exists, it will be overwritten.
+
+  ## Return value
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
+  """
+  @callback add_command(
+    name_or_path :: String.t() | application_command_path,
+    command_module :: module,
+    scope :: command_scope,
+    name_or_pid
+  ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
   Remove the command under the given name or application command path.
@@ -124,7 +139,7 @@ defmodule Nosedrum.Storage do
   ## Return value
   Returns `:ok` if successful, and `{:error, reason}` otherwise.
   """
-  @callback update_discord(
+  @callback process_queued_commands(
     scope :: command_scope,
     name_or_pid
   ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
