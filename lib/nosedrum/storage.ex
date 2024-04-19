@@ -84,7 +84,6 @@ defmodule Nosedrum.Storage do
               | {:error, :unknown_command}
               | Nostrum.Api.error()
 
-
   @doc """
   Add a new command under the given name or application command path.
 
@@ -129,7 +128,6 @@ defmodule Nosedrum.Storage do
               scope :: command_scope,
               name_or_pid
             ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
-
 
   @doc """
   Register all queued commands to discord, making them available for use
