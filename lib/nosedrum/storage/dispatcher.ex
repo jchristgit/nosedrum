@@ -28,10 +28,6 @@ defmodule Nosedrum.Storage.Dispatcher do
     GenServer.start_link(__MODULE__, %{}, name: Keyword.get(opts, :name, __MODULE__))
   end
 
-  # TODO Modify other existing add/remove/whatever commands to work on a bulk basis
-  # TODO Modify the Storage behaviour to accomodate new functions (eg. submit_command_registration)
-  # TODO Tidy up any leftover code
-
   @impl true
   def handle_interaction(%Interaction{} = interaction, id \\ __MODULE__) do
     with {:ok, module} <- GenServer.call(id, {:fetch, interaction}),
@@ -54,7 +50,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def process_queued_commands(scope, id \\ __MODULE__) do
-    GenServer.call(id, {:submit, scope})
+    GenServer.call(id, {:process_queue, scope})
   end
 
   @impl true
@@ -69,7 +65,7 @@ defmodule Nosedrum.Storage.Dispatcher do
         |> unwrap_key()
       end
 
-    GenServer.call(id, {:add, command_name, command})
+    GenServer.call(id, {:queue, command_name, command})
   end
 
   @impl true
@@ -100,7 +96,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     {:ok, init_arg}
   end
 
-  def handle_call({:submit, :global}, _from, commands) do
+  def handle_call({:process_queue, :global}, _from, commands) do
     command_list = Enum.map(commands, fn {p, c} ->
       build_payload(p, c)
     end)
@@ -114,7 +110,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     end
   end
 
-  def handle_call({:submit, guild_id}, _from, commands) do
+  def handle_call({:process_queue, guild_id}, _from, commands) do
     command_list = Enum.map(commands, fn {p, c} ->
       build_payload(p, c)
     end)
@@ -129,10 +125,9 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   @impl true
-  def handle_call({:add, name, command}, _from, commands) do
+  def handle_call({:queue, name, command}, _from, commands) do
     {:reply, :ok, Map.put(commands, name, command)}
   end
-
 
   @impl true
   def handle_call({:add, payload, name, command, :global}, _from, commands) do
