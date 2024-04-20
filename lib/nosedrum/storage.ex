@@ -17,7 +17,9 @@ defmodule Nosedrum.Storage do
     channel_message_with_source: 4,
     deferred_channel_message_with_source: 5,
     deferred_update_message: 6,
-    update_message: 7
+    update_message: 7,
+    modal: 9,
+    premium_required: 10
   }
 
   @flag_map %{
