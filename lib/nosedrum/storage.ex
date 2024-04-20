@@ -20,7 +20,7 @@ defmodule Nosedrum.Storage do
     deferred_channel_message_with_source: 5,
     deferred_update_message: 6,
     update_message: 7,
-    application_command_autocomplete_result: 8
+    application_command_autocomplete_result: 8,
     modal: 9,
     premium_required: 10
   }

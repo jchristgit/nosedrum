@@ -116,6 +116,7 @@ defmodule Nosedrum.ApplicationCommand do
           | {:deferred_update_message, callback()}
           | :pong
           | :update_message
+          | :application_command_autocomplete_result
           | :modal
           | :premium_required
           | integer()
