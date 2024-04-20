@@ -116,6 +116,8 @@ defmodule Nosedrum.ApplicationCommand do
           | {:deferred_update_message, callback()}
           | :pong
           | :update_message
+          | :modal
+          | :premium_required
 
   @typedoc """
   A field in a keyword list interaction response.

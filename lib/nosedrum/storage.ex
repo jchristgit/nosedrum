@@ -21,6 +21,8 @@ defmodule Nosedrum.Storage do
     deferred_update_message: 6,
     update_message: 7,
     application_command_autocomplete_result: 8
+    modal: 9,
+    premium_required: 10
   }
 
   @flag_map %{
