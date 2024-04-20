@@ -135,7 +135,15 @@ defmodule Nosedrum.Storage do
 
     data =
       command_response
-      |> Keyword.take([:content, :embeds, :components, :tts?, :allowed_mentions])
+      |> Keyword.take([
+        :content,
+        :embeds,
+        :components,
+        :tts?,
+        :allowed_mentions,
+        :custom_id,
+        :title
+      ])
       |> Map.new()
       |> put_flags(command_response)
 
