@@ -211,7 +211,11 @@ defmodule Nosedrum.Storage do
     convert_callback_type(type)
   end
 
-  defp convert_callback_type(type) do
+  defp convert_callback_type(type) when is_integer(type) do
+    type
+  end
+
+  defp convert_callback_type(type) when is_atom(type) do
     Map.get(@callback_type_map, type)
   end
 
