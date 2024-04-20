@@ -118,6 +118,8 @@ defmodule Nosedrum.ApplicationCommand do
           | :update_message
           | :modal
           | :premium_required
+          | integer()
+          | {integer(), callback()}
 
   @typedoc """
   A field in a keyword list interaction response.
