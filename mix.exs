@@ -31,7 +31,7 @@ defmodule Nosedrum.MixProject do
     [
       # ???
       source_ref: "master",
-      groups_for_functions: [
+      groups_for_docs: [
         Evaluation: &(&1[:section] == :evaluation),
         Predicates: &(&1[:section] == :predicates)
       ],
