@@ -74,7 +74,6 @@ defmodule Nosedrum.MixProject do
       # {:nostrum, path: "../nostrum"},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:benchee, "~> 1.0", only: :dev, optional: true, runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
     ]
   end
