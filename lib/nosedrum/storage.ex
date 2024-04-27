@@ -107,11 +107,11 @@ defmodule Nosedrum.Storage do
   Returns `:ok` if successful, and `{:error, reason}` otherwise.
   """
   @callback add_command(
-    name_or_path :: String.t() | application_command_path,
-    command_module :: module,
-    scope :: command_scope,
-    name_or_pid
-  ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
+              name_or_path :: String.t() | application_command_path,
+              command_module :: module,
+              scope :: command_scope,
+              name_or_pid
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
   Remove the command under the given name or application command path.
@@ -137,10 +137,10 @@ defmodule Nosedrum.Storage do
   ## Return value
   Returns `:ok` if successful, and `{:error, reason}` otherwise.
   """
-  @callback process_queued_commands(
-    scope :: command_scope,
-    name_or_pid
-  ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
+  @callback process_queue(
+              scope :: command_scope,
+              name_or_pid
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
 
   @doc """
   Responds to an Interaction with the given `t:Nosedrum.ApplicationCommand.response/0`.

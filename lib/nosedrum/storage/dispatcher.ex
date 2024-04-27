@@ -49,7 +49,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   @impl true
-  def process_queued_commands(scope, id \\ __MODULE__) do
+  def process_queue(scope, id \\ __MODULE__) do
     GenServer.call(id, {:process_queue, scope})
   end
 
@@ -58,7 +58,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     command_name =
       if is_binary(path) do
         path
-      else # Doesn't this prevent any lists being passed to :add, thus making the :add guild_id_list overload redundant?
+      else
         path
         |> Enum.take(1)
         |> List.first()
@@ -97,9 +97,10 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   def handle_call({:process_queue, :global}, _from, commands) do
-    command_list = Enum.map(commands, fn {p, c} ->
-      build_payload(p, c)
-    end)
+    command_list =
+      Enum.map(commands, fn {p, c} ->
+        build_payload(p, c)
+      end)
 
     case Nostrum.Api.bulk_overwrite_global_application_commands(command_list) do
       {:ok, _} = response ->
@@ -111,9 +112,10 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   def handle_call({:process_queue, guild_id}, _from, commands) do
-    command_list = Enum.map(commands, fn {p, c} ->
-      build_payload(p, c)
-    end)
+    command_list =
+      Enum.map(commands, fn {p, c} ->
+        build_payload(p, c)
+      end)
 
     case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
       {:ok, _} = response ->
