@@ -85,9 +85,27 @@ defmodule Nosedrum.Storage do
               | Nostrum.Api.error()
 
   @doc """
+  Queues a new command to be registered under the given name or application command path. Queued commands are
+  added to the internal dispatch storage, and will be registered in bulk upon calling process_queue/1
+
+  If any command already exists, it will be overwritten.
+
+  ## Return value
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
+  """
+  @callback queue_command(
+              name_or_path :: String.t() | application_command_path,
+              command_module :: module,
+              name_or_pid
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
+
+  @doc """
   Add a new command under the given name or application command path.
 
   If the command already exists, it will be overwritten.
+
+  When adding many commands, it is recommended to use queue_command, and to call process_queue once all
+  commands are queued for registration.
 
   ## Return value
   Returns `:ok` if successful, and `{:error, reason}` otherwise.
@@ -111,6 +129,19 @@ defmodule Nosedrum.Storage do
   @callback remove_command(
               name_or_path :: String.t() | application_command_path,
               command_id :: Nostrum.Snowflake.t(),
+              scope :: command_scope,
+              name_or_pid
+            ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
+
+  @doc """
+  Register all currently queued commands to discord, making them available for use
+
+  Global commands can take up to 1 hour to be made available. Guild commands are available immediately.
+
+  ## Return value
+  Returns `:ok` if successful, and `{:error, reason}` otherwise.
+  """
+  @callback process_queue(
               scope :: command_scope,
               name_or_pid
             ) :: :ok | {:error, Nostrum.Error.ApiError.t()}
