@@ -2,15 +2,27 @@ defmodule Nosedrum.ComponentHandler.ETS do
   @moduledoc """
   ETS-based implementation of a `Nosedrum.ComponentHandler`.
 
-  When a pid is registered as a handler for components it will be monitored 
-  and automatically removed once the process exists. Registered module handlers 
+  When a pid is registered as a handler for components it will be monitored
+  and automatically removed once the process exits. Registered module handlers
   on the other hand are never cleared. You can access the named ETS-table manually
   to remove any keys if necessary.
 
   ## Options
-  * :name - name used for registering the process under and also the name of the ETS-table. 
-  Must be a atom, because it will be passed to `:ets.new/2` as name.
+  * :name - name used for registering the process under and also the name of the ETS-table.
+  Must be a atom, because it will be passed to `:ets.new/2` as name. Defaults to `Nosedrum.ComponentHandler.ETS`
+  > ### Note {: .info}
+  > When using a different name than the default you must pass it as first argument of
+  > the callbacks.
+  >
+  > ```elixir
+  > # Assuming name was set to MyApp.ComponentHandler
+  > Nosedrum.Storage.ETS.register_components(MyApp.ComponentHandler,
+  >   ["a", "b", "c"], MyApp.ComponentHandlers.ABCHandler)
+  > ```
+
   """
+
+  @doc false
   use GenServer
 
   @behaviour Nosedrum.ComponentHandler
@@ -46,6 +58,7 @@ defmodule Nosedrum.ComponentHandler.ETS do
     end
   end
 
+  @doc false
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
     GenServer.start_link(__MODULE__, opts, name: name)
