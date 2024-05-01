@@ -11,11 +11,11 @@ defmodule Nosedrum.ComponentHandler do
   a message of the form `{:message_component_interaction, t:Nostrum.Struct.Interaction.t()}`.
 
   ## Handle incomming interactions
-  Use the `handle_message_component_interaction/1`-callback to handle 
-  incomming interactions and route them to the correct module/pid. The 
+  Use the `handle_message_component_interaction/1` callback to handle 
+  incomming interactions and route them to the correct module or pid. The 
   recommended place to handle these interactions would be when handling
-  the `:INTERACTION_CREATE`-event in the consumer. The following example
-  uses the `Nosedrum.ComponentHandler.ETS`-implementation
+  the `:INTERACTION_CREATE` event in the consumer. The following example
+  uses the `Nosedrum.ComponentHandler.ETS` implementation:
 
   ```elixir
   def handle_event({:INTERACTION_CREATE, interaction, _}) do
