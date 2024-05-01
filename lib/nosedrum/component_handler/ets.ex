@@ -41,7 +41,7 @@ defmodule Nosedrum.ComponentHandler.ETS do
           Storage.followup(interaction, callback_tuple)
         end
 
-      _ ->
+      [] ->
         {:error, :not_found}
     end
   end
