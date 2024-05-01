@@ -30,8 +30,15 @@ defmodule Nosedrum.ComponentHandler do
 
   @type component_id :: String.t()
   @type component_handler :: module() | pid()
+  @type additional_data :: term()
+  @type message_component_interaction ::
+          {:message_component_interaction, Nostrum.Struct.Interaction.t(), additional_data()}
 
-  @callback register_components(component_id | [component_id], component_handler) :: :ok
+  @callback register_components(
+              component_id | [component_id],
+              component_handler,
+              additional_data()
+            ) :: :ok
   @callback handle_component_interaction(Nostrum.Struct.Interaction.t()) ::
               :ok | {:error, Nostrum.Error.ApiError.t() | :not_found}
 end

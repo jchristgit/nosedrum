@@ -18,8 +18,8 @@ defmodule Nosedrum.ComponentHandler.ETS do
   alias Nosedrum.Storage
 
   @impl Nosedrum.ComponentHandler
-  def register_components(server \\ __MODULE__, component_ids, module) do
-    GenServer.call(server, {:register_components, component_ids, module})
+  def register_components(server \\ __MODULE__, component_ids, module, additional_data) do
+    GenServer.call(server, {:register_components, component_ids, module, additional_data})
   end
 
   @impl Nosedrum.ComponentHandler
@@ -29,13 +29,13 @@ defmodule Nosedrum.ComponentHandler.ETS do
       ) do
     component_id = interaction.data.custom_id
 
-    case :ets.match(server, {component_id, :"$1"}) do
-      [[pid]] when is_pid(pid) ->
-        send(pid, {:message_component_interaction, interaction})
+    case :ets.match(server, {component_id, :"$1", :"$2"}) do
+      [[pid, additional_data]] when is_pid(pid) ->
+        send(pid, {:message_component_interaction, interaction, additional_data})
         :ok
 
-      [[module]] when is_atom(module) ->
-        with response <- module.message_component_interaction(interaction),
+      [[module, additional_data]] when is_atom(module) ->
+        with response <- module.message_component_interaction(interaction, additional_data),
              {:ok} <- Storage.respond(interaction, response),
              {_defer_type, callback_tuple} <- Keyword.get(response, :type) do
           Storage.followup(interaction, callback_tuple)
@@ -59,7 +59,11 @@ defmodule Nosedrum.ComponentHandler.ETS do
   end
 
   @impl GenServer
-  def handle_call({:register_components, component_ids, component_handler}, _from, table) do
+  def handle_call(
+        {:register_components, component_ids, component_handler, additional_data},
+        _from,
+        table
+      ) do
     if is_pid(component_handler) do
       # Get notified then a stateful component handler exists
       Process.monitor(component_handler)
@@ -68,7 +72,7 @@ defmodule Nosedrum.ComponentHandler.ETS do
     entries =
       component_ids
       |> List.wrap()
-      |> Enum.map(&{&1, component_handler})
+      |> Enum.map(&{&1, component_handler, additional_data})
 
     :ets.insert(table, entries)
     {:reply, :ok, table}
