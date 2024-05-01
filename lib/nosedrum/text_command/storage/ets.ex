@@ -52,10 +52,10 @@ defmodule Nosedrum.TextCommand.Storage.ETS do
     end
   end
 
-  @spec is_empty_cog?({String.t() | :default, map() | module()}) :: boolean()
-  defp is_empty_cog?({_key, module}) when is_atom(module), do: false
-  defp is_empty_cog?({_key, %{}}), do: true
-  defp is_empty_cog?({_key, cog}), do: Enum.all?(cog, &is_empty_cog?/1)
+  @spec empty_cog?({String.t() | :default, map() | module()}) :: boolean()
+  defp empty_cog?({_key, module}) when is_atom(module), do: false
+  defp empty_cog?({_key, %{}}), do: true
+  defp empty_cog?({_key, cog}), do: Enum.all?(cog, &empty_cog?/1)
 
   @impl true
   def remove_command(path, table_ref \\ @default_table)
@@ -91,7 +91,7 @@ defmodule Nosedrum.TextCommand.Storage.ETS do
             updated_cog
           end
 
-        case Enum.reject(updated_cog, &is_empty_cog?/1) do
+        case Enum.reject(updated_cog, &empty_cog?/1) do
           [] ->
             :ets.delete(table_ref, name)
             :ok
