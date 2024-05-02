@@ -41,6 +41,10 @@ defmodule Nosedrum.MixProject do
           Nosedrum.Storage,
           Nosedrum.Storage.Dispatcher
         ],
+        "Component Handler": [
+          Nosedrum.ComponentHandler,
+          Nosedrum.ComponentInteraction
+        ],
         Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.TextCommand.Predicates],
         Behaviours: [
           Nosedrum.TextCommand,
@@ -52,7 +56,8 @@ defmodule Nosedrum.MixProject do
           Nosedrum.TextCommand.Invoker.Split,
           Nosedrum.MessageCache.Agent,
           Nosedrum.MessageCache.ETS,
-          Nosedrum.TextCommand.Storage.ETS
+          Nosedrum.TextCommand.Storage.ETS,
+          Nosedrum.ComponentHandler.ETS
         ]
       ]
     ]
