@@ -49,6 +49,26 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   @impl true
+  def process_queue(scope, id \\ __MODULE__) do
+    GenServer.call(id, {:process_queue, scope})
+  end
+
+  @impl true
+  def queue_command(path, command, id \\ __MODULE__) do
+    command_name =
+      if is_binary(path) do
+        path
+      else
+        path
+        |> Enum.take(1)
+        |> List.first()
+        |> unwrap_key()
+      end
+
+    GenServer.call(id, {:queue, command_name, command})
+  end
+
+  @impl true
   def add_command(path, command, scope, id \\ __MODULE__) do
     payload = build_payload(path, command)
 
@@ -74,6 +94,41 @@ defmodule Nosedrum.Storage.Dispatcher do
   @impl true
   def init(init_arg) do
     {:ok, init_arg}
+  end
+
+  def handle_call({:process_queue, :global}, _from, commands) do
+    command_list =
+      Enum.map(commands, fn {p, c} ->
+        build_payload(p, c)
+      end)
+
+    case Nostrum.Api.bulk_overwrite_global_application_commands(command_list) do
+      {:ok, _} = response ->
+        {:reply, response, commands}
+
+      error ->
+        {:reply, {:error, error}, commands}
+    end
+  end
+
+  def handle_call({:process_queue, guild_id}, _from, commands) do
+    command_list =
+      Enum.map(commands, fn {p, c} ->
+        build_payload(p, c)
+      end)
+
+    case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
+      {:ok, _} = response ->
+        {:reply, response, commands}
+
+      error ->
+        {:reply, {:error, error}, commands}
+    end
+  end
+
+  @impl true
+  def handle_call({:queue, name, command}, _from, commands) do
+    {:reply, :ok, Map.put(commands, name, command)}
   end
 
   @impl true

@@ -51,6 +51,7 @@ defmodule Nosedrum.Converters.Role do
         roles,
         error_return,
         fn
+          # credo:disable-for-next-line
           %{name: name} = role -> if String.downcase(name) == downcased_name, do: {:ok, role}
           _other -> nil
         end

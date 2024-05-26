@@ -31,7 +31,7 @@ defmodule Nosedrum.MixProject do
     [
       # ???
       source_ref: "master",
-      groups_for_functions: [
+      groups_for_docs: [
         Evaluation: &(&1[:section] == :evaluation),
         Predicates: &(&1[:section] == :predicates)
       ],
@@ -40,6 +40,10 @@ defmodule Nosedrum.MixProject do
           Nosedrum.ApplicationCommand,
           Nosedrum.Storage,
           Nosedrum.Storage.Dispatcher
+        ],
+        "Component Handler": [
+          Nosedrum.ComponentHandler,
+          Nosedrum.ComponentInteraction
         ],
         Functionality: [Nosedrum.Converters, Nosedrum.Helpers, Nosedrum.TextCommand.Predicates],
         Behaviours: [
@@ -52,7 +56,8 @@ defmodule Nosedrum.MixProject do
           Nosedrum.TextCommand.Invoker.Split,
           Nosedrum.MessageCache.Agent,
           Nosedrum.MessageCache.ETS,
-          Nosedrum.TextCommand.Storage.ETS
+          Nosedrum.TextCommand.Storage.ETS,
+          Nosedrum.ComponentHandler.ETS
         ]
       ]
     ]
@@ -69,12 +74,11 @@ defmodule Nosedrum.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.8.0"},
+      {:nostrum, "~> 0.9.0"},
       # {:nostrum, "Kraigie/nostrum"},
       # {:nostrum, path: "../nostrum"},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:benchee, "~> 1.0", only: :dev, optional: true, runtime: false},
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false}
     ]
   end
