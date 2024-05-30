@@ -278,7 +278,14 @@ defmodule Nosedrum.Storage.Dispatcher do
   defp parse_option_types(options) do
     Enum.map(options, fn
       map when is_map_key(map, :type) ->
-        Map.update!(map, :type, &Map.fetch!(@option_type_map, &1))
+        updated_map = Map.update!(map, :type, &Map.fetch!(@option_type_map, &1))
+
+        if is_map_key(updated_map, :options) do
+          parsed_options = parse_option_types(updated_map[:options])
+          Map.replace!(updated_map, :options, parsed_options)
+        else
+          updated_map
+        end
 
       map ->
         map
