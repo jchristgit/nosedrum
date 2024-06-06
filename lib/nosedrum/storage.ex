@@ -17,7 +17,10 @@ defmodule Nosedrum.Storage do
     channel_message_with_source: 4,
     deferred_channel_message_with_source: 5,
     deferred_update_message: 6,
-    update_message: 7
+    update_message: 7,
+    application_command_autocomplete_result: 8,
+    modal: 9,
+    premium_required: 10
   }
 
   @flag_map %{
@@ -163,7 +166,15 @@ defmodule Nosedrum.Storage do
 
     data =
       command_response
-      |> Keyword.take([:content, :embeds, :components, :tts?, :allowed_mentions])
+      |> Keyword.take([
+        :content,
+        :embeds,
+        :components,
+        :tts?,
+        :allowed_mentions,
+        :custom_id,
+        :title
+      ])
       |> Map.new()
       |> put_flags(command_response)
 
@@ -206,7 +217,11 @@ defmodule Nosedrum.Storage do
     convert_callback_type(type)
   end
 
-  defp convert_callback_type(type) do
+  defp convert_callback_type(type) when is_integer(type) do
+    type
+  end
+
+  defp convert_callback_type(type) when is_atom(type) do
     Map.get(@callback_type_map, type)
   end
 

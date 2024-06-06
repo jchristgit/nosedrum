@@ -106,6 +106,9 @@ defmodule Nosedrum.ApplicationCommand do
   @typedoc """
   A value of the `:type` field in a `c:command/1` return value. See
   `t:response/0` for more details.
+
+  It is also possible to directly use the integer response type directly
+  if necessary. The list of allowed types can be found [here](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-type).
   """
   @type response_type ::
           :channel_message_with_source
@@ -115,6 +118,11 @@ defmodule Nosedrum.ApplicationCommand do
           | {:deferred_update_message, callback()}
           | :pong
           | :update_message
+          | :application_command_autocomplete_result
+          | :modal
+          | :premium_required
+          | integer()
+          | {integer(), callback()}
 
   @typedoc """
   A field in a keyword list interaction response.
