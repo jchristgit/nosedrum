@@ -233,6 +233,7 @@ defmodule Nosedrum.Storage.Dispatcher do
         name: name
       }
       |> put_type_specific_fields(command, options)
+      |> apply_payload_updates(command)
 
     if function_exported?(command, :default_member_permissions, 0) do
       Map.put(payload, :default_member_permissions, command.default_member_permissions())
@@ -299,6 +300,14 @@ defmodule Nosedrum.Storage.Dispatcher do
       map ->
         map
     end)
+  end
+
+  defp apply_payload_updates(payload, command) do
+    if function_exported?(command, :update_command_payload, 1) do
+      command.update_command_payload(payload)
+    else
+      payload
+    end
   end
 
   defp get_depth(path, depth) do
