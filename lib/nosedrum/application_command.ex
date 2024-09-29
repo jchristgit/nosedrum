@@ -304,5 +304,13 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @callback command(interaction :: Interaction.t()) :: response
 
+  @doc """
+  Make adjustments to the payload before creating the command with
+  `Nostrum.Api.create_global_application_command/2` or
+  `Nostrum.Api.create_guild_application_command/3`
+  """
+
+  @callback update_command_payload(map) :: map
+
   @optional_callbacks [options: 0, default_member_permissions: 0]
 end
