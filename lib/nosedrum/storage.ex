@@ -17,7 +17,8 @@ defmodule Nosedrum.Storage do
     channel_message_with_source: 4,
     deferred_channel_message_with_source: 5,
     deferred_update_message: 6,
-    update_message: 7
+    update_message: 7,
+    application_command_autocomplete_result: 8
   }
 
   @flag_map %{
@@ -163,7 +164,7 @@ defmodule Nosedrum.Storage do
 
     data =
       command_response
-      |> Keyword.take([:content, :embeds, :components, :tts?, :allowed_mentions])
+      |> Keyword.take([:content, :embeds, :components, :choices, :tts?, :allowed_mentions])
       |> Map.new()
       |> put_flags(command_response)
 

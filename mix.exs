@@ -66,7 +66,6 @@ defmodule Nosedrum.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [],
       extra_applications: [:nostrum]
     ]
   end
@@ -74,7 +73,7 @@ defmodule Nosedrum.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.9.0"},
+      {:nostrum, "~> 0.10.0"},
       # {:nostrum, "Kraigie/nostrum"},
       # {:nostrum, path: "../nostrum"},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},
