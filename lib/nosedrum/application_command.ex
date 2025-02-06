@@ -110,6 +110,7 @@ defmodule Nosedrum.ApplicationCommand do
   @type response_type ::
           :channel_message_with_source
           | :deferred_channel_message_with_source
+          | :application_command_autocomplete_result
           | :deferred_update_message
           | {:deferred_channel_message_with_source, callback()}
           | {:deferred_update_message, callback()}
@@ -127,6 +128,7 @@ defmodule Nosedrum.ApplicationCommand do
   @type response_field ::
           {:type, response_type}
           | {:content, String.t()}
+          | {:choices, [choice]}
           | {:embeds, [Embed.t()]}
           | {:components, [map()]}
           | {:ephemeral?, boolean()}
@@ -187,6 +189,7 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @type option :: %{
           optional(:required) => true | false,
+          optional(:autocomplete) => true | false,
           optional(:choices) => [choice],
           optional(:options) => [option],
           type:
