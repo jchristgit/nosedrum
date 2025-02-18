@@ -282,7 +282,7 @@ defmodule Nosedrum.ApplicationCommand do
       Nostrum.Permission.to_bitset([:ban_members])
     ```
   """
-  @callback default_member_permissions() :: string
+  @callback default_member_permissions() :: String.t()
 
   @doc """
   Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `t:response/0`
