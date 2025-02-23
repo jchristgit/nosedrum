@@ -73,7 +73,7 @@ defmodule Nosedrum.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:nostrum, "~> 0.10.0"},
+      {:nostrum, "~> 0.10.1"},
       # {:nostrum, "Kraigie/nostrum"},
       # {:nostrum, path: "../nostrum"},
       {:ex_doc, "~> 0.23", only: :dev, runtime: false},

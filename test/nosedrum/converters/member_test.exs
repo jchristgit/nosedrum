@@ -15,6 +15,7 @@ defmodule Nosedrum.Converters.MemberTest do
     user = %{
       id: 34_444,
       username: "Testuser",
+      global_name: "mike",
       discriminator: 1234
     }
 
@@ -50,34 +51,20 @@ defmodule Nosedrum.Converters.MemberTest do
       assert {:error, _reason} = MemberConverter.into("abc", guild.id)
     end
 
-    test "returns `{:error, _reason}` with bad `name#discrim` combo", %{
-      guild: guild,
-      user: user
-    } do
-      text = "#{user.username}#1029381039812"
-      assert {:error, _reason} = MemberConverter.into(text, guild.id)
-    end
-
-    test "returns `{:error, _reason}` with unsuccessful `name#discrim` lookup", %{guild: guild} do
-      text = "Niko Laus#9999"
-      assert {:error, _reason} = MemberConverter.into(text, guild.id)
-    end
-
-    test "returns `{:ok, member}` with successful `name#discrim` lookup", %{
-      guild: guild,
-      member: member,
-      user: user
-    } do
-      text = "#{user.username}##{user.discriminator}"
-      assert {:ok, ^member} = MemberConverter.into(text, guild.id)
-    end
-
-    test "returns `{:ok, member}` with successful by-name lookup", %{
+    test "returns `{:ok, member}` with successful by-username lookup", %{
       guild: guild,
       member: member,
       user: user
     } do
       assert {:ok, ^member} = MemberConverter.into(user.username, guild.id)
+    end
+
+    test "returns `{:ok, member}` with successful by-global name lookup", %{
+      guild: guild,
+      member: member,
+      user: user
+    } do
+      assert {:ok, ^member} = MemberConverter.into(user.global_name, guild.id)
     end
   end
 end

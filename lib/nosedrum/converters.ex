@@ -58,6 +58,7 @@ defmodule Nosedrum.Converters do
   @typedoc since: "0.6.0"
   @type reason ::
           {:not_found, {:by, :id | :name, parsed_query :: String.t() | Snowflake.t(), options}}
+          | {:multiple_matches, :by, :username | :global_name}
           | {:uncached_and_fetch_error, ApiError.t()}
 
   @doc """
