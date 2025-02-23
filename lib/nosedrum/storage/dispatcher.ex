@@ -8,8 +8,8 @@ defmodule Nosedrum.Storage.Dispatcher do
   use GenServer
 
   alias Nosedrum.Storage
-  alias Nostrum.Struct.Interaction
   alias Nostrum.Api.ApplicationCommand
+  alias Nostrum.Struct.Interaction
 
   @option_type_map %{
     sub_command: 1,
@@ -227,11 +227,12 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
-    payload = %{
-      type: parse_type(command.type()),
-      name: name
-    }
-    |> put_type_specific_fields(command, options)
+    payload =
+      %{
+        type: parse_type(command.type()),
+        name: name
+      }
+      |> put_type_specific_fields(command, options)
 
     if function_exported?(command, :default_member_permissions, 0) do
       Map.put(payload, :default_member_permissions, command.default_member_permissions())

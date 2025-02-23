@@ -46,8 +46,8 @@ defmodule Nosedrum.Converters.Member do
         cache_error
 
       :error ->
-        find_by_username(guild_id, text) || find_by_global_name(guild_id, text) || not_found_error(text)
-
+        find_by_username(guild_id, text) || find_by_global_name(guild_id, text) ||
+          not_found_error(text)
     end
   end
 
@@ -77,7 +77,8 @@ defmodule Nosedrum.Converters.Member do
     |> one_or_none(:global_name)
   end
 
-  @spec one_or_none([Member.t()], :global_name | :username) :: nil | {:ok, Member.t()} | {:error, Converters.reason()}
+  @spec one_or_none([Member.t()], :global_name | :username) ::
+          nil | {:ok, Member.t()} | {:error, Converters.reason()}
   defp one_or_none([], _via), do: nil
   defp one_or_none([member], _via), do: {:ok, member}
   defp one_or_none([_member | _members], via), do: {:error, {:multiple_matches, :by, via}}
