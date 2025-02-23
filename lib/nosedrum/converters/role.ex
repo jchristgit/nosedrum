@@ -2,7 +2,7 @@ defmodule Nosedrum.Converters.Role do
   @moduledoc false
 
   alias Nosedrum.Converters
-  alias Nostrum.Api
+  alias Nostrum.Api.Guild
   alias Nostrum.Cache.GuildCache
 
   @doc """
@@ -100,7 +100,7 @@ defmodule Nosedrum.Converters.Role do
         find_role(Map.values(guild.roles), text, ilike)
 
       {:error, _reason} ->
-        case Api.get_guild_roles(guild_id) do
+        case Guild.roles(guild_id) do
           {:ok, roles} ->
             find_role(roles, text, ilike)
 

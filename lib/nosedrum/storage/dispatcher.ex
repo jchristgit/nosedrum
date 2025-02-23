@@ -9,6 +9,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   alias Nosedrum.Storage
   alias Nostrum.Struct.Interaction
+  alias Nostrum.Api.ApplicationCommand
 
   @option_type_map %{
     sub_command: 1,
@@ -103,7 +104,7 @@ defmodule Nosedrum.Storage.Dispatcher do
         build_payload(p, c)
       end)
 
-    case Nostrum.Api.bulk_overwrite_global_application_commands(command_list) do
+    case ApplicationCommand.bulk_overwrite_global_commands(command_list) do
       {:ok, _} = response ->
         {:reply, response, commands}
 
@@ -118,7 +119,7 @@ defmodule Nosedrum.Storage.Dispatcher do
         build_payload(p, c)
       end)
 
-    case Nostrum.Api.bulk_overwrite_guild_application_commands(guild_id, command_list) do
+    case ApplicationCommand.bulk_overwrite_global_commands(guild_id, command_list) do
       {:ok, _} = response ->
         {:reply, response, commands}
 
@@ -134,7 +135,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_call({:add, payload, name, command, :global}, _from, commands) do
-    case Nostrum.Api.create_global_application_command(payload) do
+    case ApplicationCommand.create_global_command(payload) do
       {:ok, _} = response ->
         {:reply, response, Map.put(commands, name, command)}
 
@@ -148,7 +149,7 @@ defmodule Nosedrum.Storage.Dispatcher do
       when is_list(guild_id_list) do
     res =
       Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
-        case Nostrum.Api.create_guild_application_command(guild_id, payload) do
+        case ApplicationCommand.create_guild_command(guild_id, payload) do
           {:ok, _} = response ->
             {errors, [response | responses]}
 
@@ -162,7 +163,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_call({:add, payload, name, command, guild_id}, _from, commands) do
-    case Nostrum.Api.create_guild_application_command(guild_id, payload) do
+    case ApplicationCommand.create_guild_command(guild_id, payload) do
       {:ok, _} = response ->
         {:reply, response, Map.put(commands, name, command)}
 
@@ -173,7 +174,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_call({:remove, name, command_id, :global}, _from, commands) do
-    case Nostrum.Api.delete_global_application_command(command_id) do
+    case ApplicationCommand.delete_global_command(command_id) do
       {:ok} = response ->
         {:reply, response, Map.delete(commands, name)}
 
@@ -187,7 +188,7 @@ defmodule Nosedrum.Storage.Dispatcher do
       when is_list(guild_id_list) do
     res =
       Enum.reduce(guild_id_list, {[], []}, fn guild_id, {errors, responses} ->
-        case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
+        case ApplicationCommand.delete_guild_command(guild_id, command_id) do
           {:ok} ->
             {errors, [:ok | responses]}
 
@@ -201,7 +202,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   @impl true
   def handle_call({:remove, name, command_id, guild_id}, _from, commands) do
-    case Nostrum.Api.delete_guild_application_command(guild_id, command_id) do
+    case ApplicationCommand.delete_guild_command(guild_id, command_id) do
       {:ok} = response ->
         {:reply, response, Map.delete(commands, name)}
 

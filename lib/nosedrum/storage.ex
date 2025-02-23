@@ -10,6 +10,8 @@ defmodule Nosedrum.Storage do
   or `c:remove_command/4` is called.
   """
   @moduledoc since: "0.4.0"
+
+  alias Nostrum.Api
   alias Nostrum.Struct.{Guild, Interaction}
 
   @callback_type_map %{
@@ -200,7 +202,7 @@ defmodule Nosedrum.Storage do
       |> Keyword.take([:content, :embeds, :components, :allowed_mentions])
       |> Map.new()
 
-    Nostrum.Api.edit_interaction_response(interaction, data)
+    Api.Interaction.edit_response(interaction, data)
   end
 
   defp convert_callback_type({type, _fn}) do

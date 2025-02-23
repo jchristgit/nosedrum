@@ -2,7 +2,7 @@ defmodule Nosedrum.Converters.Channel do
   @moduledoc false
 
   alias Nosedrum.Converters
-  alias Nostrum.Api
+  alias Nostrum.Api.Guild
   alias Nostrum.Cache.GuildCache
   alias Nostrum.Struct.Channel
 
@@ -83,7 +83,7 @@ defmodule Nosedrum.Converters.Channel do
         |> okify
 
       {:error, _reason} ->
-        case Api.get_guild_channels(guild_id) do
+        case Guild.channels(guild_id) do
           {:ok, channels} ->
             channels
             |> find_channel(text)
