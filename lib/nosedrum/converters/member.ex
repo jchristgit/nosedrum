@@ -5,6 +5,7 @@ defmodule Nosedrum.Converters.Member do
   alias Nosedrum.Helpers
   alias Nostrum.Cache.MemberCache
   alias Nostrum.Snowflake
+  alias Nostrum.Struct.Guild
   alias Nostrum.Struct.Guild.Member
 
   @doc """
@@ -85,6 +86,6 @@ defmodule Nosedrum.Converters.Member do
 
   @spec not_found_error(String.t()) :: {:error, Converters.reason()}
   defp not_found_error(text) do
-    {:error, {:not_found, {:by, :name, Helpers.escape_server_mentions(text)}}}
+    {:error, {:not_found, {:by, :name, Helpers.escape_server_mentions(text), []}}}
   end
 end
