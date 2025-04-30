@@ -3,7 +3,7 @@ name: Test & Lint
 on: [push, pull_request]
 jobs:
   test_and_lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         elixir-version: ['1.15', '1.16', '1.17', '1.18']
