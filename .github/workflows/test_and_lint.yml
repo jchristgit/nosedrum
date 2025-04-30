@@ -14,12 +14,12 @@ jobs:
           - elixir-version: '1.16'
             otp-version: '27'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp-version }}
           elixir-version: ${{ matrix.elixir-version }}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: _build
           # Generate a hash of the OTP version and Elixir version
@@ -35,14 +35,14 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: erlef/setup-beam@v1
         with:
           otp-version: 27
           elixir-version: 1.17
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         env:
           base-key: 25-1.14
         with:
