@@ -25,5 +25,9 @@ nosedrum-*.tar
 # Visual Studio Code project files
 .vscode/
 
+# JetBrains files
+.idea
+*.iml
+
 # macOS iCloud sync toggle to prevent filesystem bugs
 /.nosync

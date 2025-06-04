@@ -119,7 +119,7 @@ defmodule Nosedrum.Storage.Dispatcher do
         build_payload(p, c)
       end)
 
-    case ApplicationCommand.bulk_overwrite_global_commands(guild_id, command_list) do
+    case ApplicationCommand.bulk_overwrite_guild_commands(guild_id, command_list) do
       {:ok, _} = response ->
         {:reply, response, commands}
 
