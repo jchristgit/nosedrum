@@ -4,6 +4,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
 
 
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -14,24 +15,34 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
-  @option_type_mapping %{
-    sub_command: 1,
-    sub_command_group: 2,
-    string: 3,
-    integer: 4,
-    boolean: 5,
-    user: 6,
-    channel: 7,
-    role: 8,
-    mentionable: 9,
-    number: 10,
-    attachment: 11
-  }
-
-  @context_type_mapping %{
-    guild: 0,
-    bot_dm: 1,
-    private_channel: 1
+  @type_mappings %{
+    options: %{
+      sub_command: 1,
+      sub_command_group: 2,
+      string: 3,
+      integer: 4,
+      boolean: 5,
+      user: 6,
+      channel: 7,
+      role: 8,
+      mentionable: 9,
+      number: 10,
+      attachment: 11
+    },
+    contexts: %{
+      guild: 0,
+      bot_dm: 1,
+      private_channel: 2
+    },
+    integration_types: %{
+      guild_install: 0,
+      user_install: 1
+    },
+    commands: %{
+      slash: 1,
+      user: 2,
+      message: 3
+    }
   }
 
   @global_only_fields [
@@ -245,9 +256,12 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
+    contexts = if function_exported?(command, :contexts, 0), do: command.contexts(), else: []
+
     %{
       type: parse_type(command.type()),
-      name: name
+      name: name,
+      contexts: contexts
     }
     |> put_type_specific_fields(command, options)
     |> add_optional_fields(command)
@@ -289,11 +303,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   defp parse_type(type) do
     Map.fetch!(
-      %{
-        slash: 1,
-        user: 2,
-        message: 3
-      },
+      @type_mappings.commands,
       type
     )
   end
@@ -301,7 +311,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   defp parse_option_types(options) do
     Enum.map(options, fn
       map when is_map_key(map, :type) ->
-        updated_map = Map.update!(map, :type, &Map.fetch!(@option_type_mapping, &1))
+        updated_map = Map.update!(map, :type, &Map.fetch!(@type_mappings.options, &1))
 
         if is_map_key(updated_map, :options) do
           parsed_options = parse_option_types(updated_map[:options])
@@ -355,7 +365,6 @@ defmodule Nosedrum.Storage.Dispatcher do
       :global -> Map.drop(payload, @global_only_fields)
       _ -> payload
     end
-
   end
 
   defp add_optional_fields(payload, command) do
@@ -367,5 +376,9 @@ defmodule Nosedrum.Storage.Dispatcher do
           new_payload
         end
     end)
+  end
+
+  defp parse_field(payload, command, :options) do
+    # TODO I'll add something that parses all parsing needing stuff.
   end
 end
