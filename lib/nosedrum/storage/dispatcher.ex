@@ -3,6 +3,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
 
 
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -32,6 +33,10 @@ defmodule Nosedrum.Storage.Dispatcher do
     bot_dm: 1,
     private_channel: 1
   }
+
+  @global_only_fields [
+    :contexts
+  ]
 
   @optional_fields %{
     nsfw: 0,
@@ -114,7 +119,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   def handle_call({:process_queue, :global}, _from, commands) do
     command_list =
       Enum.map(commands, fn {p, c} ->
-        build_payload(p, c)
+        build_payload(p, c, :global)
       end)
 
     case ApplicationCommand.bulk_overwrite_global_commands(command_list) do
@@ -129,7 +134,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   def handle_call({:process_queue, guild_id}, _from, commands) do
     command_list =
       Enum.map(commands, fn {p, c} ->
-        build_payload(p, c)
+        build_payload(p, c, guild_id)
       end)
 
     case ApplicationCommand.bulk_overwrite_guild_commands(guild_id, command_list) do
@@ -229,7 +234,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     {:reply, Map.fetch(commands, name), commands}
   end
 
-  defp build_payload(name, command) when is_binary(name) do
+  defp build_payload(name, command, scope) when is_binary(name) do
     Code.ensure_loaded(command)
 
     options =
@@ -247,6 +252,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     |> put_type_specific_fields(command, options)
     |> add_optional_fields(command)
     |> apply_payload_updates(command)
+    |> handle_global_fields(scope)
   end
 
   # This seems like a hacky way to unwrap the outer list...
@@ -344,13 +350,21 @@ defmodule Nosedrum.Storage.Dispatcher do
     end
   end
 
+  defp handle_global_fields(payload, scope) do
+    case scope do
+      :global -> Map.drop(payload, @global_only_fields)
+      _ -> payload
+    end
+
+  end
+
   defp add_optional_fields(payload, command) do
     Enum.reduce(@optional_fields, payload, fn
-      {callback_name, callback_arity}, working_payload ->
+      {callback_name, callback_arity}, new_payload ->
         if function_exported?(command, callback_name, callback_arity) do
-          Map.put(working_payload, callback_name, apply(command, callback_name, []))
+          Map.put(new_payload, callback_name, apply(command, callback_name, []))
         else
-          working_payload
+          new_payload
         end
     end)
   end
