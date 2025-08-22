@@ -293,6 +293,32 @@ defmodule Nosedrum.ApplicationCommand do
   @callback default_member_permissions() :: String.t()
 
   @doc """
+  An optional callback that returns a boolean, determining whether a command is
+  [age-restricted](https://discord.com/developers/docs/interactions/application-commands#agerestricted-commands).
+
+  Defaults to `false`.
+
+  ## Example
+  ```elixir
+  def nsfw, do: true
+  ```
+  """
+  @callback nsfw() :: boolean()
+
+  @doc """
+  An optional callback that returns a list of interaction context types, which
+  dictate where a command may be used (servers, DMs, or DMs directly with the bot user0).
+
+  Only applies to globally-scoped commands.
+
+  # Example
+  ```elixir
+  def contexts, do: [:guild, :bot_dm, :private_channel]
+  ```
+  """
+  @callback contexts() :: [:guild | :bot_dm | :private_channel]
+
+  @doc """
   Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `t:response/0`
 
   ## Example
@@ -320,5 +346,5 @@ defmodule Nosedrum.ApplicationCommand do
 
   @callback update_command_payload(map) :: map
 
-  @optional_callbacks [options: 0, default_member_permissions: 0, update_command_payload: 1]
+  @optional_callbacks [options: 0, default_member_permissions: 0, nsfw: 0, update_command_payload: 1]
 end
