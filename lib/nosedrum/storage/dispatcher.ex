@@ -5,6 +5,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
 
 
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -256,12 +257,9 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
-    contexts = if function_exported?(command, :contexts, 0), do: command.contexts(), else: []
-
     %{
       type: parse_type(command.type()),
-      name: name,
-      contexts: contexts
+      name: name
     }
     |> put_type_specific_fields(command, options)
     |> add_optional_fields(command)
@@ -371,14 +369,30 @@ defmodule Nosedrum.Storage.Dispatcher do
     Enum.reduce(@optional_fields, payload, fn
       {callback_name, callback_arity}, new_payload ->
         if function_exported?(command, callback_name, callback_arity) do
-          Map.put(new_payload, callback_name, apply(command, callback_name, []))
+          add_field(new_payload, command, callback_name)
         else
           new_payload
         end
     end)
   end
 
-  defp parse_field(payload, command, :options) do
-    # TODO I'll add something that parses all parsing needing stuff.
+  defp add_field(payload, command, :default_member_permissions) do
+    Map.put(
+      payload,
+      :default_member_permissions,
+      command |> apply(:default_member_permissions, []) |> Nostrum.Permission.to_bitset()
+    )
+  end
+
+  defp add_field(payload, command, :contexts) do
+    Map.put(
+      payload,
+      :contexts,
+      command |> apply(:contexts, []) |> Enum.map(&@type_mappings.contexts[&1])
+    )
+  end
+
+  defp add_field(payload, command, name) do
+    Map.put(payload, name, command |> apply(name, []))
   end
 end
