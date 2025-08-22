@@ -1,6 +1,8 @@
 defmodule Nosedrum.Storage.Dispatcher do
   @moduledoc """
   An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
+
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -11,7 +13,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
-  @option_type_map %{
+  @option_type_mapping %{
     sub_command: 1,
     sub_command_group: 2,
     string: 3,
@@ -23,6 +25,17 @@ defmodule Nosedrum.Storage.Dispatcher do
     mentionable: 9,
     number: 10,
     attachment: 11
+  }
+
+  @context_type_mapping %{
+    guild: 0,
+    bot_dm: 1,
+    private_channel: 1
+  }
+
+  @optional_fields %{
+    nsfw: 0,
+    default_member_permissions: 0
   }
 
   ## Api
@@ -227,19 +240,13 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
-    payload =
-      %{
-        type: parse_type(command.type()),
-        name: name
-      }
-      |> put_type_specific_fields(command, options)
-      |> apply_payload_updates(command)
-
-    if function_exported?(command, :default_member_permissions, 0) do
-      Map.put(payload, :default_member_permissions, command.default_member_permissions())
-    else
-      payload
-    end
+    %{
+      type: parse_type(command.type()),
+      name: name
+    }
+    |> put_type_specific_fields(command, options)
+    |> add_optional_fields(command)
+    |> apply_payload_updates(command)
   end
 
   # This seems like a hacky way to unwrap the outer list...
@@ -288,7 +295,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   defp parse_option_types(options) do
     Enum.map(options, fn
       map when is_map_key(map, :type) ->
-        updated_map = Map.update!(map, :type, &Map.fetch!(@option_type_map, &1))
+        updated_map = Map.update!(map, :type, &Map.fetch!(@option_type_mapping, &1))
 
         if is_map_key(updated_map, :options) do
           parsed_options = parse_option_types(updated_map[:options])
@@ -335,5 +342,16 @@ defmodule Nosedrum.Storage.Dispatcher do
     else
       payload
     end
+  end
+
+  defp add_optional_fields(payload, command) do
+    Enum.reduce(@optional_fields, payload, fn
+      {callback_name, callback_arity}, working_payload ->
+        if function_exported?(command, callback_name, callback_arity) do
+          Map.put(working_payload, callback_name, apply(command, callback_name, []))
+        else
+          working_payload
+        end
+    end)
   end
 end
