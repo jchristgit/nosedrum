@@ -282,13 +282,13 @@ defmodule Nosedrum.ApplicationCommand do
   @callback options() :: [option]
 
   @doc """
-    An optional callback that returns a bitset for the required default permissions to run this command.
+    An optional callback that returns a list of atoms for the required default permissions to run this command.
 
-    Example callback that requires that the user has the permission to ban members to be able to see and execute this command
+    ## Example
 
     ```elixir
     def default_member_permissions, do:
-      Nostrum.Permission.to_bitset([:ban_members])
+      [:ban_members, :kick_members, :manage_roles]
     ```
   """
   @callback default_member_permissions() :: [Permission.t()]
