@@ -133,7 +133,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   def handle_call({:process_queue, :global}, _from, commands) do
     command_list =
       Enum.map(commands, fn {p, c} ->
-        build_payload(p, c, :global)
+        build_payload(p, c)
       end)
 
     case ApplicationCommand.bulk_overwrite_global_commands(command_list) do
@@ -148,7 +148,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   def handle_call({:process_queue, guild_id}, _from, commands) do
     command_list =
       Enum.map(commands, fn {p, c} ->
-        build_payload(p, c, guild_id)
+        build_payload(p, c)
       end)
 
     case ApplicationCommand.bulk_overwrite_guild_commands(guild_id, command_list) do
