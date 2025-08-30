@@ -282,14 +282,13 @@ defmodule Nosedrum.ApplicationCommand do
   @callback options() :: [option]
 
   @doc """
-    An optional callback that returns a list of atoms for the required default permissions to run this command.
+  An optional callback that returns a list of atoms for the required default permissions to run this command.
 
-    ## Example
+  ## Example
 
-    ```elixir
-    def default_member_permissions, do:
-      [:ban_members, :kick_members, :manage_roles]
-    ```
+  ```elixir
+  def default_member_permissions, do: [:ban_members, :kick_members, :manage_roles]
+  ```
   """
   @callback default_member_permissions() :: [Permission.t()]
 
@@ -326,6 +325,11 @@ defmodule Nosedrum.ApplicationCommand do
   may be used in.
 
   If not set, this will default to all installation contexts.
+
+  # Example
+  ```elixir
+  def integration_types, do: [:guild_install, :user_install]
+  ```
   """
   @callback integration_types() :: [:guild_install | :user_install]
 
@@ -354,7 +358,6 @@ defmodule Nosedrum.ApplicationCommand do
   `Nostrum.Api.create_global_application_command/2` or
   `Nostrum.Api.create_guild_application_command/3`
   """
-
   @callback update_command_payload(map) :: map
 
   @optional_callbacks [
