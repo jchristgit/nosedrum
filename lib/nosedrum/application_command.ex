@@ -93,8 +93,8 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @moduledoc since: "0.4.0"
 
-  alias Nostrum.Struct.{Embed, Interaction}
   alias Nostrum.Permission
+  alias Nostrum.Struct.{Embed, Interaction}
 
   @typedoc """
   Called by `Nosedrum.Storage.followup/2` after deferring an interaction response.

@@ -8,7 +8,6 @@ defmodule Nosedrum.Storage.Dispatcher do
   use GenServer
 
   alias Nosedrum.Storage
-
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
