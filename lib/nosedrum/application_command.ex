@@ -94,6 +94,7 @@ defmodule Nosedrum.ApplicationCommand do
   @moduledoc since: "0.4.0"
 
   alias Nostrum.Struct.{Embed, Interaction}
+  alias Nostrum.Permission
 
   @typedoc """
   Called by `Nosedrum.Storage.followup/2` after deferring an interaction response.
@@ -290,7 +291,7 @@ defmodule Nosedrum.ApplicationCommand do
       Nostrum.Permission.to_bitset([:ban_members])
     ```
   """
-  @callback default_member_permissions() :: String.t()
+  @callback default_member_permissions() :: [Permission.t()]
 
   @doc """
   An optional callback that returns a boolean, determining whether a command is
