@@ -308,16 +308,26 @@ defmodule Nosedrum.ApplicationCommand do
 
   @doc """
   An optional callback that returns a list of interaction context types, which
-  dictate where a command may be used (servers, DMs, or DMs directly with the bot user0).
+  dictate where a command may be used (servers, DMs directly with the bot user, or all other DMS).
 
   Only applies to globally-scoped commands.
 
+  If not set, this will default to guild and DMs directly with the bot user.
+
   # Example
   ```elixir
-  def contexts, do: [:guild, :bot_dm, :private_channel]
+  def contexts, do: [:guild, :private_channel, :bot_dms]
   ```
   """
-  @callback contexts() :: [:guild | :bot_dm | :private_channel]
+  @callback contexts() :: [:guild | :bot_dms | :private_channel]
+
+  @doc """
+  An optional callback that determines which installation context (user or guild) the command
+  may be used in.
+
+  If not set, this will default to all installation contexts.
+  """
+  @callback integration_types() :: [:guild_install | :user_install]
 
   @doc """
   Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `t:response/0`
@@ -347,5 +357,12 @@ defmodule Nosedrum.ApplicationCommand do
 
   @callback update_command_payload(map) :: map
 
-  @optional_callbacks [options: 0, default_member_permissions: 0, nsfw: 0, update_command_payload: 1]
+  @optional_callbacks [
+    options: 0,
+    default_member_permissions: 0,
+    nsfw: 0,
+    contexts: 0,
+    integration_types: 0,
+    update_command_payload: 1
+  ]
 end

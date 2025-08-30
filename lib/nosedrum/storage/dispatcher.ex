@@ -17,6 +17,8 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
+  require Logger
+
   @type_mappings %{
     options: %{
       sub_command: 1,
@@ -33,7 +35,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     },
     contexts: %{
       guild: 0,
-      bot_dm: 1,
+      bot_dms: 1,
       private_channel: 2
     },
     integration_types: %{
@@ -47,13 +49,11 @@ defmodule Nosedrum.Storage.Dispatcher do
     }
   }
 
-  @global_only_fields [
-    :contexts
-  ]
-
   @optional_fields %{
     nsfw: 0,
-    default_member_permissions: 0
+    default_member_permissions: 0,
+    contexts: 0,
+    integration_types: 0
   }
 
   ## Api
@@ -247,7 +247,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     {:reply, Map.fetch(commands, name), commands}
   end
 
-  defp build_payload(name, command, scope) when is_binary(name) do
+  defp build_payload(name, command) when is_binary(name) do
     Code.ensure_loaded(command)
 
     options =
@@ -265,7 +265,6 @@ defmodule Nosedrum.Storage.Dispatcher do
     |> put_type_specific_fields(command, options)
     |> add_optional_fields(command)
     |> apply_payload_updates(command)
-    |> handle_global_fields(scope)
   end
 
   # This seems like a hacky way to unwrap the outer list...
@@ -359,14 +358,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     end
   end
 
-  defp handle_global_fields(payload, scope) do
-    case scope do
-      :global -> Map.drop(payload, @global_only_fields)
-      _ -> payload
-    end
-  end
-
-  defp add_optional_fields(payload, command) do
+  def add_optional_fields(payload, command) do
     Enum.reduce(@optional_fields, payload, fn
       {callback_name, callback_arity}, acc ->
         if command |> function_exported?(callback_name, callback_arity) do
@@ -393,7 +385,16 @@ defmodule Nosedrum.Storage.Dispatcher do
     )
   end
 
+  defp add_field(payload, command, :integration_types) do
+    Map.put(
+      payload,
+      :integration_types,
+      command |> apply(:integration_types, []) |> Enum.map(&@type_mappings.integration_types[&1])
+    )
+  end
+
   defp add_field(payload, command, name) do
     Map.put(payload, name, command |> apply(name, []))
+
   end
 end
