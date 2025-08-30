@@ -365,7 +365,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     Map.put(
       payload,
       :default_member_permissions,
-      command |> apply(:default_member_permissions, []) |> Nostrum.Permission.to_bitset()
+      command.default_members_permissions() |> Nostrum.Permission.to_bitset()
     )
   end
 
@@ -373,7 +373,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     Map.put(
       payload,
       :contexts,
-      command |> apply(:contexts, []) |> Enum.map(&@type_mappings.contexts[&1])
+      command.contexts() |> Enum.map(&@type_mappings.contexts[&1])
     )
   end
 
@@ -381,9 +381,9 @@ defmodule Nosedrum.Storage.Dispatcher do
     Map.put(
       payload,
       :integration_types,
-      command |> apply(:integration_types, []) |> Enum.map(&@type_mappings.integration_types[&1])
+      command.integration_types() |> Enum.map(&@type_mappings.integration_types[&1])
     )
   end
 
-  defp add_field(payload, command, name), do: Map.put(payload, name, command |> apply(name, []))
+  defp add_field(payload, command, name), do: Map.put(payload, name, apply(command, name, []))
 end
