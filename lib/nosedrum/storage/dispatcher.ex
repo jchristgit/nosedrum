@@ -1,13 +1,6 @@
 defmodule Nosedrum.Storage.Dispatcher do
   @moduledoc """
   An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
-
-
-
-
-
-
-
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
