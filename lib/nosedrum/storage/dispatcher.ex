@@ -7,6 +7,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
 
 
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -358,7 +359,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     end
   end
 
-  def add_optional_fields(payload, command) do
+  defp add_optional_fields(payload, command) do
     Enum.reduce(@optional_fields, payload, fn
       {callback_name, callback_arity}, acc ->
         if command |> function_exported?(callback_name, callback_arity) do
@@ -393,8 +394,5 @@ defmodule Nosedrum.Storage.Dispatcher do
     )
   end
 
-  defp add_field(payload, command, name) do
-    Map.put(payload, name, command |> apply(name, []))
-
-  end
+  defp add_field(payload, command, name), do: Map.put(payload, name, command |> apply(name, []))
 end
