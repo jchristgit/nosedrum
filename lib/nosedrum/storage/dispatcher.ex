@@ -18,8 +18,6 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
-  require Logger
-
   @type_mappings %{
     options: %{
       sub_command: 1,
