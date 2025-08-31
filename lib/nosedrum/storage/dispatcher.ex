@@ -1,6 +1,8 @@
 defmodule Nosedrum.Storage.Dispatcher do
   @moduledoc """
   An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
+
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -352,9 +354,9 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   defp add_optional_fields(payload, command) do
     fun = fn
-      {callback_name, callback_arity}, acc ->
-        if command |> function_exported?(callback_name, callback_arity) do
-          acc |> add_field(command, callback_name)
+      {name, arity}, acc ->
+        if command |> function_exported?(name, arity) do
+          acc |> add_field(command, name)
         else
           acc
         end
