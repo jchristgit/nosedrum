@@ -353,13 +353,12 @@ defmodule Nosedrum.Storage.Dispatcher do
   end
 
   defp add_optional_fields(payload, command) do
-    fun = fn
-      {name, arity}, acc ->
-        if command |> function_exported?(name, arity) do
-          acc |> add_field(command, name)
-        else
-          acc
-        end
+    fun = fn {name, arity}, acc ->
+      if command |> function_exported?(name, arity) do
+        acc |> add_field(command, name)
+      else
+        acc
+      end
     end
 
     Enum.reduce(@optional_fields, payload, fun)
