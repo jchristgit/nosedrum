@@ -48,7 +48,7 @@ defmodule Nosedrum.ComponentHandler.ETS do
 
       [[module, additional_data]] when is_atom(module) ->
         with response <- module.message_component_interaction(interaction, additional_data),
-             {:ok} <- Storage.respond(interaction, response),
+             :ok <- Storage.respond(interaction, response),
              {_defer_type, callback_tuple} <- Keyword.get(response, :type) do
           Storage.followup(interaction, callback_tuple)
         end
