@@ -314,8 +314,8 @@ defmodule Nosedrum.ApplicationCommand do
 
   @doc """
   Make adjustments to the payload before creating the command with
-  `Nostrum.Api.create_global_application_command/2` or
-  `Nostrum.Api.create_guild_application_command/3`
+  `Nostrum.Api.ApplicationCommand.create_global_command/2` or
+  `Nostrum.Api.ApplicationCommand.create_guild_command/3`
   """
 
   @callback update_command_payload(map) :: map
