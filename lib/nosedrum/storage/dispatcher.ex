@@ -13,7 +13,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
-  @type_mappings %{
+  @type_map %{
     options: %{
       sub_command: 1,
       sub_command_group: 2,
@@ -295,7 +295,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   defp parse_type(type) do
     Map.fetch!(
-      @type_mappings.commands,
+      @type_map.commands,
       type
     )
   end
@@ -303,7 +303,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   defp parse_option_types(options) do
     Enum.map(options, fn
       map when is_map_key(map, :type) ->
-        updated_map = Map.update!(map, :type, &Map.fetch!(@type_mappings.options, &1))
+        updated_map = Map.update!(map, :type, &Map.fetch!(@type_map.options, &1))
 
         if is_map_key(updated_map, :options) do
           parsed_options = parse_option_types(updated_map[:options])
@@ -376,7 +376,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     Map.put(
       payload,
       :contexts,
-      command.contexts() |> Enum.map(&@type_mappings.contexts[&1])
+      command.contexts() |> Enum.map(&@type_map.contexts[&1])
     )
   end
 
@@ -384,7 +384,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     Map.put(
       payload,
       :integration_types,
-      command.integration_types() |> Enum.map(&@type_mappings.integration_types[&1])
+      command.integration_types() |> Enum.map(&@type_map.integration_types[&1])
     )
   end
 
