@@ -226,6 +226,21 @@ defmodule Nosedrum.ApplicationCommand do
           value: String.t() | number()
         }
 
+  @typedoc """
+  An interaction context, which dictates where a command may be used (servers, DMs directly with
+  the bot user, or all other DMS).
+
+  See callback `c:contexts/0` for more examples.
+  """
+  @type context :: :guild | :bot_dms | :private_channel
+
+  @typedoc """
+  An installation context for a command (guild or user install).
+
+  See callback `c:integration_types/0` for more examples.
+  """
+  @type installation_context :: :guild_install | :user_install
+
   @doc """
   Returns one of `:slash`, `:message`, or `:user`, indicating what kind of application command this module represents.
   """
@@ -306,8 +321,7 @@ defmodule Nosedrum.ApplicationCommand do
   @callback nsfw() :: boolean()
 
   @doc """
-  An optional callback that returns a list of interaction context types, which
-  dictate where a command may be used (servers, DMs directly with the bot user, or all other DMS).
+  An optional callback that returns a list of interaction contexts.
 
   Only applies to globally-scoped commands.
 
@@ -318,11 +332,10 @@ defmodule Nosedrum.ApplicationCommand do
   def contexts, do: [:guild, :private_channel, :bot_dms]
   ```
   """
-  @callback contexts() :: [:guild | :bot_dms | :private_channel]
+  @callback contexts() :: [context]
 
   @doc """
-  An optional callback that determines which installation context (user or guild) the command
-  may be used in.
+  An optional callback that determines which installation context the command may be used in.
 
   If not set, this will default to all installation contexts.
 
@@ -331,7 +344,7 @@ defmodule Nosedrum.ApplicationCommand do
   def integration_types, do: [:guild_install, :user_install]
   ```
   """
-  @callback integration_types() :: [:guild_install | :user_install]
+  @callback integration_types() :: [installation_context]
 
   @doc """
   Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `t:response/0`

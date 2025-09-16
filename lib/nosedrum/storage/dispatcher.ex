@@ -3,6 +3,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
 
 
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -12,6 +13,8 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nosedrum.Storage
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
+
+  require Logger
 
   @type_mappings %{
     options: %{
@@ -364,11 +367,27 @@ defmodule Nosedrum.Storage.Dispatcher do
     Enum.reduce(@optional_fields, payload, fun)
   end
 
+  defp normalize_permissions(permissions) when is_list(permissions) do
+    Nostrum.Permission.to_bitset(permissions)
+  end
+
+  defp normalize_permissions(permissions) when is_integer(permissions) do
+    Logger.warning("""
+    DEPRECATION: Returning a bitset integer from default_member_permissions is deprecated.
+    Please return a list of Nostrum.Permission.t() atoms instead.
+
+    For compatibility, integer bitsets will still be accepted and translated internally,
+    but this may be removed in a future release.
+    """)
+
+    permissions
+  end
+
   defp add_field(payload, command, :default_member_permissions) do
     Map.put(
       payload,
       :default_member_permissions,
-      command.default_members_permissions() |> Nostrum.Permission.to_bitset()
+      command.default_members_permissions() |> normalize_permissions()
     )
   end
 
