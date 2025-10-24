@@ -80,11 +80,11 @@ defmodule Nosedrum.Storage do
 
   ## Return value
 
-  Returns `{:ok}` on success, or `{:ok, t:Nostrum.Struct.Message.t()}` when deferring and the supplied callback
+  Returns `:ok` on success, or `{:ok, t:Nostrum.Struct.Message.t()}` when deferring and the supplied callback
   completes with a successful edit of the original response. `{:error, reason}` is returned otherwise.
   """
   @callback handle_interaction(interaction :: Interaction.t(), name_or_pid) ::
-              {:ok}
+              :ok
               | {:ok, Nostrum.Struct.Message.t()}
               | {:error, :unknown_command}
               | Nostrum.Api.error()
@@ -156,10 +156,10 @@ defmodule Nosedrum.Storage do
 
   ## Return value
 
-  Returns `{:ok}` if successful, and a `t:Nostrum.Api.error/0` otherwise.
+  Returns `:ok` if successful, and a `t:Nostrum.Api.error/0` otherwise.
   """
   @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
-          {:ok} | Nostrum.Api.error()
+          :ok | Nostrum.Api.error()
   def respond(interaction, command_response) do
     type =
       command_response
@@ -186,7 +186,7 @@ defmodule Nosedrum.Storage do
       data: data
     }
 
-    Nostrum.Api.create_interaction_response(interaction, res)
+    Nostrum.Api.Interaction.create_response(interaction, res)
   end
 
   @doc """

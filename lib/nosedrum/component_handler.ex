@@ -37,7 +37,7 @@ defmodule Nosedrum.ComponentHandler do
   # Handle the interaction create in your consumer module.
   def handle_event({:INTERACTION_CREATE, interaction, _}) do
     case interaction.type do
-      1 -> Nostrum.Api.create_interaction_response(interaction, %{type: 1})
+      1 -> Nostrum.Api.Interaction.create_response(interaction, %{type: 1})
       2 -> Nosedrum.Storage.Dispatcher.handle_interaction(interaction)
       x when x in 3..5 -> Nosedrum.ComponentHandler.ETS.handle_component_interaction(interaction)
     end
