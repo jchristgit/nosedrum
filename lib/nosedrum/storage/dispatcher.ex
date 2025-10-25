@@ -1,6 +1,9 @@
 defmodule Nosedrum.Storage.Dispatcher do
   @moduledoc """
   An implementation of `Nosedrum.Storage`, dispatching Application Command Interactions to the appropriate modules.
+
+
+
   """
   @moduledoc since: "0.4.0"
   @behaviour Nosedrum.Storage
@@ -11,18 +14,43 @@ defmodule Nosedrum.Storage.Dispatcher do
   alias Nostrum.Api.ApplicationCommand
   alias Nostrum.Struct.Interaction
 
-  @option_type_map %{
-    sub_command: 1,
-    sub_command_group: 2,
-    string: 3,
-    integer: 4,
-    boolean: 5,
-    user: 6,
-    channel: 7,
-    role: 8,
-    mentionable: 9,
-    number: 10,
-    attachment: 11
+  require Logger
+
+  @type_map %{
+    options: %{
+      sub_command: 1,
+      sub_command_group: 2,
+      string: 3,
+      integer: 4,
+      boolean: 5,
+      user: 6,
+      channel: 7,
+      role: 8,
+      mentionable: 9,
+      number: 10,
+      attachment: 11
+    },
+    contexts: %{
+      guild: 0,
+      bot_dms: 1,
+      private_channel: 2
+    },
+    integration_types: %{
+      guild_install: 0,
+      user_install: 1
+    },
+    commands: %{
+      slash: 1,
+      user: 2,
+      message: 3
+    }
+  }
+
+  @optional_fields %{
+    nsfw: 0,
+    default_member_permissions: 0,
+    contexts: 0,
+    integration_types: 0
   }
 
   ## Api
@@ -227,19 +255,13 @@ defmodule Nosedrum.Storage.Dispatcher do
         []
       end
 
-    payload =
-      %{
-        type: parse_type(command.type()),
-        name: name
-      }
-      |> put_type_specific_fields(command, options)
-      |> apply_payload_updates(command)
-
-    if function_exported?(command, :default_member_permissions, 0) do
-      Map.put(payload, :default_member_permissions, command.default_member_permissions())
-    else
-      payload
-    end
+    %{
+      type: parse_type(command.type()),
+      name: name
+    }
+    |> put_type_specific_fields(command, options)
+    |> add_optional_fields(command)
+    |> apply_payload_updates(command)
   end
 
   # This seems like a hacky way to unwrap the outer list...
@@ -276,11 +298,7 @@ defmodule Nosedrum.Storage.Dispatcher do
 
   defp parse_type(type) do
     Map.fetch!(
-      %{
-        slash: 1,
-        user: 2,
-        message: 3
-      },
+      @type_map.commands,
       type
     )
   end
@@ -288,7 +306,7 @@ defmodule Nosedrum.Storage.Dispatcher do
   defp parse_option_types(options) do
     Enum.map(options, fn
       map when is_map_key(map, :type) ->
-        updated_map = Map.update!(map, :type, &Map.fetch!(@option_type_map, &1))
+        updated_map = Map.update!(map, :type, &Map.fetch!(@type_map.options, &1))
 
         if is_map_key(updated_map, :options) do
           parsed_options = parse_option_types(updated_map[:options])
@@ -336,4 +354,58 @@ defmodule Nosedrum.Storage.Dispatcher do
       payload
     end
   end
+
+  defp add_optional_fields(payload, command) do
+    fun = fn {name, arity}, acc ->
+      if command |> function_exported?(name, arity) do
+        acc |> add_field(command, name)
+      else
+        acc
+      end
+    end
+
+    Enum.reduce(@optional_fields, payload, fun)
+  end
+
+  defp normalize_permissions(permissions) when is_list(permissions) do
+    Nostrum.Permission.to_bitset(permissions)
+  end
+
+  defp normalize_permissions(permissions) when is_integer(permissions) do
+    Logger.warning("""
+    DEPRECATION: Returning a bitset integer from default_member_permissions is deprecated.
+    Please return a list of Nostrum.Permission.t() atoms instead.
+
+    For compatibility, integer bitsets will still be accepted and translated internally,
+    but this may be removed in a future release.
+    """)
+
+    permissions
+  end
+
+  defp add_field(payload, command, :default_member_permissions) do
+    Map.put(
+      payload,
+      :default_member_permissions,
+      command.default_members_permissions() |> normalize_permissions()
+    )
+  end
+
+  defp add_field(payload, command, :contexts) do
+    Map.put(
+      payload,
+      :contexts,
+      command.contexts() |> Enum.map(&@type_map.contexts[&1])
+    )
+  end
+
+  defp add_field(payload, command, :integration_types) do
+    Map.put(
+      payload,
+      :integration_types,
+      command.integration_types() |> Enum.map(&@type_map.integration_types[&1])
+    )
+  end
+
+  defp add_field(payload, command, name), do: Map.put(payload, name, apply(command, name, []))
 end

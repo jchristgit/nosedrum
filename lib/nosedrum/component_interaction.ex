@@ -10,7 +10,7 @@ defmodule Nosedrum.ComponentInteraction do
   @doc """
   Handle message component interactions.
 
-  Behaves the same way as the `Nosedrum.ApplicationCommand.command/1` callback.
+  Behaves the same way as the `c:Nosedrum.ApplicationCommand.command/1` callback.
   """
   @callback message_component_interaction(
               interaction :: Nostrum.Struct.Interaction.t(),

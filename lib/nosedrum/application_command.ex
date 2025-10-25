@@ -93,6 +93,7 @@ defmodule Nosedrum.ApplicationCommand do
   """
   @moduledoc since: "0.4.0"
 
+  alias Nostrum.Permission
   alias Nostrum.Struct.{Embed, Interaction}
 
   @typedoc """
@@ -225,6 +226,21 @@ defmodule Nosedrum.ApplicationCommand do
           value: String.t() | number()
         }
 
+  @typedoc """
+  An interaction context, which dictates where a command may be used (servers, DMs directly with
+  the bot user, or all other DMS).
+
+  See callback `c:contexts/0` for more examples.
+  """
+  @type context :: :guild | :bot_dms | :private_channel
+
+  @typedoc """
+  An installation context for a command (guild or user install).
+
+  See callback `c:integration_types/0` for more examples.
+  """
+  @type installation_context :: :guild_install | :user_install
+
   @doc """
   Returns one of `:slash`, `:message`, or `:user`, indicating what kind of application command this module represents.
   """
@@ -281,16 +297,54 @@ defmodule Nosedrum.ApplicationCommand do
   @callback options() :: [option]
 
   @doc """
-    An optional callback that returns a bitset for the required default permissions to run this command.
+  An optional callback that returns a list of atoms for the required default permissions to run this command.
 
-    Example callback that requires that the user has the permission to ban members to be able to see and execute this command
+  ## Example
 
-    ```elixir
-    def default_member_permissions, do:
-      Nostrum.Permission.to_bitset([:ban_members])
-    ```
+  ```elixir
+  def default_member_permissions, do: [:ban_members, :kick_members, :manage_roles]
+  ```
   """
-  @callback default_member_permissions() :: String.t()
+  @callback default_member_permissions() :: [Permission.t()]
+
+  @doc """
+  An optional callback that returns a boolean, determining whether a command is
+  [age-restricted](https://discord.com/developers/docs/interactions/application-commands#agerestricted-commands).
+
+  Defaults to `false`.
+
+  ## Example
+  ```elixir
+  def nsfw, do: true
+  ```
+  """
+  @callback nsfw() :: boolean()
+
+  @doc """
+  An optional callback that returns a list of interaction contexts.
+
+  Only applies to globally-scoped commands.
+
+  If not set, this will default to guild and DMs directly with the bot user.
+
+  # Example
+  ```elixir
+  def contexts, do: [:guild, :private_channel, :bot_dms]
+  ```
+  """
+  @callback contexts() :: [context]
+
+  @doc """
+  An optional callback that determines which installation context the command may be used in.
+
+  If not set, this will default to all installation contexts.
+
+  # Example
+  ```elixir
+  def integration_types, do: [:guild_install, :user_install]
+  ```
+  """
+  @callback integration_types() :: [installation_context]
 
   @doc """
   Execute the command invoked by the given `t:Nostrum.Struct.Interaction.t/0`. Returns a `t:response/0`
@@ -317,8 +371,14 @@ defmodule Nosedrum.ApplicationCommand do
   `Nostrum.Api.create_global_application_command/2` or
   `Nostrum.Api.create_guild_application_command/3`
   """
-
   @callback update_command_payload(map) :: map
 
-  @optional_callbacks [options: 0, default_member_permissions: 0, update_command_payload: 1]
+  @optional_callbacks [
+    options: 0,
+    default_member_permissions: 0,
+    nsfw: 0,
+    contexts: 0,
+    integration_types: 0,
+    update_command_payload: 1
+  ]
 end
