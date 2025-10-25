@@ -156,10 +156,10 @@ defmodule Nosedrum.Storage do
 
   ## Return value
 
-  Returns `{:ok}` if successful, and a `t:Nostrum.Api.error/0` otherwise.
+  Returns `:ok` if successful, and a `t:Nostrum.Api.error/0` otherwise.
   """
   @spec respond(Interaction.t(), Nosedrum.ApplicationCommand.response()) ::
-          {:ok} | Nostrum.Api.error()
+          :ok | Nostrum.Api.error()
   def respond(interaction, command_response) do
     type =
       command_response
@@ -186,7 +186,7 @@ defmodule Nosedrum.Storage do
       data: data
     }
 
-    Nostrum.Api.create_interaction_response(interaction, res)
+    Nostrum.Api.Interaction.create_response(interaction, res)
   end
 
   @doc """
