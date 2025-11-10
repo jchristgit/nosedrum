@@ -32,7 +32,7 @@ defmodule Nosedrum.TextCommand.Storage.ETS do
 
   def add_command([name], command, table_ref) do
     if function_exported?(command, :aliases, 0) do
-      Enum.each(command.aliases, &:ets.insert(table_ref, {&1, command}))
+      Enum.each(command.aliases(), &:ets.insert(table_ref, {&1, command}))
     end
 
     :ets.insert(table_ref, {name, command})
