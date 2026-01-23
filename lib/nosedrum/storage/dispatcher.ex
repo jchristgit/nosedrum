@@ -384,7 +384,7 @@ defmodule Nosedrum.Storage.Dispatcher do
     Map.put(
       payload,
       :default_member_permissions,
-      command.default_members_permissions() |> normalize_permissions()
+      command.default_member_permissions() |> normalize_permissions()
     )
   end
 
