@@ -67,8 +67,8 @@ defmodule Nosedrum.Storage.Dispatcher do
         {:error, :unknown_command}
 
       # the response type was not a callback tuple, no need to follow up
-      res_type when is_atom(res_type) or is_integer(res_type) ->
-        {:ok}
+      res_type when is_atom(res_type) or is_integer(res_type) or is_nil(res_type) ->
+        :ok
 
       {:error, reason} ->
         {:error, reason}
